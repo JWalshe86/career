@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 {% load static %}
 
@@ -11,40 +10,86 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container bg-white">
-        <div class="row justify-content-center text-center">
-            <div class="col-md-6 mt-3">
-                <h2 class="logo-font">Events</h2>
-                  <div>{{ display_data }}</div>
+    <div class="overlay" style='background-color: #5cc7f9;'></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col text-center mt-3">
+                <h2 class="logo-font">Job Searches</h2>
                 {% for c in current_categories %}
-                    <a class="category-badge text-decoration-none" href="#">
+                    <a class="category-badge text-decoration-none" href="">
                         <span class="p-2 mt-2 badge badge-white text-black rounded-0 border border-dark">{{ c.friendly_name }}</span>
                     </a>
                 {% endfor %}
                 <hr class="w-50 mb-1">
             </div>
-	</div>{% if search_term %}
-                                <span class="small"><a href="">Events Home</a> | </span>
+        </div>
+        <div class="row">
+            <div class="data-container col-10 offset-1">
+                <div class="row mt-1 mb-2">
+                    <div class="col-12 col-md-6 my-auto order-md-last d-flex justify-content-center justify-content-md-end">
+                        <div class="sort-select-wrapper w-50">
+                            <select id="sort-selector" class="custom-select custom-select-sm rounded-0 border border-{% if current_sorting != 'None_None' %}info{% else %}black{% endif %}">
+                                <option value="reset" {% if current_sorting == 'None_None' %}selected{% endif %}>Sort by...</option>
+                                <option value="price_asc" {% if current_sorting == 'price_asc' %}selected{% endif %}>Price (low to high)</option>
+                                <option value="price_desc" {% if current_sorting == 'price_desc' %}selected{% endif %}>Price (high to low)</option>
+                                <option value="rating_asc" {% if current_sorting == 'rating_asc' %}selected{% endif %}>Rating (low to high)</option>
+                                <option value="rating_desc" {% if current_sorting == 'rating_desc' %}selected{% endif %}>Rating (high to low)</option>
+                                <option value="name_asc" {% if current_sorting == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
+                                <option value="name_desc" {% if current_sorting == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
+                                <option value="category_asc" {% if current_sorting == 'category_asc' %}selected{% endif %}>Category (A-Z)</option>
+                                <option value="category_desc" {% if current_sorting == 'category_desc' %}selected{% endif %}>Category (Z-A)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 order-md-first">
+                        <p class="text-muted mt-3 text-center text-md-left">
+                            {% if search_term or current_categories or current_sorting != 'None_None' %}
+                                <span class="small"><a href="">Products Home</a> | </span>
                             {% endif %}
-                            {{ plants|length }} Events{% if search_term %} found for <strong>"{{ search_term }}"</strong>{% endif %}
+                            {{ datas|length }} Products{% if search_term %} found for <strong>"{{ search_term }}"</strong>{% endif %}
                         </p>
                     </div>
                 </div>
                 <div class="row">
-                    {% for event in events %}
+                    {% for data in display_data %}
                         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
                             <div class="card h-100 border-0">
-                                <div class="card-body pb-0">
-				    <a href=""><p class="lead mb-0 text-left font-weight-bold">{{ event.name }}</p></a>
+                                {% if data.image %}
+                                <a href="">
+                                    <img class="card-img-top img-fluid" src="" alt="{{ data.name }}">
+                                </a>
+                                {% else %}
+                                <a href="">
+                                    <img class="card-img-top img-fluid" src="{{ MEDIA_URL }}noimage.png" alt="{{ data.name }}">
+                                </a>
+                                {% endif %}
+                                <div class="card-body pb-0" style='background-color: #fad3b0'>
+                                    <p class="mb-0">{{ data.name }}</p>
                                 </div>
-                                <div class="card-footer bg-white pt-0 border-0 text-left">
+				<div class="card-footer pt-0 border-0 text-left" style='background-color: #fad3b0;'>
                                     <div class="row">
                                         <div class="col">
-					    <small class="text-muted"><i class="mr-1"></i>{{ event.start_date }}</small>
+                                            <p class="mb-0 text-left font-weight-bold">{{ data.created_at }}</p>
+                                            <p class="mb-0 text-left font-weight-bold">{{ data.organisation }}</p>
+                                            <p class="mb-0 text-left font-weight-bold">{{ data.url }}</p>
+                                            <p class="mb-0 text-left font-weight-bold">{{ data.contact }}</p>
+                                            <p class="mb-0 text-left font-weight-bold">{{ data.role }}</p>
+                                            <p class="mb-0 text-left font-weight-bold">{{ data.text_used }}</p>
+                                            <p class="mb-0 text-left font-weight-bold">{{ data.method }}</p>
+                                            <p class="mb-0 text-left font-weight-bold">{{ data.response }}</p>
+                                            <p class="mb-0 text-left font-weight-bold">{{ data.search_imgs }}</p>
+                                            <p class="mb-0 text-left font-weight-bold">{{ data.docfile }}</p>
+                                            {% if data.category %}
+                                            <p class="small mt-1 mb-0">
+                                                <a class="text-muted" href="">
+                                                    <i class="fas fa-tag mr-1"></i>{{ data.category.friendly_name }}
+                                                </a>
+                                            </p>
+                                            {% endif %}
 					    {% if request.user.is_superuser %}
 					    <small class="ml-3">
-						    <a href="">Edit</a> | 
-						    <a class="text-danger" href="{% url 'delete_event' event.id  %}">Delete</a>
+                                                    <a href="">Edit</a> | 
+                                                    <a class="text-danger" href="">Delete</a>
                                                 </small>
 
 
@@ -79,10 +124,36 @@
             </div>
         </div>
     </div>
-    <div class="btt-button shadow-sm rounded-0 border border-black">
-        <a class="btt-link d-flex h-100">
-            <i class="fas fa-arrow-up text-black mx-auto my-auto"></i>
-        </a>	
-    </div>
 {% endblock %}
 
+{% block postloadjs %}
+    {{ block.super }}
+    <script>
+		$('.btt-link').click(function(e) {
+			window.scrollTo(0,0)
+		})
+	</script>
+    
+    <script>
+        $('#sort-selector').change(function() {
+            var selector = $(this);
+            var currentUrl = new URL(window.location);
+
+            var selectedVal = selector.val();
+            if(selectedVal != "reset"){
+                var sort = selectedVal.split("_")[0];
+                var direction = selectedVal.split("_")[1];
+
+                currentUrl.searchParams.set("sort", sort);
+                currentUrl.searchParams.set("direction", direction);
+
+                window.location.replace(currentUrl);
+            } else {
+                currentUrl.searchParams.delete("sort");
+                currentUrl.searchParams.delete("direction");
+
+                window.location.replace(currentUrl);
+            }
+        })
+    </script>
+{% endblock %}
