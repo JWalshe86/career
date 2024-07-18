@@ -1,6 +1,7 @@
 core.Microsoft*
 core.mongo*
 core.python*
+documents
 env.py
 .venv
 __pycache__/
