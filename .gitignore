@@ -1,6 +1,7 @@
 core.Microsoft*
 core.mongo*
 core.python*
+documents
 env.py
 .venv
 .env
@@ -10,3 +11,4 @@ node_modules/
 .github/
 creds.json
 *migrations
+None
