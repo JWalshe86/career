@@ -28,50 +28,27 @@
                 <div class="row mt-1 mb-2">
                 <div class="row">
                     {% for data in display_data %}
-                        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
+                        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-4">
                             <div class="card h-100 border-0">
-                                {% if data.image %}
-                                <a href="">
-                                    <img class="card-img-top img-fluid" src="" alt="{{ data.name }}">
-                                </a>
-                                {% else %}
-                                <a href="">
-                                    <img class="card-img-top img-fluid" src="{{ MEDIA_URL }}noimage.png" alt="{{ data.name }}">
-                                </a>
-                                {% endif %}
                                 <div class="card-body pb-0" style='background-color: #fad3b0'>
-                                    <p class="mb-0">{{ data.name }}</p>
-                                </div>
 				<div class="card-footer pt-0 border-0 text-left" style='background-color: #fad3b0;'>
                                     <div class="row">
                                         <div class="col">
-                                            <p class="mb-0 text-left font-weight-bold">{{ data.created_at }}</p>
-                                            <p class="mb-0 text-left font-weight-bold">{{ data.organisation }}</p>
-                                            <p class="mb-0 text-left font-weight-bold">{{ data.url }}</p>
-                                            <p class="mb-0 text-left font-weight-bold">{{ data.contact }}</p>
-                                            <p class="mb-0 text-left font-weight-bold">{{ data.role }}</p>
-                                            <p class="mb-0 text-left font-weight-bold">{{ data.text_used }}</p>
-                                            <p class="mb-0 text-left font-weight-bold">{{ data.method }}</p>
-                                            <p class="mb-0 text-left font-weight-bold">{{ data.response }}</p>
-                                            <p class="mb-0 text-left font-weight-bold">{{ data.search_imgs }}</p>
-                                            <p class="mb-0 text-left font-weight-bold">{{ data.docfile }}</p>
-                                            {% if data.category %}
-                                            <p class="small mt-1 mb-0">
-                                                <a class="text-muted" href="">
-                                                    <i class="fas fa-tag mr-1"></i>{{ data.category.friendly_name }}
-                                                </a>
-                                            </p>
-                                            {% endif %}
-					    {% if request.user.is_superuser %}
-					    <small class="ml-3">
-                                                    <a href="">Edit</a> | 
-                                                    <a class="text-danger" href="">Delete</a>
-                                                </small>
-
-
-					    {% endif  %}
+						<ul class='list-unstyled'>
+                                            <li class="mb-0 text-left">Date: {{ data.created_at }}</li>
+                                            <li class="mb-0 text-left">ORG: {{ data.organisation }}</li>
+                                            <li class="mb-0 text-left">URL: {{ data.url }}</li>
+                                            <li class="mb-0 text-left">CONTACT: {{ data.contact }}</li>
+                                            <li class="mb-0 text-left">ROLE: {{ data.role }}</li>
+                                            <li class="mb-0 text-left">TEXT USED: {{ data.text_used }}</li>
+                                            <li class="mb-0 text-left">METHOD: {{ data.method }}</li>
+                                            <li class="mb-0 text-left">RESPONSE: {{ data.response }}</li>
+                                            <li class="mb-0 text-left">{{ data.search_imgs }}</li>
+                                            <li class="mb-0 text-left">{{ data.docfile }}</li>
+						</ul> 
                                         </div>
                                     </div>
+                                </div>
                                 </div>
                             </div>
                         </div>
