@@ -2,14 +2,17 @@ from django.db import models
 
 class Jobsearch(models.Model):
 
-    organistion = models.CharField(max_length=127)
+    organisation = models.CharField(max_length=127)
     url = models.URLField(max_length=300)
     contact = models.CharField(max_length=127, null=True, blank=True, default=None)
-    role = models.CharField(max_length=127, null=True, blank=True, default=None)
+    role = models.CharField(blank=True, default=None, max_length=127, null=True)
     text_used = models.TextField()
     method = models.CharField(max_length=127, null=True, blank=True, default=None)
-    response = models.CharField(max_length=127, null=True, blank=True, default=None)
-    search_imgs = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100)
+    response = models.CharField(blank=True, default=None, max_length=127, null=True)
+    search_imgs = models.ImageField(blank=True, upload_to=None)
+    docfile = models.FileField(blank=True, upload_to='documents/%Y/%m/%d')
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
