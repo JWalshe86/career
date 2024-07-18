@@ -16,6 +16,7 @@ def display_data(request):
 def add_data(request):
     "add data from google sheet"
     if request.method == "POST":
+        print('in add_data')
         form = JobsearchForm(request.POST, request.FILES)
         if form.is_valid():
             data = form.save()

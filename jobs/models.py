@@ -13,6 +13,7 @@ class Jobsearch(models.Model):
     docfile = models.FileField(blank=True, upload_to='documents/%Y/%m/%d')
     created_at = models.DateTimeField(auto_now_add=True)
 
+
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
