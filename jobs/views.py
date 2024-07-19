@@ -1,14 +1,14 @@
 from django.shortcuts import render
-from . import run
+from .models import Jobsearch
 from .forms import JobsearchForm
 
 
 def display_data(request):
     """display job search data"""
-    data = run.data
+    jobs = Jobsearch.objects.all()
     
     context = {
-        "display_data": data,
+        "display_data": jobs,
             } 
     return render(request, "jobs/job_searches.html",context)
 
