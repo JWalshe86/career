@@ -4,8 +4,8 @@ from .models import Jobsearch
 
 class JobsearchAdmin(admin.ModelAdmin):
     list_display = (
-         "first_name",
-         "last_name",
+         "created_at",
+         "organisation",
             )
 
 admin.site.register(Jobsearch)
