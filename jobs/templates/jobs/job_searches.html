@@ -30,11 +30,15 @@
                     {% for data in display_data %}
                         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-4">
                             <div class="card h-100 border-0">
+				 <div class="card-body pb-0">
+					 <a href="{% url 'job_search_detail' data.id %}"><p class="lead mb-0 text-left font-weight-bold">{{ data.organisation }}</p></a>
+				 </div>
                                 <div class="card-body pb-0" style='background-color: #fad3b0'>
 				<div class="card-footer pt-0 border-0 text-left" style='background-color: #fad3b0;'>
                                     <div class="row">
                                         <div class="col">
 						<ul class='list-unstyled'>
+                                            <li class="mb-0 text-left">ID: {{ data.id }}</li>
                                             <li class="mb-0 text-left">Date: {{ data.created_at }}</li>
                                             <li class="mb-0 text-left">ORG: {{ data.organisation }}</li>
                                             <li class="mb-0 text-left">URL: {{ data.url }}</li>
