@@ -13,6 +13,7 @@ class Jobsearch(models.Model):
     
 
     organisation = models.CharField(max_length=127)
+    location = models.CharField(max_length=127)
     url = models.URLField(max_length=300, null=True, blank=True)
     contact = models.CharField(max_length=127, null=True, blank=True, default=None)
     role = models.CharField(blank=True, default=None, max_length=127, null=True)
