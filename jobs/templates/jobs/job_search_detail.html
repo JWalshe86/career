@@ -1,141 +1,72 @@
-{% extends "base.html" %} {% load static %} {% block page_header %}
-<div class="container header-container">
-	<div class="row">
-		<div class="col"></div>
-	</div>
-</div>
-{% endblock %} {% block content %}
-<div class="overlay"></div>
-<div class="container-fluid">
-	<div class="row">
-		<div class="col-12 col-md-6 col-lg-4 offset-lg-2">
-			<div class="image-container my-5">
-				{% if jobdetail.image %}
-				<a href="{{ jobdetail.image.url }}" target="_blank">
-					<img
-						class="card-img-top img-fluid"
-						src="{{ jobdetail.image.url }}"
-						alt="{{ jobdetail.name }}"
-					/>
-				</a>
-				{% else %}
-				<a href="">
-					<img
-						class="card-img-top img-fluid"
-						src="{{ MEDIA_URL }}noimage.png"
-						alt="{{ jobdetail.organisation }}"
-					/>
-				</a>
-				{% endif %}
-			</div>
-		</div>
-		<div class="col-12 col-md-6 col-lg-4">
-			<div class="jobdetail-details-container mb-5 mt-md-5">
-				<p class="mb-0">{{ jobdetail.organisation }}</p>
-				<p class="lead mb-0 text-left font-weight-bold">${{ jobdetail.price }}</p>
-				{% if jobdetail.category %}
-				<p class="small met-1 mb-0">
-					<a
-						class="text-muted"
-					>
-						<i class="fas fa-tag mr-1"></i>{{ jobdetail.category.friendly_name }}
-					</a>
-				</p>
-				{% endif %} {% if jobdetail.rating %}
-				<small class="text-muted"
-					><i class="fas fa-star mr-1"></i>{{ jobdetail.rating }} / 5</small
-				>
-				{% else %}
-				<small class="text-muted">No Rating</small>
-				{% endif %}
-                                {% if request.user.is_superuser %}
-                                                <small class="ml-3">
-                                                    <a href="">Edit</a> | 
-                                                    <a class="text-danger" href="">Delete</a>
-                                                </small>
-                                            {% endif %}
-				<p class="mt-3">{{ jobdetail.description }}</p>
-					<div class="form-row">
-						{% with jobdetail.has_sizes as s %} {% if s %}
-						<div class="col-12">
-							<p><strong>Size:</strong></p>
-							<select
-								class="form-control rounded-0 w-50"
-								name="jobdetail_size"
-								id="id_jobdetail_size"
-							>
-								<option value="xs">XS</option>
-								<option value="s">S</option>
-								<option value="m" selected>M</option>
-								<option value="l">L</option>
-								<option value="xl">XL</option>
-							</select>
-						</div>
-						{% endif %}
-						<div class="col-12">
-							<p class="mt-3"><strong>Quantity:</strong></p>
-							<div class="form-group w-50">
-								<div class="input-group">
-									<div class="input-group-prepend">
-										<button
-											class="decrement-qty btn btn-black rounded-0"
-											data-item_id="{{ jobdetail.id }}"
-											id="decrement-qty_{{ jobdetail.id }}"
-										>
-											<span class="icon">
-												<i class="fas fa-minus"></i>
-											</span>
-										</button>
-									</div>
-									<input
-										class="form-control qty_input"
-										type="number"
-										name="quantity"
-										value="1"
-										min="1"
-										max="99"
-										data-item_id="{{ jobdetail.id }}"
-										id="id_qty_{{ jobdetail.id }}"
-									/>
-									<div class="input-group-append"></div>
-									<button
-										class="increment-qty btn btn-black rounded-0"
-										data-item_id="{{ jobdetail.id }}"
-										id="increment-qty_{{ jobdetail.id }}"
-									>
-										<span class="icon">
-											<i class="fas fa-plus"></i>
-										</span>
-									</button>
-								</div>
-							</div>
-						</div>
+{% extends "base.html" %} {% load static %}
 
-						<div class="col{% if s %}-12 mt-2{% endif %}">
-							<a
-								href=""
-								class="btn btn-outline-black rounded-0 mt-5"
-							>
-								<span class="icon">
-									<i class="fas fa-chevron-left"></i>
-								</span>
-								<span class="text-uppercase">Keep Shopping</span>
-								{{ cart.id }}
-							</a>
-							<input
-								type="submit"
-								class="btn btn-black rounded-0 text-uppercase mt-5"
-								value="Add to Cart"
-							/>
-						</div>
-						<input type="hidden" name="redirect_url" value="{{ request.path }}" />
-						{% endwith %}
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
+
+{% block content %}
+
+<div class="container mt-5">
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Key</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">ID</th>
+      <td>{{ jobdetail.id }}</td>
+    </tr>
+    <tr>
+      <th scope="row">DATE APPLIED</th>
+      <td>{{ jobdetail.created_at }}</td>
+    </tr>
+    <tr>
+      <th scope="row">ORGANISATION</th>
+      <td>{{ jobdetail.organisation }}</td>
+    </tr>
+    <tr>
+      <th scope="row">TYPE</th>
+      <td>{{ jobdetail.type }}</td>
+    </tr>
+    <tr>
+      <th scope="row">LOCATION</th>
+      <td>{{ jobdetail.location }}</td>
+    </tr>
+    <tr>
+      <th scope="row">URL</th>
+      <td>{{ jobdetail.url }}</td>
+    </tr>
+    <tr>
+      <th scope="row">Contact</th>
+      <td>{{ jobdetail.contact }}</td>
+    </tr>
+    <tr>
+      <th scope="row">ROLE</th>
+      <td>{{ jobdetail.role }}</td>
+    </tr>
+    <tr>
+      <th scope="row">TEXT</th>
+      <td>{{ jobdetail.text_used }}</td>
+    </tr>
+    <tr>
+      <th scope="row">METHOD</th>
+      <td>{{ jobdetail.method }}</td>
+    </tr>
+    <tr>
+      <th scope="row">RESPONSE</th>
+      <td>{{ jobdetail.response }}</td>
+    </tr>
+  </tbody>
+</table>
 </div>
+	<div class="row">
+
+		<p>{{ jobdetail.search_imgs }}</p>
+		<p>{{ jobdetail.docfile }}</p>
+
+	</div>
+
 {% endblock %}
+<div class="container mt-5">
 
-
+</div>
