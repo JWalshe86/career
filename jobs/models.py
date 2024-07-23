@@ -6,6 +6,13 @@ METHOD_CHOICES = (
     ('cislack', 'CISLACK'),
     ('lkjobsug', 'LKJOBSUG'),
     ('inform', 'INFORM'),
+    ('irishjobs.ie', 'IRISHJOBS.IE'),
+            )
+
+TYPE_CHOICES = (
+    ('private', 'PRIVATE'),
+    ('public', 'PUBLIC'),
+    ('local', 'LOCAL'),
             )
 
 
@@ -13,6 +20,7 @@ class Jobsearch(models.Model):
     
 
     organisation = models.CharField(max_length=127)
+    type = models.CharField(blank=True, choices=TYPE_CHOICES, default='private', max_length=127, null=True)
     location = models.CharField(max_length=127)
     url = models.URLField(max_length=300, null=True, blank=True)
     contact = models.CharField(max_length=127, null=True, blank=True, default=None)

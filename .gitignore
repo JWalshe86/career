@@ -12,3 +12,4 @@ node_modules/
 creds.json
 *migrations
 None
+static/images/
