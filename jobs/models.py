@@ -28,8 +28,8 @@ class Jobsearch(models.Model):
     text_used = models.TextField()
     method = models.CharField(blank=True, choices=METHOD_CHOICES, default='lkpsearch', max_length=127, null=True)
     response = models.CharField(max_length=127, null=True, blank=True, default=None)
-    search_imgs = models.ImageField(blank=True, upload_to=None)
-    docfile = models.FileField(blank=True, upload_to='documents/%Y/%m/%d')
+    search_imgs = models.ImageField(blank=True, upload_to='static/images/%Y/%m/%d')
+    docfile = models.FileField(blank=True, upload_to='static/documents/%Y/%m/%d')
     created_at = models.DateTimeField(auto_now_add=True)
 
 

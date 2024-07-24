@@ -56,15 +56,19 @@
       <th scope="row">RESPONSE</th>
       <td>{{ jobdetail.response }}</td>
     </tr>
+    <tr>
+      <th scope="row">RESPONSE</th>
+      <td>{{ jobdetail.response }}</td>
+    </tr>
   </tbody>
 </table>
+<div class="container">
+		<embed class"h-100" src="/{{ jobdetail.docfile }}" width="1000vw" height='1000vh' />
+		<img  class="h-100" src="/{{ jobdetail.search_imgs }}" width="500vw" height="500vh" alt="image associated with job search">
+
 </div>
-	<div class="row">
+</div>
 
-		<p>{{ jobdetail.search_imgs }}</p>
-		<p>{{ jobdetail.docfile }}</p>
-
-	</div>
 
 {% endblock %}
 <div class="container mt-5">
