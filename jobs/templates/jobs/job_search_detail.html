@@ -14,57 +14,59 @@
   <tbody>
     <tr>
       <th scope="row">ID</th>
-      <td>{{ jobdetail.id }}</td>
+      <td>{{ jobsearch.id }}</td>
     </tr>
     <tr>
       <th scope="row">DATE APPLIED</th>
-      <td>{{ jobdetail.created_at }}</td>
+      <td>{{ jobsearch.created_at }}</td>
     </tr>
     <tr>
       <th scope="row">ORGANISATION</th>
-      <td>{{ jobdetail.organisation }}</td>
+      <td>{{ jobsearch.organisation }}</td>
     </tr>
     <tr>
       <th scope="row">TYPE</th>
-      <td>{{ jobdetail.type }}</td>
+      <td>{{ jobsearch.type }}</td>
     </tr>
     <tr>
       <th scope="row">LOCATION</th>
-      <td>{{ jobdetail.location }}</td>
+      <td>{{ jobsearch.location }}</td>
     </tr>
     <tr>
       <th scope="row">URL</th>
-      <td>{{ jobdetail.url }}</td>
+      <td>{{ jobsearch.url }}</td>
     </tr>
     <tr>
       <th scope="row">Contact</th>
-      <td>{{ jobdetail.contact }}</td>
+      <td>{{ jobsearch.contact }}</td>
     </tr>
     <tr>
       <th scope="row">ROLE</th>
-      <td>{{ jobdetail.role }}</td>
+      <td>{{ jobsearch.role }}</td>
     </tr>
     <tr>
       <th scope="row">TEXT</th>
-      <td>{{ jobdetail.text_used }}</td>
+      <td>{{ jobsearch.text_used }}</td>
     </tr>
     <tr>
       <th scope="row">METHOD</th>
-      <td>{{ jobdetail.method }}</td>
+      <td>{{ jobsearch.method }}</td>
     </tr>
     <tr>
       <th scope="row">RESPONSE</th>
-      <td>{{ jobdetail.response }}</td>
+      <td>{{ jobsearch.response }}</td>
     </tr>
     <tr>
       <th scope="row">RESPONSE</th>
-      <td>{{ jobdetail.response }}</td>
+      <td>{{ jobsearch.response }}</td>
     </tr>
+    <a class="btn btn-primary" href="{% url 'edit_jobsearch' jobsearch.id  %}">Edit</a>
+     <a class="btn btn-warning"href="#">Delete</a>
   </tbody>
 </table>
 <div class="container">
-		<embed class"h-100" src="/{{ jobdetail.docfile }}" width="1000vw" height='1000vh' />
-		<img  class="h-100" src="/{{ jobdetail.search_imgs }}" width="500vw" height="500vh" alt="image associated with job search">
+		<embed class"h-100" src="/{{ jobsearch.docfile }}" width="1000vw" height='1000vh' />
+		<img  class="h-100" src="/{{ jobsearch.search_imgs }}" width="500vw" height="500vh" alt="image associated with job search">
 
 </div>
 </div>
