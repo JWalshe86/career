@@ -32,6 +32,9 @@ class Jobsearch(models.Model):
     docfile = models.FileField(blank=True, upload_to='static/documents/%Y/%m/%d')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-created_at']
+
 
     def __str__(self):
         return f'{self.organisation} {self.created_at}'
