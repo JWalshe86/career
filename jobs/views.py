@@ -26,10 +26,9 @@ def jobsearch_detail(request, jobsearch_id):
 
 
 
-def add_data(request):
+def add_jobsearch(request):
     "add data from google sheet"
     if request.method == "POST":
-        print('in add_data')
         form = JobsearchForm(request.POST, request.FILES)
         if form.is_valid():
             data = form.save()
@@ -39,7 +38,7 @@ def add_data(request):
     else:
         form = JobsearchForm()
 
-    template = "jobs/add_data.html"
+    template = "jobs/add_jobsearch.html"
 
     context = {
         "form" :form,
