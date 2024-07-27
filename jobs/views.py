@@ -14,15 +14,15 @@ def display_data(request):
     return render(request, "jobs/job_searches.html",context)
 
 
-def jobsearch_detail(request, job_search_id):
+def jobsearch_detail(request, jobsearch_id):
     """A view to show job search details"""
 
-    jobsearch = get_object_or_404(Jobsearch, pk=job_search_id)
+    jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
 
     context = {
         "jobsearch": jobsearch,
     }
-    return render(request, "jobs/job_search_detail.html", context)
+    return render(request, "jobs/jobsearch_detail.html", context)
 
 
 
