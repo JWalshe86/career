@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="overlay" style='background-color: #5cc7f9;'></div>
+    <div class="overlay"></div>
     <div class="container-fluid">
         <div class="row">
             <div class="col text-center mt-3">
@@ -27,14 +27,14 @@
             <div class="data-container col-10 offset-1">
                 <div class="row mt-1 mb-2">
                 <div class="row">
-                    {% for data in display_data %}
+                    {% for data in jobs_searched %}
                         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-4">
                             <div class="card h-100 border-0">
 				 <div class="card-body pb-0">
 					 <a href="{% url 'jobsearch_detail' data.id %}"><p class="lead mb-0 text-left font-weight-bold">{{ data.organisation }}</p></a>
 				 </div>
-                                <div class="card-body pb-0" style='background-color: #fad3b0'>
-				<div class="card-footer pt-0 border-0 text-left" style='background-color: #fad3b0;'>
+                                <div class="card-body pb-0">
+				<div class="card-footer pt-0 border-0 text-left" style='background-color: #fad3b0; color: black;'>
                                     <div class="row">
                                         <div class="col">
 						<ul class='list-unstyled'>
@@ -72,5 +72,8 @@
             </div>
         </div>
     </div>
-{% endblock %}
 
+<!-- <script> -->
+/*	$(".card.h-100.border-0").css( "background-color", "red" );
+<!-- </script> -->
+{% endblock %}

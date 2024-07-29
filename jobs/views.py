@@ -4,12 +4,12 @@ from .models import Jobsearch
 from .forms import JobsearchForm
 
 
-def display_data(request):
-    """display job search data"""
+def jobs_searched(request):
+    """display jobs searched data"""
     jobs = Jobsearch.objects.all()
     
     context = {
-        "display_data": jobs,
+        "jobs_searched": jobs,
             } 
     return render(request, "jobs/job_searches.html",context)
 
@@ -33,7 +33,7 @@ def add_jobsearch(request):
         if form.is_valid():
             data = form.save()
             messages.success(request, "Successfully added job application!")
-            return redirect(reverse("display_data"))
+            return redirect(reverse("jobs_searched"))
 
     else:
         form = JobsearchForm()
@@ -53,7 +53,7 @@ def edit_jobsearch(request, jobsearch_id):
     """Edit a plant in the store"""
     if not request.user.is_superuser:
         messages.error(request, "Sorry, only store owners can do that.")
-        return redirect(reverse("display_data"))
+        return redirect(reverse("jobs_searched"))
     jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
     if request.method == "POST":
         form = JobsearchForm(request.POST, request.FILES, instance=jobsearch)
