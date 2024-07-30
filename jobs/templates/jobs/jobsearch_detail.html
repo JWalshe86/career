@@ -54,7 +54,7 @@
       <td>{{ jobsearch.response }}</td>
     </tr>
     <a class="btn btn-primary" href="{% url 'edit_jobsearch' jobsearch.id  %}">Update</a>
-     <a class="btn btn-warning"href="#">Delete</a>
+    <a class="btn btn-warning"href="{% url 'delete_jobsearch' jobsearch.id %}">Delete</a>
   </tbody>
 </table>
 <div class="container">
