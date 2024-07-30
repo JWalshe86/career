@@ -60,7 +60,7 @@ def edit_jobsearch(request, jobsearch_id):
         if form.is_valid():
             form.save()
             messages.success(request, "Successfully updated jobsearch!")
-            return redirect(reverse("jobsearch_detail", args=[jobsearch.id]))
+            return redirect(reverse("jobs_searched"))
         else:
             messages.error(
                 request,
