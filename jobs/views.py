@@ -77,3 +77,16 @@ def edit_jobsearch(request, jobsearch_id):
     }
 
     return render(request, template, context)
+
+
+def delete_jobsearch(request, jobsearch_id):
+    """Delete a jobsearch"""
+    jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
+    jobsearch.delete()
+    messages.success(request, "Jobsearch deleted!")
+    return redirect(reverse("jobs_searched"))
+
+
+
+
+
