@@ -33,13 +33,9 @@
                         {% endif %}
                     {% endfor %}
                     <div class="text-right">
-                        <a class="btn btn-outline-black rounded-0" href="{% url 'jobs_searched' %}">Cancel</a>
-                        <button class="btn btn-black rounded-0" type="submit">Update Jobsearch</button>
+                        <a class="btn text-white rounded-0" href="{% url 'jobs_searched' %}">Cancel</a>
+                        <button class="btn text-white rounded-0" type="submit">Submit Update</button>
                     </div>
-                    <small class="ml-3">
-                          <a href="{% url 'edit_plant' plant.id %}">Edit</a> | 
-                          <a class="text-danger" href="{% url 'delete_jobsearch' jobsearch.id %}">Delete</a>
-                   </small>
                 </form>
             </div>            
         </div>
