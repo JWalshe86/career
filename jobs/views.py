@@ -9,10 +9,13 @@ def jobs_searched(request):
     """display jobs searched data"""
     jobs = Jobsearch.objects.all().order_by('response').values()
     jobs = jobs.annotate(
-     priority1=Q(response='not_proceeding'),
+     priority1=Q(response='interview'),
+     priority2=Q(response='pending'),
+     priority3=Q(response='Not prog to int'),
+     priority4=Q(response='not_proceeding'),
      )
 
-    jobs = jobs.order_by("priority1") 
+    jobs = jobs.order_by("-priority1", "-priority2", "-priority3", "-priority4") 
     
     context = {
         "jobs_searched": jobs,
