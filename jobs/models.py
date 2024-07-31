@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Case, When, Value
     
 
 METHOD_CHOICES = (
@@ -23,6 +24,8 @@ RESPONSE_CHOICES = (
     ('not_proceeding', 'NOT_PROCEEDING'),
     ('interview', 'INTERVIEW'),
             )
+
+
 class Jobsearch(models.Model):
     
 

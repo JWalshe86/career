@@ -1,12 +1,18 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.db.models import Q
 from .models import Jobsearch
 from .forms import JobsearchForm
 
 
 def jobs_searched(request):
     """display jobs searched data"""
-    jobs = Jobsearch.objects.all()
+    jobs = Jobsearch.objects.all().order_by('response').values()
+    jobs = jobs.annotate(
+     priority1=Q(response='not_proceeding'),
+     )
+
+    jobs = jobs.order_by("priority1") 
     
     context = {
         "jobs_searched": jobs,
