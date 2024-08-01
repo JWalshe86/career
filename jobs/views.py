@@ -9,10 +9,11 @@ def jobs_searched(request):
     """display jobs searched data"""
     jobs = Jobsearch.objects.all().order_by('response').values()
     jobs = jobs.annotate(
-     priority1=Q(response='interview'),
-     priority2=Q(response='pending'),
-     priority3=Q(response='Not prog to int'),
-     priority4=Q(response='not_proceeding'),
+     priority1=Q(response='offer'),
+     priority2=Q(response='interview'),
+     priority3=Q(response='pre_int_screen'),
+     priority4=Q(response='pending'),
+     priority5=Q(response='not_proceeding'),
      )
 
     jobs = jobs.order_by("-priority1", "-priority2", "-priority3", "-priority4") 
@@ -60,9 +61,6 @@ def add_jobsearch(request):
 
 def edit_jobsearch(request, jobsearch_id):
     """Edit a plant in the store"""
-    if not request.user.is_superuser:
-        messages.error(request, "Sorry, only store owners can do that.")
-        return redirect(reverse("jobs_searched"))
     jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
     if request.method == "POST":
         form = JobsearchForm(request.POST, request.FILES, instance=jobsearch)

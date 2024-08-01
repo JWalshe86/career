@@ -22,7 +22,9 @@ RESPONSE_CHOICES = (
     ('pending', 'PENDING'),
     ('pending1mnt', 'PENDING1MNT'),
     ('not_proceeding', 'NOT_PROCEEDING'),
+    ('pre_int_screen', 'PRE_INT_SCREEN'),
     ('interview', 'INTERVIEW'),
+    ('offer', 'OFFER'),
             )
 
 
