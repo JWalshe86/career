@@ -41,6 +41,12 @@ def add_jobsearch(request):
     if request.method == "POST":
         form = JobsearchForm(request.POST, request.FILES)
         if form.is_valid():
+            jobs = Jobsearch.objects.all()
+            x = request.POST
+            for i in jobs:
+                if i.organisation == x['organisation'] and i.role == x['role']:
+                    messages.warning(request, f"You've already applied for this job on {i.created_at}!")
+                    return redirect(reverse('add_jobsearch'))
             data = form.save()
             messages.success(request, "Successfully added job application!")
             return redirect(reverse("jobs_searched"))
