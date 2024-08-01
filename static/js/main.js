@@ -1,6 +1,9 @@
 $(document).ready(function (){
 $("li:contains(not_proceeding)").parents('.card').css('background-color', 'red');    
-$("li:contains(None)").parents('.card').css('background-color', 'yellow');    
+$("li:contains(interview)").parents('.card').css('background-color', 'blue');    
+$("li:contains(pre_int_screen)").parents('.card').css('background-color', '#83d7ad');    
+$("li:contains(pending)").parents('.card').css('background-color', 'yellow');    
+$("li:contains(offer)").parents('.card').css('background-color', 'green');    
 
 
 var $temp = $("<input>");
