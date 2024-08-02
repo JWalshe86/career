@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 {% load static %}
 
 {% block page_header %}
@@ -14,8 +15,8 @@
         <div class="row">
             <div class="col-12 col-md-6">
                 <hr>
-                <h2 class="logo-font mb-4">Event Management</h2>
-                <h5 class="text-muted">Edit an Event</h5>
+                <h2 class="logo-font mb-4">Jobsearch Management</h2>
+                <h5 class="text-muted">Update Jobsearch</h5>
                 <hr>
             </div>
         </div>
@@ -26,14 +27,14 @@
                     {% csrf_token %}
                      {% for field in form %}
                         {% if field.name != 'image' %}
-                            {{ field }}
+                            {{ field | as_crispy_field }}
                         {% else %}
-                            {{ field }}
+                            {{ field | as_crispy_field }}
                         {% endif %}
                     {% endfor %}
                     <div class="text-right">
-                        <a class="btn btn-outline-black rounded-0" href="{% url 'display_data' %}">Cancel</a>
-                        <button class="btn btn-black rounded-0" type="submit">Update Event</button>
+                        <a class="btn text-white rounded-0" href="{% url 'jobs_searched' %}">Cancel</a>
+                        <button class="btn text-white rounded-0" type="submit">Submit Update</button>
                     </div>
                 </form>
             </div>            
@@ -41,12 +42,3 @@
     </div>
 {% endblock %}
 
-{% block postloadjs %}
-    {{ block.super }}
-    <script type="text/javascript">
-        $('#new-image').change(function() {
-            var file = $('#new-image')[0].files[0];
-            $('#filename').text(`Image will be set to: ${file.name}`);
-        });
-    </script>
-{% endblock %}

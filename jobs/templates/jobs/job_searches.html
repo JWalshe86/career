@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="overlay" style='background-color: #5cc7f9;'></div>
+    <div class="overlay"></div>
     <div class="container-fluid">
         <div class="row">
             <div class="col text-center mt-3">
@@ -26,20 +26,21 @@
         <div class="row">
             <div class="data-container col-10 offset-1">
                 <div class="row mt-1 mb-2">
-                <div class="row">
-                    {% for data in display_data %}
-                        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                <div class="row justify-content-center">
+                    {% for data in jobs_searched %}
+                        <div class="col-sm-6 col-md-6 col-lg-2 col-xl-2 m-2">
                             <div class="card h-100 border-0">
 				 <div class="card-body pb-0">
 					 <a href="{% url 'jobsearch_detail' data.id %}"><p class="lead mb-0 text-left font-weight-bold">{{ data.organisation }}</p></a>
 				 </div>
-                                <div class="card-body pb-0" style='background-color: #fad3b0'>
-				<div class="card-footer pt-0 border-0 text-left" style='background-color: #fad3b0;'>
+                                <div class="card-body pb-0">
+				<div class="card-footer pt-0 border-0 text-left" style='background-color: #fad3b0; color: black;'>
                                     <div class="row">
                                         <div class="col">
 						<ul class='list-unstyled'>
                                             <li class="mb-0 text-left">ROLE: {{ data.role }}</li>
                                             <li class="mb-0 text-left">DATE: {{ data.created_at }}</li>
+                                            <li class="mb-0 text-left">RESPONSE: {{ data.response }}</li>
 						</ul> 
                                         </div>
                                     </div>
@@ -47,30 +48,10 @@
                                 </div>
                             </div>
                         </div>
-                        {% if forloop.counter|divisibleby:1 %}
-                            <div class="col-12 d-sm-none mb-5">
-                                <hr>
-                            </div>
-                        {% endif %}                        
-                        {% if forloop.counter|divisibleby:2 %}
-                            <div class="col-12 d-none d-sm-block d-md-block d-lg-none mb-5">
-                                <hr>
-                            </div>
-                        {% endif %}
-                        {% if forloop.counter|divisibleby:3 %}
-                            <div class="col-12 d-none d-lg-block d-xl-none mb-5">
-                                <hr>
-                            </div>
-                        {% endif %}
-                        {% if forloop.counter|divisibleby:4 %}
-                            <div class="col-12 d-none d-xl-block mb-5">
-                                <hr>
-                            </div>
-                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
         </div>
     </div>
-{% endblock %}
 
+{% endblock %}

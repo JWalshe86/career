@@ -8,12 +8,13 @@ def unique_in_order(*sequence):
     unique_list = []
     sequence = sequence[0]
     for x in sequence:
-        unique_list.append(x) if x not in unique_list else unique_list
+        if x.isalpha() or x.isdigit():
+            unique_list.append(x) if x not in unique_list else unique_list
 
     
     return list(unique_list)
 
-unique_list = unique_in_order('[1, 2, 2, 3, 3]')
+unique_list = unique_in_order('(1, 2, 2, 3, 3)')
 
 print('unique_list', unique_list)
 

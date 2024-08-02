@@ -1,10 +1,11 @@
-{% extends "base.html" %} {% load static %}
+{% extends "base.html" %}
+{% load static %}
 
 
 {% block content %}
 
 <div class="container mt-5">
-<table class="table">
+<table class="table text-white">
   <thead>
     <tr>
       <th scope="col">Key</th>
@@ -25,20 +26,12 @@
       <td>{{ jobsearch.organisation }}</td>
     </tr>
     <tr>
-      <th scope="row">TYPE</th>
-      <td>{{ jobsearch.type }}</td>
-    </tr>
-    <tr>
       <th scope="row">LOCATION</th>
       <td>{{ jobsearch.location }}</td>
     </tr>
     <tr>
       <th scope="row">URL</th>
       <td>{{ jobsearch.url }}</td>
-    </tr>
-    <tr>
-      <th scope="row">Contact</th>
-      <td>{{ jobsearch.contact }}</td>
     </tr>
     <tr>
       <th scope="row">ROLE</th>
@@ -60,8 +53,8 @@
       <th scope="row">RESPONSE</th>
       <td>{{ jobsearch.response }}</td>
     </tr>
-    <a class="btn btn-primary" href="{% url 'edit_jobsearch' jobsearch.id  %}">Edit</a>
-     <a class="btn btn-warning"href="#">Delete</a>
+    <a class="btn btn-primary" href="{% url 'edit_jobsearch' jobsearch.id  %}">Update</a>
+    <a class="btn btn-warning"href="{% url 'delete_jobsearch' jobsearch.id %}">Delete</a>
   </tbody>
 </table>
 <div class="container">
@@ -73,6 +66,3 @@
 
 
 {% endblock %}
-<div class="container mt-5">
-
-</div>
