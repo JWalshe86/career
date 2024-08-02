@@ -24,7 +24,6 @@ h1,h2,h3,h4,h5,h6 {
 
 a {
     text-decoration: none;
-    color: var(--color-body);
     transition: all 0.4s ease;
 }
 
@@ -110,6 +109,13 @@ img {
     #content-wrapper {
         padding-left: var(--sidbar-width);
     }
+    
+    .navbar2 {
+        background: linear-gradient(rgba(3, 63, 71, 0.8), rgba(3, 63, 71, 0.8)), url(../images/sidebar-img.jpg);
+        background-size: cover;
+        background-position: center;
+    }
+
 }
 
 /* BTN */
@@ -164,7 +170,7 @@ img {
     transform: scale(1.1);
 }
 
-/* CONTACT */
+/* JOBSEARCH FORM */
 #contact .form-control {
     background-color: var(--color-base);
     border-color: var(--color-base);
@@ -199,3 +205,19 @@ img {
     border-radius: 100px;
     font-size: 24px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
