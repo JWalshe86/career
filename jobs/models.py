@@ -32,6 +32,7 @@ class Jobsearch(models.Model):
     
 
     organisation = models.CharField(max_length=127)
+    tech = models.CharField(max_length=127, null=True, blank=True)
     location = models.CharField(max_length=127)
     url = models.CharField(max_length=100, null=True, blank=True)
     role = models.CharField(blank=True, default=None, max_length=127, null=True)
