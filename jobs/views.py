@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.db.models import Q
+from datetime import date
 from .models import Jobsearch
 from .forms import JobsearchForm
 
@@ -43,10 +44,22 @@ def add_jobsearch(request):
         if form.is_valid():
             jobs = Jobsearch.objects.all()
             x = request.POST
+            today = date.today()
+            count = []
             for i in jobs:
+            
+                # Alerts if already applied for a role
                 if i.organisation == x['organisation'] and i.role == x['role']:
                     messages.warning(request, f"You've already applied for this job on {i.created_at}!")
                     return redirect(reverse('add_jobsearch'))
+
+                # Alerts if you've applied for 10 jobs in a day
+                if i.created_at == today:
+                    count.append(1)
+
+            if len(count) == 10:
+                 messages.warning(request, f"Today: {today} you've applied for {len(count)} jobs!")
+
             data = form.save()
             messages.success(request, "Successfully added job application!")
             return redirect(reverse("jobs_searched"))

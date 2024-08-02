@@ -40,7 +40,7 @@ class Jobsearch(models.Model):
     response = models.CharField(blank=True, choices=RESPONSE_CHOICES, default='pending', max_length=127, null=True)
     search_imgs = models.ImageField(blank=True, upload_to='static/images/%Y/%m/%d')
     docfile = models.FileField(blank=True, upload_to='static/documents/%Y/%m/%d')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateField(auto_now_add=True)
 
     class Meta:
         ordering = ['-created_at']
