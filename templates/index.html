@@ -62,6 +62,21 @@
 
         <!-- HOME -->
         <section id="home" class="full-height px-lg-5">
+        <!-- Login prompt -->
+            {% block content %}
+	{% if user.is_authenticated %}
+	Hi {{ user.username }}!
+	<form action="{% url 'logout' %}" method="post">
+	  {% csrf_token %}
+	  <button type="submit">Log Out</button>
+	</form>
+	{% else %}
+	<p>You are not logged in</p>
+	<a href="{% url 'login' %}">Log In</a>
+	{% endif %}
+	{% endblock %}
+		<!-- End login prompt -->
+
 
          <div class="container">	
                 <div class="row">
@@ -71,6 +86,7 @@
                         <div data-aos="fade-up" data-aos-delay="600">
                             <a href="#work" class="btn btn-brand me-3">Explore My Work</a>
                             <a href="#" class="link-custom">Call: (+353) 876470692</a>
+
                         </div>
                     </div>
                 </div>
