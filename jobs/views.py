@@ -120,5 +120,9 @@ def delete_jobsearch(request, jobsearch_id):
 
 
 
+@login_required
+def jobsdb(request):
+    """Display jobs dashboard"""
+    return render(request,"jobs/jobsdb.html")
 
 
