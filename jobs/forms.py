@@ -8,3 +8,7 @@ class JobsearchForm(forms.ModelForm):
         model = Jobsearch
         fields = "__all__"
 
+
+class DateForm(forms.Form):
+    start = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    end = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))

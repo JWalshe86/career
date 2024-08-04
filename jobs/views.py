@@ -3,8 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.db.models import Q
 from datetime import date
-from .models import Jobsearch
-from .forms import JobsearchForm
+from .models import Jobsearch, CO2
+from .forms import JobsearchForm, DateForm
+
+import plotly.express as px
 
 @login_required
 def jobs_searched(request):
@@ -126,3 +128,31 @@ def jobsdb(request):
     return render(request,"jobs/jobsdb.html")
 
 
+def chart(request):
+    co2 = CO2.objects.all()
+    start = request.GET.get('start')
+    end = request.GET.get('end')
+
+    if start:
+        co2 = co2.filter(date__gte=start)
+    if end:
+        co2 = co2.filter(date__lte=end)
+
+    fig = px.line(
+        x =[c.date for c in co2],
+        y=[c.average for c in co2],
+        title = 'CO2 PPM',
+        labels = {
+              'x': 'Date', 'y': 'CO2 PPM'
+            }
+            )
+    fig.update_layout(title = {
+        'font_size': 32,
+        'xanchor': 'center',
+        'x': 0.5
+            }
+            )
+    chart = fig.to_html()
+
+    context = {'chart': chart, 'form': DateForm}
+    return render(request, 'jobs/chart.html', context)
