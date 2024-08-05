@@ -51,7 +51,7 @@ class Jobsearch(models.Model):
         return f'{self.organisation} {self.created_at}'
 
 
-class CO2(models.Model):
+class Lkdata(models.Model):
     date = models.DateField()
     average = models.FloatField()
 

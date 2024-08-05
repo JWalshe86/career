@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.db.models import Q
 from datetime import date
-from .models import Jobsearch, CO2
+from .models import Jobsearch, Lkdata
 from .forms import JobsearchForm, DateForm
 
 import plotly.express as px
@@ -129,21 +129,21 @@ def jobsdb(request):
 
 
 def chart(request):
-    co2 = CO2.objects.all()
+    lkdata = Lkdata.objects.all()
     start = request.GET.get('start')
     end = request.GET.get('end')
 
     if start:
-        co2 = co2.filter(date__gte=start)
+        lkdata = lkdata.filter(date__gte=start)
     if end:
-        co2 = co2.filter(date__lte=end)
+        lkdata = lkdata.filter(date__lte=end)
 
     fig = px.line(
-        x =[c.date for c in co2],
-        y=[c.average for c in co2],
-        title = 'CO2 PPM',
+        x =[l.date for l in lkdata],
+        y=[l.average for l in lkdata],
+        title = 'Linkedin Analytics',
         labels = {
-              'x': 'Date', 'y': 'CO2 PPM'
+              'x': 'Date', 'y': 'LK ANALYTICS'
             }
             )
     fig.update_layout(title = {
