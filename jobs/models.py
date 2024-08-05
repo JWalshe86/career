@@ -50,3 +50,14 @@ class Jobsearch(models.Model):
     def __str__(self):
         return f'{self.organisation} {self.created_at}'
 
+
+class CO2(models.Model):
+    date = models.DateField()
+    average = models.FloatField()
+
+    class Meta:
+        ordering = ('date',)
+
+
+    
+
