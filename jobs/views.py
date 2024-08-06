@@ -129,14 +129,43 @@ def jobsdb(request):
     return render(request,"jobs/jobsdb.html")
 
 
-def impressions(request):
+def display_lkdata(request):
     lkdata = Lkdata.objects.values()
     x_data = []
     y_data = []
+    q_data = []
+    r_data = []
+    z_data = []
+    w_data = []
+    s_data = []
+    t_data = []
+    m_data = []
+    n_data = []
     for i in lkdata:
         y_data.append(i['impressions'])
         x_data.append(i['date'])
+        q_data.append(i['srch_appears'])
+        r_data.append(i['date'])
+        z_data.append(i['uni_views'])
+        w_data.append(i['date'])
+        s_data.append(i['engagements'])
+        t_data.append(i['date'])
+        m_data.append(i['followers'])
+        n_data.append(i['date'])
    
-    data = px.line(x=x_data, y=y_data, title="Impressions over past week") 
-    chart = data.to_html()
-    return render(request, "jobs/chart.html", context={'chart': chart})
+    imp_data = px.line(x=x_data, y=y_data, title="Impressions over past week") 
+    srch_data = px.line(x=q_data, y=r_data, title="Searches over past week") 
+    uni_data = px.line(x=z_data, y=w_data, title="Unique views over week") 
+    engagements_data = px.line(x=s_data, y=t_data, title="Engagements over week") 
+    followers_data = px.line(x=m_data, y=n_data, title="Followers over week") 
+  
+    impressions = imp_data.to_html()
+    srch_appears = srch_data.to_html()
+    uni_views = uni_data.to_html()
+    engagements = engagements_data.to_html()
+    followers = followers_data.to_html()
+    
+    return render(request, "jobs/chart.html", context={'impressions': impressions,
+        'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers })
+
+
