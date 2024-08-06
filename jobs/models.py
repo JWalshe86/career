@@ -53,7 +53,11 @@ class Jobsearch(models.Model):
 
 class Lkdata(models.Model):
     date = models.DateField()
-    average = models.FloatField()
+    impressions = models.IntegerField(blank=True, null=True)
+    srch_appears = models.IntegerField(blank=True, null=True)
+    uni_views = models.IntegerField(blank=True, null=True)
+    engagements = models.IntegerField(blank=True, null=True)
+    followers = models.IntegerField(blank=True, null=True)
 
     class Meta:
         ordering = ('date',)

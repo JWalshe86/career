@@ -8,6 +8,7 @@ from .forms import JobsearchForm, DateForm
 
 import plotly.express as px
 
+
 @login_required
 def jobs_searched(request):
     if request.user.is_superuser:
@@ -128,31 +129,14 @@ def jobsdb(request):
     return render(request,"jobs/jobsdb.html")
 
 
-def chart(request):
-    lkdata = Lkdata.objects.all()
-    start = request.GET.get('start')
-    end = request.GET.get('end')
-
-    if start:
-        lkdata = lkdata.filter(date__gte=start)
-    if end:
-        lkdata = lkdata.filter(date__lte=end)
-
-    fig = px.line(
-        x =[l.date for l in lkdata],
-        y=[l.average for l in lkdata],
-        title = 'Linkedin Analytics',
-        labels = {
-              'x': 'Date', 'y': 'LK ANALYTICS'
-            }
-            )
-    fig.update_layout(title = {
-        'font_size': 32,
-        'xanchor': 'center',
-        'x': 0.5
-            }
-            )
-    chart = fig.to_html()
-
-    context = {'chart': chart, 'form': DateForm}
-    return render(request, 'jobs/chart.html', context)
+def impressions(request):
+    lkdata = Lkdata.objects.values()
+    x_data = []
+    y_data = []
+    for i in lkdata:
+        y_data.append(i['impressions'])
+        x_data.append(i['date'])
+   
+    data = px.line(x=x_data, y=y_data, title="Impressions over past week") 
+    chart = data.to_html()
+    return render(request, "jobs/chart.html", context={'chart': chart})

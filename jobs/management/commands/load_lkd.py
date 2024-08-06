@@ -19,9 +19,10 @@ class Command(BaseCommand):
                 dt = date(
                 year = int(row['year']),
                 month = int(row['month']),
-                day = 1
+                day = int(row['day']), 
                 )
-                Lkdata.objects.get_or_create(date=dt, average=row['average'])
+                Lkdata.objects.get_or_create(date=dt, impressions=row['impressions'],
+                srch_appears=row['srch_appears'],uni_views=row['uni_views'], engagements=row['engagements'], followers=row['followers'])
 
 
 
