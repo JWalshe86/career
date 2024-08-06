@@ -5,7 +5,7 @@ from .models import Jobsearch, Lkdata
 class JobsearchAdmin(admin.ModelAdmin):
     list_display = (
          "created_at",
-         "organisation",
+         "name",
             )
 class LkdataAdmin(admin.ModelAdmin):
     list_display = (

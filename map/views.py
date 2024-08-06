@@ -2,6 +2,7 @@ from django.views.generic import ListView
 from django.views import View
 from django.shortcuts import render, redirect
 from .models import *
+from jobs.models import Jobsearch
 import googlemaps
 from django.conf import settings
 from .forms import *
@@ -10,7 +11,7 @@ from datetime import datetime
 class HomeView(ListView):
     template_name = "map/home.html"
     context_object_name = 'mydata'
-    model = Locations
+    model = Jobsearch
     success_url = "/"
 
 class MapView(View): 
@@ -18,7 +19,7 @@ class MapView(View):
 
     def get(self,request): 
         key = settings.GOOGLE_API_KEY
-        eligable_locations = Locations.objects.filter(place_id__isnull=False)
+        eligable_locations = Jobsearch.objects.filter(place_id__isnull=False)
         locations = []
 
         for a in eligable_locations: 
@@ -55,20 +56,20 @@ class DistanceView(View):
         form = DistanceForm(request.POST)
         if form.is_valid(): 
             from_location = form.cleaned_data['from_location']
-            from_location_info = Locations.objects.get(name=from_location)
-            from_adress_string = str(from_location_info.adress)+", "+str(from_location_info.zipcode)+", "+str(from_location_info.city)+", "+str(from_location_info.country)
+            from_location_info = Jobsearch.objects.get(name=from_location)
+            from_address_string = str(from_location_info.address)+", "+str(from_location_info.zipcode)+", "+str(from_location_info.city)+", "+str(from_location_info.country)
 
             to_location = form.cleaned_data['to_location']
-            to_location_info = Locations.objects.get(name=to_location)
-            to_adress_string = str(to_location_info.adress)+", "+str(to_location_info.zipcode)+", "+str(to_location_info.city)+", "+str(to_location_info.country)
+            to_location_info = Jobsearch.objects.get(name=to_location)
+            to_address_string = str(to_location_info.address)+", "+str(to_location_info.zipcode)+", "+str(to_location_info.city)+", "+str(to_location_info.country)
 
             mode = form.cleaned_data['mode']
             now = datetime.now()
 
             gmaps = googlemaps.Client(key= settings.GOOGLE_API_KEY)
             calculate = gmaps.distance_matrix(
-                    from_adress_string,
-                    to_adress_string,
+                    from_address_string,
+                    to_address_string,
                     mode = mode,
                     departure_time = now
             )
@@ -88,8 +89,8 @@ class DistanceView(View):
 
             
             obj = Distances(
-                from_location = Locations.objects.get(name=from_location),
-                to_location = Locations.objects.get(name=to_location),
+                from_location = Jobsearch.objects.get(name=from_location),
+                to_location = Jobsearch.objects.get(name=to_location),
                 mode = mode,
                 distance_km = distance_kilometers,
                 duration_mins = duration_minutes,
@@ -108,7 +109,7 @@ class GeocodingView(View):
     template_name = "map/geocoding.html"
 
     def get(self,request,pk): 
-        location = Locations.objects.get(pk=pk)
+        location = Jobsearch.objects.get(pk=pk)
 
         if location.lng and location.lat and location.place_id != None: 
             lat = location.lat
@@ -116,11 +117,11 @@ class GeocodingView(View):
             place_id = location.place_id
             label = "from my database"
 
-        elif location.adress and location.country and location.zipcode and location.city != None: 
-            adress_string = str(location.adress)+", "+str(location.zipcode)+", "+str(location.city)+", "+str(location.country)
+        elif location.address and location.country and location.zipcode and location.city != None: 
+            address_string = str(location.address)+", "+str(location.zipcode)+", "+str(location.city)+", "+str(location.country)
 
             gmaps = googlemaps.Client(key = settings.GOOGLE_API_KEY)
-            result = gmaps.geocode(adress_string)[0]
+            result = gmaps.geocode(address_string)[0]
             
             lat = result.get('geometry', {}).get('location', {}).get('lat', None)
             lng = result.get('geometry', {}).get('location', {}).get('lng', None)

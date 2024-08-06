@@ -56,7 +56,7 @@ def add_jobsearch(request):
                 for i in jobs:
                 
                     # Alerts if already applied for a role
-                    if i.organisation == x['organisation'] and i.role == x['role']:
+                    if i.name == x['name'] and i.role == x['role']:
                         messages.warning(request, f"You've already applied for this job on {i.created_at}!")
                         return redirect(reverse('add_jobsearch'))
 
@@ -102,7 +102,7 @@ def edit_jobsearch(request, jobsearch_id):
                 )
         else:
             form = JobsearchForm(instance=jobsearch)
-            messages.info(request, f"You are editing {jobsearch.organisation}")
+            messages.info(request, f"You are editing {jobsearch.name}")
 
         template = "jobs/edit_jobsearch.html"
         context = {
