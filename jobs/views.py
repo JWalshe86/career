@@ -168,7 +168,7 @@ def display_lkdata(request):
     engagements = engagements_data.to_html()
     followers = followers_data.to_html()
     
-    return render(request, "jobs/chart.html", context={'impressions': impressions,
+    return render(request, "jobs/jobs_dashboard.html", context={'impressions': impressions,
         'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers })
 
 
@@ -185,7 +185,7 @@ def add_lkdata(request):
 	else:
 		form = LkdataForm()
 
-	template = "jobs/add_lkdata.html"
+	template = "add_lkdata.html"
 
 	context = {
 		"form" :form,
