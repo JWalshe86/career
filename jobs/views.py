@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.db.models import Q
 from datetime import date
 from .models import Jobsearch, Lkdata
-from .forms import JobsearchForm, DateForm
+from .forms import JobsearchForm, DateForm, LkdataForm
 
 import plotly.express as px
 
@@ -129,6 +129,9 @@ def jobsdb(request):
     return render(request,"jobs/jobsdb.html")
 
 
+# Data entry views start
+
+
 def display_lkdata(request):
     lkdata = Lkdata.objects.values()
     x_data = []
@@ -167,5 +170,28 @@ def display_lkdata(request):
     
     return render(request, "jobs/chart.html", context={'impressions': impressions,
         'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers })
+
+
+
+def add_lkdata(request):
+	if request.method == "POST":
+		form = LkdataForm(request.POST, request.FILES)
+		if form.is_valid():
+			lkdata = Lkdata.objects.all()
+			data = form.save()
+			messages.success(request, "Successfully added linkedin data!")
+			return redirect(reverse("display_lkdata"))
+
+	else:
+		form = LkdataForm()
+
+	template = "jobs/add_lkdata.html"
+
+	context = {
+		"form" :form,
+			}
+
+
+	return render(request, template, context)
 
 

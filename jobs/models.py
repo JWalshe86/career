@@ -61,6 +61,8 @@ class Jobsearch(models.Model):
         return f'{self.name} {self.created_at}'
 
 
+
+
 class Lkdata(models.Model):
     date = models.DateField()
     impressions = models.IntegerField(blank=True, null=True)
