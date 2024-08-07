@@ -185,7 +185,7 @@ def add_lkdata(request):
 	else:
 		form = LkdataForm()
 
-	template = "add_lkdata.html"
+	template = "jobs/add_lkdata.html"
 
 	context = {
 		"form" :form,
