@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.db.models import Q
 from datetime import date
+from django.conf import settings
+from map.models import *
 from .models import Jobsearch, Lkdata
 from .forms import JobsearchForm, DateForm, LkdataForm
 
@@ -133,6 +135,20 @@ def jobsdb(request):
 
 
 def display_lkdata(request):
+    
+
+
+    key = settings.GOOGLE_API_KEY
+    eligable_locations = Jobsearch.objects.filter(place_id__isnull=False)
+    locations = []
+
+    for a in eligable_locations: 
+        data = {
+            'lat': float(a.lat), 
+            'lng': float(a.lng), 
+            'name': a.name
+        }
+        locations.append(data)
     lkdata = Lkdata.objects.values()
     x_data = []
     y_data = []
@@ -168,7 +184,7 @@ def display_lkdata(request):
     engagements = engagements_data.to_html()
     followers = followers_data.to_html()
     
-    return render(request, "jobs/jobs_dashboard.html", context={'impressions': impressions,
+    return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations, 'impressions': impressions,
         'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers })
 
 
