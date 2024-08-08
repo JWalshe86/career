@@ -35,16 +35,6 @@
 
     </head>
 <body data-bs-spy="scroll" data-bs-target=".navbar">
-<div class="dropdown">
-	  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-		Dropdown button
-	  </button>
-	  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-		<li><a class="dropdown-item" href="#">Action</a></li>
-		<li><a class="dropdown-item" href="#">Another action</a></li>
-		<li><a class="dropdown-item" href="#">Something else here</a></li>
-	  </ul>
-	</div>	
 
                                              <!-- NAVBAR -->
 
@@ -54,25 +44,32 @@
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav text-lg-center">
-
                     <li class="nav-item">
                         <a class="nav-link" href="http://127.0.0.1:8000/">Home</a>
                     </li>
-                    <li class="nav-item">
-			    <a class="nav-link" href="{% url 'display_lkdata' %}">Jobsearch Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-			    <a class="nav-link" href="{% url 'add_jobsearch' %}">Add_Jobsearch</a>
-                    </li>
-                    <li class="nav-item">
-			    <a class="nav-link" href="{% url 'jobs_searched' %}">Jobs Searched</a>
-                    </li>
-                    <li class="nav-item">
-			    <a class="nav-link" href="{% url 'add_lkdata' %}">Add Lkdata</a>
-                    </li>
                 </ul>
+               <div class="dropdown">
+	  <button class="navbar2 text-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+		Jobsearch
+	  </button>
+	  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <li class="nav-item">
+			    <a class="dropdown-item" href="{% url 'display_lkdata' %}">Jobsearch Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+			    <a class="dropdown-item" href="{% url 'add_jobsearch' %}">Add_Jobsearch</a>
+                    </li>
+                    <li class="nav-item">
+			    <a class="dropdown-item" href="{% url 'jobs_searched' %}">Jobs Searched</a>
+                    </li>
+                    <li class="nav-item">
+			    <a class="dropdown-item" href="{% url 'add_lkdata' %}">Add Lkdata</a>
+                    </li>
+                    
+	  </ul>
+	       </div>	
                 <ul class="navbar-nav text-lg-center">
 
                     <li class="nav-item">
