@@ -3,10 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.db.models import Q
 from datetime import date
-from .models import Jobsearch, CO2
-from .forms import JobsearchForm, DateForm
+from django.conf import settings
+from map.models import *
+from .models import Jobsearch, Lkdata
+from .forms import JobsearchForm, DateForm, LkdataForm
 
 import plotly.express as px
+
 
 @login_required
 def jobs_searched(request):
@@ -55,7 +58,7 @@ def add_jobsearch(request):
                 for i in jobs:
                 
                     # Alerts if already applied for a role
-                    if i.organisation == x['organisation'] and i.role == x['role']:
+                    if i.name == x['name'] and i.role == x['role']:
                         messages.warning(request, f"You've already applied for this job on {i.created_at}!")
                         return redirect(reverse('add_jobsearch'))
 
@@ -63,7 +66,7 @@ def add_jobsearch(request):
                     if i.created_at == today:
                         count.append(1)
 
-                if len(count) == 10:
+                if len(count) == 5:
                      messages.warning(request, f"Today: {today} you've applied for {len(count)} jobs!")
 
                 data = form.save()
@@ -101,7 +104,7 @@ def edit_jobsearch(request, jobsearch_id):
                 )
         else:
             form = JobsearchForm(instance=jobsearch)
-            messages.info(request, f"You are editing {jobsearch.organisation}")
+            messages.info(request, f"You are editing {jobsearch.name}")
 
         template = "jobs/edit_jobsearch.html"
         context = {
@@ -128,31 +131,83 @@ def jobsdb(request):
     return render(request,"jobs/jobsdb.html")
 
 
-def chart(request):
-    co2 = CO2.objects.all()
-    start = request.GET.get('start')
-    end = request.GET.get('end')
+# Data entry views start
 
-    if start:
-        co2 = co2.filter(date__gte=start)
-    if end:
-        co2 = co2.filter(date__lte=end)
 
-    fig = px.line(
-        x =[c.date for c in co2],
-        y=[c.average for c in co2],
-        title = 'CO2 PPM',
-        labels = {
-              'x': 'Date', 'y': 'CO2 PPM'
-            }
-            )
-    fig.update_layout(title = {
-        'font_size': 32,
-        'xanchor': 'center',
-        'x': 0.5
-            }
-            )
-    chart = fig.to_html()
+def display_lkdata(request):
+    
 
-    context = {'chart': chart, 'form': DateForm}
-    return render(request, 'jobs/chart.html', context)
+
+    key = settings.GOOGLE_API_KEY
+    eligable_locations = Jobsearch.objects.filter(place_id__isnull=False)
+    locations = []
+
+    for a in eligable_locations: 
+        data = {
+            'lat': float(a.lat), 
+            'lng': float(a.lng), 
+            'name': a.name
+        }
+        locations.append(data)
+    lkdata = Lkdata.objects.values()
+    x_data = []
+    y_data = []
+    q_data = []
+    r_data = []
+    z_data = []
+    w_data = []
+    s_data = []
+    t_data = []
+    m_data = []
+    n_data = []
+    for i in lkdata:
+        y_data.append(i['impressions'])
+        x_data.append(i['date'])
+        q_data.append(i['srch_appears'])
+        r_data.append(i['date'])
+        z_data.append(i['uni_views'])
+        w_data.append(i['date'])
+        s_data.append(i['engagements'])
+        t_data.append(i['date'])
+        m_data.append(i['followers'])
+        n_data.append(i['date'])
+   
+    imp_data = px.line(x=x_data, y=y_data, title="Impressions over past week") 
+    srch_data = px.line(x=q_data, y=r_data, title="Searches over past week") 
+    uni_data = px.line(x=z_data, y=w_data, title="Unique views over week") 
+    engagements_data = px.line(x=s_data, y=t_data, title="Engagements over week") 
+    followers_data = px.line(x=m_data, y=n_data, title="Followers over week") 
+  
+    impressions = imp_data.to_html()
+    srch_appears = srch_data.to_html()
+    uni_views = uni_data.to_html()
+    engagements = engagements_data.to_html()
+    followers = followers_data.to_html()
+    
+    return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations, 'impressions': impressions,
+        'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers })
+
+
+
+def add_lkdata(request):
+	if request.method == "POST":
+		form = LkdataForm(request.POST, request.FILES)
+		if form.is_valid():
+			lkdata = Lkdata.objects.all()
+			data = form.save()
+			messages.success(request, "Successfully added linkedin data!")
+			return redirect(reverse("display_lkdata"))
+
+	else:
+		form = LkdataForm()
+
+	template = "jobs/add_lkdata.html"
+
+	context = {
+		"form" :form,
+			}
+
+
+	return render(request, template, context)
+
+

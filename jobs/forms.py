@@ -1,5 +1,5 @@
 from django import forms
-from .models import Jobsearch
+from .models import Jobsearch, Lkdata
 
 
 class JobsearchForm(forms.ModelForm):
@@ -12,3 +12,9 @@ class JobsearchForm(forms.ModelForm):
 class DateForm(forms.Form):
     start = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
     end = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+
+class LkdataForm(forms.ModelForm):
+
+    class Meta:
+        model = Lkdata
+        fields = "__all__"
