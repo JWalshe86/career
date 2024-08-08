@@ -64,7 +64,7 @@ def add_jobsearch(request):
                     if i.created_at == today:
                         count.append(1)
 
-                if len(count) == 10:
+                if len(count) == 5:
                      messages.warning(request, f"Today: {today} you've applied for {len(count)} jobs!")
 
                 data = form.save()
