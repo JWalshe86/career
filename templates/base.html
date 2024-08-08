@@ -35,6 +35,16 @@
 
     </head>
 <body data-bs-spy="scroll" data-bs-target=".navbar">
+<div class="dropdown">
+	  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+		Dropdown button
+	  </button>
+	  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+		<li><a class="dropdown-item" href="#">Action</a></li>
+		<li><a class="dropdown-item" href="#">Another action</a></li>
+		<li><a class="dropdown-item" href="#">Something else here</a></li>
+	  </ul>
+	</div>	
 
                                              <!-- NAVBAR -->
 
@@ -49,6 +59,9 @@
 
                     <li class="nav-item">
                         <a class="nav-link" href="http://127.0.0.1:8000/">Home</a>
+                    </li>
+                    <li class="nav-item">
+			    <a class="nav-link" href="{% url 'display_lkdata' %}">Jobsearch Dashboard</a>
                     </li>
                     <li class="nav-item">
 			    <a class="nav-link" href="{% url 'add_jobsearch' %}">Add_Jobsearch</a>
@@ -88,6 +101,7 @@
 
       <header class="container-fluid fixed-top">
       </header>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" ></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src='{% static 'js/main.js' %}'></script>
