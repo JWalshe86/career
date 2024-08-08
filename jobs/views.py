@@ -126,7 +126,7 @@ def delete_jobsearch(request, jobsearch_id):
 @login_required
 def jobsdb(request):
     """Display jobs dashboard"""
-    return render(request,"jobs/jobsdb.html")
+    return render(request,"jobs/jobs_dashboard.html")
 
 
 # Data entry views start
