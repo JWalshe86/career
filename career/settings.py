@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'map',
     'jobs',
     'users',
-    'core',
 ]
 
 
