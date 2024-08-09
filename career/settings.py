@@ -32,7 +32,7 @@ GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['johnsite-d251709cf12b.herokuapp.com']
 
 
 # Application definition
