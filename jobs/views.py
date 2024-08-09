@@ -58,7 +58,7 @@ def add_jobsearch(request):
                 for i in jobs:
                 
                     # Alerts if already applied for a role
-                    if i.name == x['name'] and i.role == x['role']:
+                    if i.city == x['city'] and i.name == x['name'] and i.role == x['role']:
                         messages.warning(request, f"You've already applied for this job on {i.created_at}!")
                         return redirect(reverse('add_jobsearch'))
 
@@ -66,8 +66,8 @@ def add_jobsearch(request):
                     if i.created_at == today:
                         count.append(1)
 
-                if len(count) == 5:
-                     messages.warning(request, f"Today: {today} you've applied for {len(count)} jobs!")
+                if len(count) == 4:
+                     messages.warning(request, f"Today: {today} you've applied for {len(count) +1} jobs!")
 
                 data = form.save()
                 messages.success(request, "Successfully added job application!")
