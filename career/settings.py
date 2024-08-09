@@ -13,6 +13,9 @@ import os
 from django.contrib import messages
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
+
+db_from_env = dj_database_url.config(conn_max_age=500)
 
 load_dotenv()
 
@@ -101,18 +104,27 @@ MESSAGE_TAGS = {
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
+print('os.e', os.environ)
+if "DATABASE_URL" in os.environ:
+    DATABASES = {"default": dj_database_url.parse(os.environ.get("DATABASE_URL"))}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+        	'NAME': os.environ.get("DATABASE_NAME"),
+            'PASSWORD': os.environ.get("DATABASE_PASSWORDL"),
+        }
+    }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get("DATABASE_NAME"),
-        'USER': 'root',
+        'ENGINE': 'django.db.backends.postgresql',
+       	'NAME': 'd539b1lf93j941',
+        'USER': 'u49a84fn70nj9o',
         'PASSWORD': os.environ.get("DATABASE_PASSWORD"),
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'HOST': 'c9tiftt16dc3eo.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com',
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
