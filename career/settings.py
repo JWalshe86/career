@@ -26,7 +26,7 @@ LOGOUT_REDIRECT_URL = "/"
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%k1tf4vdq@(y(fdtcu7@p0tmp!2y+qyokyrwhd6bm@j#0cjl3)'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -104,9 +104,9 @@ MESSAGE_TAGS = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test_db',
+        'NAME': os.environ.get("DATABASE_NAME"),
         'USER': 'root',
-        'PASSWORD': 'Sunshine7!',
+        'PASSWORD': os.environ.get("DATABASE_PASSWORD"),
         'HOST': 'localhost',
         'PORT': '3306',
     }
