@@ -13,9 +13,6 @@ import os
 from django.contrib import messages
 from pathlib import Path
 from dotenv import load_dotenv
-import dj_database_url
-
-db_from_env = dj_database_url.config(conn_max_age=500)
 
 load_dotenv()
 
@@ -29,13 +26,13 @@ LOGOUT_REDIRECT_URL = "/"
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = 'django-insecure-%k1tf4vdq@(y(fdtcu7@p0tmp!2y+qyokyrwhd6bm@j#0cjl3)'
 
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['johnsite-d251709cf12b.herokuapp.com']
+ALLOWED_HOSTS = ['johnsite-d251709cf12b.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
@@ -62,7 +59,6 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -104,27 +100,18 @@ MESSAGE_TAGS = {
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-print('os.e', os.environ)
-if "DATABASE_URL" in os.environ:
-    DATABASES = {"default": dj_database_url.parse(os.environ.get("DATABASE_URL"))}
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-        	'NAME': os.environ.get("DATABASE_NAME"),
-            'PASSWORD': os.environ.get("DATABASE_PASSWORDL"),
-        }
-    }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-       	'NAME': 'd539b1lf93j941',
-        'USER': 'u49a84fn70nj9o',
-        'PASSWORD':'pfd06cbf442bb444875c0b8a03a29c5ac62151d659c19da3582df4e283f4150c9',
-        'HOST': 'c9tiftt16dc3eo.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'test_db',
+        'USER': 'root',
+        'PASSWORD': 'Sunshine7!',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -165,14 +152,6 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = "~/projects/career/static"
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
-
-
-STORAGES = {
-    # ...
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

@@ -15,13 +15,13 @@ import plotly.express as px
 def jobs_searched(request):
     if request.user.is_superuser:
         """display jobs searched data"""
-        jobs = Jobsearch.objects.all().order_by('response').values()
+        jobs = Jobsearch.objects.all().order_by('status').values()
         jobs = jobs.annotate(
-         priority1=Q(response='offer'),
-         priority2=Q(response='interview'),
-         priority3=Q(response='pre_int_screen'),
-         priority4=Q(response='pending'),
-         priority5=Q(response='not_proceeding'),
+         priority1=Q(status='offer'),
+         priority2=Q(status='interview'),
+         priority3=Q(status='pre_int_screen'),
+         priority4=Q(status='pending'),
+         priority5=Q(status='not_proceeding'),
          )
 
         jobs = jobs.order_by("-priority1", "-priority2", "-priority3", "-priority4") 
