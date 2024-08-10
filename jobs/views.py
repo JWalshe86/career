@@ -184,8 +184,10 @@ def display_lkdata(request):
     engagements = engagements_data.to_html()
     followers = followers_data.to_html()
     
-    return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations, 'impressions': impressions,
-        'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers })
+    return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations,
+        'impressions': impressions,
+        'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers 
+        })
 
 
 
