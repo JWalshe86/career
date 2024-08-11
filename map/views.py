@@ -22,6 +22,7 @@ class MapView(View):
     def get(self,request): 
 
         key = settings.GOOGLE_API_KEY
+        print('test', key)
         eligable_locations = Jobsearch.objects.filter(place_id__isnull=False)
         locations = []
 
