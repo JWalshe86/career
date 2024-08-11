@@ -134,7 +134,7 @@ def jobsdb(request):
 # Data entry views start
 
 
-# def display_lkdata(request):
+def display_lkdata(request):
     
 
 
@@ -184,10 +184,10 @@ def jobsdb(request):
     # engagements = engagements_data.to_html()
     # followers = followers_data.to_html()
     
-    # return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations,
+    return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations,
         # 'impressions': impressions,
         # 'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers 
-        # })
+        })
 
 
 
