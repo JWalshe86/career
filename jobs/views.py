@@ -8,7 +8,7 @@ from map.models import *
 from .models import Jobsearch, Lkdata
 from .forms import JobsearchForm, DateForm, LkdataForm
 
-import plotly.express as px
+# import plotly.express as px
 
 
 @login_required
@@ -134,82 +134,82 @@ def jobsdb(request):
 # Data entry views start
 
 
-def display_lkdata(request):
+# def display_lkdata(request):
     
 
 
-    key = settings.GOOGLE_API_KEY
-    eligable_locations = Jobsearch.objects.filter(place_id__isnull=False)
-    locations = []
+#     key = settings.GOOGLE_API_KEY
+#     eligable_locations = Jobsearch.objects.filter(place_id__isnull=False)
+#     locations = []
 
-    for a in eligable_locations: 
-        data = {
-            'lat': float(a.lat), 
-            'lng': float(a.lng), 
-            'name': a.name
-        }
-        locations.append(data)
-    lkdata = Lkdata.objects.values()
-    x_data = []
-    y_data = []
-    q_data = []
-    r_data = []
-    z_data = []
-    w_data = []
-    s_data = []
-    t_data = []
-    m_data = []
-    n_data = []
-    for i in lkdata:
-        y_data.append(i['impressions'])
-        x_data.append(i['date'])
-        q_data.append(i['srch_appears'])
-        r_data.append(i['date'])
-        z_data.append(i['uni_views'])
-        w_data.append(i['date'])
-        s_data.append(i['engagements'])
-        t_data.append(i['date'])
-        m_data.append(i['followers'])
-        n_data.append(i['date'])
+#     for a in eligable_locations: 
+#         data = {
+#             'lat': float(a.lat), 
+#             'lng': float(a.lng), 
+#             'name': a.name
+#         }
+#         locations.append(data)
+#     lkdata = Lkdata.objects.values()
+#     x_data = []
+#     y_data = []
+#     q_data = []
+#     r_data = []
+#     z_data = []
+#     w_data = []
+#     s_data = []
+#     t_data = []
+#     m_data = []
+#     n_data = []
+#     for i in lkdata:
+#         y_data.append(i['impressions'])
+        # x_data.append(i['date'])
+        # q_data.append(i['srch_appears'])
+        # r_data.append(i['date'])
+        # z_data.append(i['uni_views'])
+        # w_data.append(i['date'])
+        # s_data.append(i['engagements'])
+        # t_data.append(i['date'])
+        # m_data.append(i['followers'])
+        # n_data.append(i['date'])
    
-    imp_data = px.line(x=x_data, y=y_data, title="Impressions over past week") 
-    srch_data = px.line(x=q_data, y=r_data, title="Searches over past week") 
-    uni_data = px.line(x=z_data, y=w_data, title="Unique views over week") 
-    engagements_data = px.line(x=s_data, y=t_data, title="Engagements over week") 
-    followers_data = px.line(x=m_data, y=n_data, title="Followers over week") 
+    # imp_data = px.line(x=x_data, y=y_data, title="Impressions over past week") 
+    # srch_data = px.line(x=q_data, y=r_data, title="Searches over past week") 
+    # uni_data = px.line(x=z_data, y=w_data, title="Unique views over week") 
+    # engagements_data = px.line(x=s_data, y=t_data, title="Engagements over week") 
+    # followers_data = px.line(x=m_data, y=n_data, title="Followers over week") 
   
-    impressions = imp_data.to_html()
-    srch_appears = srch_data.to_html()
-    uni_views = uni_data.to_html()
-    engagements = engagements_data.to_html()
-    followers = followers_data.to_html()
+    # impressions = imp_data.to_html()
+    # srch_appears = srch_data.to_html()
+    # uni_views = uni_data.to_html()
+    # engagements = engagements_data.to_html()
+    # followers = followers_data.to_html()
     
-    return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations,
-        'impressions': impressions,
-        'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers 
-        })
+    # return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations,
+        # 'impressions': impressions,
+        # 'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers 
+        # })
 
 
 
-def add_lkdata(request):
-	if request.method == "POST":
-		form = LkdataForm(request.POST, request.FILES)
-		if form.is_valid():
-			lkdata = Lkdata.objects.all()
-			data = form.save()
-			messages.success(request, "Successfully added linkedin data!")
-			return redirect(reverse("display_lkdata"))
+# def add_lkdata(request):
+	# if request.method == "POST":
+		# form = LkdataForm(request.POST, request.FILES)
+		# if form.is_valid():
+			# lkdata = Lkdata.objects.all()
+			# data = form.save()
+			# messages.success(request, "Successfully added linkedin data!")
+			# return redirect(reverse("display_lkdata"))
 
-	else:
-		form = LkdataForm()
+	# else:
+		# form = LkdataForm()
 
-	template = "jobs/add_lkdata.html"
+	# template = "jobs/add_lkdata.html"
 
-	context = {
-		"form" :form,
-			}
+	# context = {
+		# "form" :form,
+			# }
 
 
-	return render(request, template, context)
+	# return render(request, template, context)
 
 

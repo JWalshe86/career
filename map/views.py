@@ -2,12 +2,12 @@ from django.views.generic import ListView
 from django.views import View
 from django.shortcuts import render, redirect
 from .models import *
-from jobs.models import Jobsearch, Lkdata
+from jobs.models import Jobsearch
 import googlemaps
 from django.conf import settings
 from .forms import *
 from datetime import datetime
-import plotly.express as px
+# import plotly.express as px
 
 
 class HomeView(ListView):
@@ -20,14 +20,14 @@ class MapView(View):
     template_name = "map/map.html"
 
     def get(self,request): 
-        lkdata = Lkdata.objects.values()
-        x_data = []
-        y_data = []
-        for i in lkdata:
-            y_data.append(i['impressions'])
-            x_data.append(i['date'])
-        imp_data = px.line(x=x_data, y=y_data, title="Impressions over past week")
-        impressions = imp_data.to_html()
+        # lkdata = Lkdata.objects.values()
+        # x_data = []
+        # y_data = []
+        # for i in lkdata:
+            # y_data.append(i['impressions'])
+            # x_data.append(i['date'])
+        # imp_data = px.line(x=x_data, y=y_data, title="Impressions over past week")
+        # impressions = imp_data.to_html()
 
         key = settings.GOOGLE_API_KEY
         eligable_locations = Jobsearch.objects.filter(place_id__isnull=False)
@@ -45,8 +45,8 @@ class MapView(View):
 
         context = {
             "key":key, 
-            "locations": locations,
-            "impressions": impressions,
+            # "locations": locations,
+            # "impressions": impressions,
         }
 
         return render(request, self.template_name, context)
