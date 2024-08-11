@@ -135,7 +135,6 @@ def jobsdb(request):
 
 
 def display_lkdata(request):
-    
 
 
     key = settings.GOOGLE_API_KEY
