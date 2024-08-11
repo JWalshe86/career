@@ -108,13 +108,13 @@ if "DATABASE_URL" in os.environ:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'postgres',
-            # 'NAME': 'd539b1lf93j941',
-            'USER': 'postgres',
-            # 'USER': 'u49a84fn70nj9o',
-            # 'PASSWORD':'pfd06cbf442bb444875c0b8a03a29c5ac62151d659c19da3582df4e283f4150c9',
-            'PASSWORD':'Sunshine7!',
-            'HOST': 'localhost',
+            # 'NAME': 'postgres',
+            'NAME': 'd539b1lf93j941',
+            # 'USER': 'postgres',
+            'USER': 'u49a84fn70nj9o',
+            'PASSWORD':'pfd06cbf442bb444875c0b8a03a29c5ac62151d659c19da3582df4e283f4150c9',
+            # 'PASSWORD':'Sunshine7!',
+            # 'HOST': 'localhost',
             'PORT': '5432',
     }
     }	
