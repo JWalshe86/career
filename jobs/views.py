@@ -138,17 +138,18 @@ def display_lkdata(request):
     
 
 
-#     key = settings.GOOGLE_API_KEY
-#     eligable_locations = Jobsearch.objects.filter(place_id__isnull=False)
-#     locations = []
+    key = settings.GOOGLE_API_KEY
+    eligable_locations = Jobsearch.objects.filter(place_id__isnull=False)
+    locations = []
 
-#     for a in eligable_locations: 
-#         data = {
-#             'lat': float(a.lat), 
-#             'lng': float(a.lng), 
-#             'name': a.name
-#         }
-#         locations.append(data)
+    for a in eligable_locations: 
+        data = {
+            'lat': float(a.lat), 
+            'lng': float(a.lng), 
+            'name': a.name
+        }
+        locations.append(data)
+
 #     lkdata = Lkdata.objects.values()
 #     x_data = []
 #     y_data = []
