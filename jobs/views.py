@@ -191,25 +191,25 @@ def display_lkdata(request):
 
 
 
-# def add_lkdata(request):
-	# if request.method == "POST":
-		# form = LkdataForm(request.POST, request.FILES)
-		# if form.is_valid():
-			# lkdata = Lkdata.objects.all()
-			# data = form.save()
-			# messages.success(request, "Successfully added linkedin data!")
-			# return redirect(reverse("display_lkdata"))
+def add_lkdata(request):
+	if request.method == "POST":
+		form = LkdataForm(request.POST, request.FILES)
+		if form.is_valid():
+			lkdata = Lkdata.objects.all()
+			data = form.save()
+			messages.success(request, "Successfully added linkedin data!")
+			return redirect(reverse("display_lkdata"))
 
-	# else:
-		# form = LkdataForm()
+	else:
+		form = LkdataForm()
 
-	# template = "jobs/add_lkdata.html"
+	template = "jobs/add_lkdata.html"
 
-	# context = {
-		# "form" :form,
-			# }
+	context = {
+		"form" :form,
+			}
 
 
-	# return render(request, template, context)
+	return render(request, template, context)
 
 
