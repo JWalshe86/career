@@ -12,41 +12,45 @@
 	</div>      
 </div>      
 </div>      
-</div>      
+</div>     
 
-<div class="container">
-  <div class="row g-2">
-    <div class="col-12 col-md-4">
-      <div class="p-3 border bg-light">
-         {{ impressions|safe }}
-     </div>
-    </div>
-    <div class="col-12 col-md-4">
-      <div class="p-3 border bg-light">
-         {{ srch_appears|safe }}
-    </div>
-    </div>
-    <div class="col-12 col-md-4">
-      <div class="p-3 border bg-light">
-           {{ uni_views|safe }}
-      </div>
-      </div>
-    <div class="col-12 col-md-4">
-      <div class="p-3 border bg-light">
-         {{ srch_appears|safe }}
-    </div>
-    </div>
-    <div class="col-12 col-md-4">
-      <div class="p-3 border bg-light">
-        {{ engagements|safe }}
-    </div>
-    </div>
-    <div class="col-12 col-md-4">
-      <div class="p-3 border bg-light">
-        {{ followers|safe }}
-    </div>
-    </div>
-</div>
-</div>
+{% comment %}
+
+<!-- <div class="container"> -->
+<!--   <div class="row g-2"> -->
+<!--     <div class="col-12 col-md-4"> -->
+<!--       <div class="p-3 border bg-light"> -->
+<!--          {{ impressions|safe }} -->
+<!--      </div> -->
+<!--     </div> -->
+<!--     <div class="col-12 col-md-4"> -->
+<!--       <div class="p-3 border bg-light"> -->
+<!--          {{ srch_appears|safe }} -->
+<!--     </div> -->
+<!--     </div> -->
+<!--     <div class="col-12 col-md-4"> -->
+<!--       <div class="p-3 border bg-light"> -->
+<!--            {{ uni_views|safe }} -->
+<!--       </div> -->
+<!--       </div> -->
+<!--     <div class="col-12 col-md-4"> -->
+<!--       <div class="p-3 border bg-light"> -->
+<!--          {{ srch_appears|safe }} -->
+<!--     </div> -->
+<!--     </div> -->
+<!--     <div class="col-12 col-md-4"> -->
+<!--       <div class="p-3 border bg-light"> -->
+<!--         {{ engagements|safe }} -->
+<!--     </div> -->
+<!--     </div> -->
+<!--     <div class="col-12 col-md-4"> -->
+<!--       <div class="p-3 border bg-light"> -->
+<!--         {{ followers|safe }} -->
+<!--     </div> -->
+<!--     </div> -->
+<!-- </div> -->
+<!-- </div> -->
+{% endcomment %}
+
           <script type='text/javascript'>                    var divElement = document.getElementById('viz1723364822896');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='90vw';vizElement.style.height='80vh';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='90vw'} else { vizElement.style.width='100%';vizElement.style.height='85vh';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
 {% endblock %}
