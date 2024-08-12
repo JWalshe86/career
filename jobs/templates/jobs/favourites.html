@@ -2,5 +2,18 @@
 
 {% block content %}
 
-{{ favs }}
+{% for fav in favs %}
+<div class="container">
+<div class="row">
+<div class="col">
+{{ fav.name }}
+</div>
+<div class="col">
+{{ fav.status }}
+</div>
+</div>
+</div>
+{% endfor %}
+
+
 {% endblock %}
