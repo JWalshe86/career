@@ -3,6 +3,7 @@ from django.db.models import Case, When, Value
     
 
 METHOD_CHOICES = (
+    ('indeed', 'INDEED'),
     ('lkeasy', 'LKEASY'),
     ('lkpsearch', 'LKPSearch'),
     ('cislack', 'CISLACK'),
@@ -25,12 +26,14 @@ RESPONSE_CHOICES = (
     ('pre_int_screen', 'PRE_INT_SCREEN'),
     ('interview', 'INTERVIEW'),
     ('offer', 'OFFER'),
+    ('appinprog', 'APPINPROG'),
             )
 
 
 class Jobsearch(models.Model):
     
 
+    favourite = models.BooleanField(default=False)
     name = models.CharField(max_length=127)
     zipcode = models.CharField(max_length=200,blank=True, null=True)
     city = models.CharField(max_length=127)
@@ -51,15 +54,12 @@ class Jobsearch(models.Model):
     place_id = models.CharField(max_length=200,blank=True, null=True)
 
 
-
     class Meta:
         ordering = ['-created_at']
 
 
     def __str__(self):
         return f'{self.name} {self.created_at}'
-
-
 
 
 class Lkdata(models.Model):

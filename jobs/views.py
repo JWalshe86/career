@@ -31,6 +31,7 @@ def jobs_searched(request):
                 } 
         return render(request, "jobs/job_searches.html",context)
 
+
 @login_required
 def jobsearch_detail(request, jobsearch_id):
         if request.user.is_superuser:
@@ -129,6 +130,18 @@ def delete_jobsearch(request, jobsearch_id):
 def jobsdb(request):
     """Display jobs dashboard"""
     return render(request,"jobs/jobsdb.html")
+
+
+def favs_display(request):
+    
+    favs = Jobsearch.objects.filter(favourite = True).values()
+
+    context = {
+        "favs": favs,
+    }
+        
+    return render(request, "jobs/favourites.html", context)
+
 
 
 # Data entry views start
