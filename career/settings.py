@@ -106,31 +106,32 @@ MESSAGE_TAGS = {
 if "DATABASE_URL" in os.environ:
     DATABASES = {"default": dj_database_url.parse(os.environ.get("DATABASE_URL"))}
     DATABASES = {
-     'ENGINE': 'django.db.backends.postgresql',
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            # 'NAME': 'postgres',
             'NAME': 'd539b1lf93j941',
+            # 'USER': 'postgres',
             'USER': 'u49a84fn70nj9o',
             'PASSWORD':'pfd06cbf442bb444875c0b8a03a29c5ac62151d659c19da3582df4e283f4150c9',
+            # 'PASSWORD':'Sunshine7!',
             'HOST': 'c9tiftt16dc3eo.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com',
+            # 'HOST': 'localhost',
             'PORT': '5432',
-    }        
+    }
+    }	
+
 else:
-	DATABASES = {
-		"default": {
-			# "ENGINE": "django.db.backends.mysql",
-			# 'NAME': 'test_db',
-			# 'USER': 'root',
-			# 'PASSWORD': 'Sunshine7!',
-			# 'HOST': 'localhost',
-			# 'PORT': '3306',
-			'ENGINE': 'django.db.backends.postgresql',
-			'NAME': 'postgres',
-			'USER': 'postgres',
-			'PASSWORD':os.environ.get('DATABASE_PASSWORDL'),
-			'HOST': 'localhost',
-			'PORT': '5432',
-				 
-		}
-	}
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            'NAME': 'test_db',
+            'USER': 'root',
+            'PASSWORD': 'Sunshine7!',
+            'HOST': 'localhost',
+            'PORT': '3306',
+                 
+        }
+    }
 
 
 # Password validation
