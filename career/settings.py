@@ -14,7 +14,6 @@ import dj_database_url
 from django.contrib import messages
 from pathlib import Path
 from dotenv import load_dotenv
-
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -108,14 +107,10 @@ if "DATABASE_URL" in os.environ:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            # 'NAME': 'postgres',
             'NAME': 'd539b1lf93j941',
-            # 'USER': 'postgres',
             'USER': 'u49a84fn70nj9o',
             'PASSWORD':'pfd06cbf442bb444875c0b8a03a29c5ac62151d659c19da3582df4e283f4150c9',
-            # 'PASSWORD':'Sunshine7!',
             'HOST': 'c9tiftt16dc3eo.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com',
-            # 'HOST': 'localhost',
             'PORT': '5432',
     }
     }	
