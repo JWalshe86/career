@@ -8,7 +8,6 @@ from PIL import Image
 current_dir = Path(__file__).parent if "__file__" in locals() else Path.cwd()
 css_file = current_dir / "assets" / "css" / "cv.css"
 resume_file = current_dir / "assets" / "docs" / "JohnWalsheCVpdf.pdf"
-profile_pic = current_dir / "assets" / "docs" / "profile-pic.png"
 
 
 # --- GENERAL SETTINGS ---
@@ -18,12 +17,11 @@ NAME = "John Doe"
 DESCRIPTION = """
 Senior Data Analyst, assisting enterprises by supporting data-driven decision-making.
 """
-EMAIL = "johndoe@email.com"
+EMAIL = "jwalshedev@gmail.com"
 SOCIAL_MEDIA = {
-    "YouTube": "https://youtube.com/c/codingisfun",
-    "LinkedIn": "https://linkedin.com",
-    "GitHub": "https://github.com",
-    "Twitter": "https://twitter.com",
+    "LinkedIn": "www.linkedin.com/in/john-walshe86",
+    "GitHub": "https://github.com/JWalshe86/",
+    "Medium": "https://medium.com/@walshejohnnyw7",
 }
 PROJECTS = {
     "🏆 Sales Dashboard - Comparing sales across three stores": "https://youtu.be/Sb0A9i6d320",
@@ -41,24 +39,19 @@ with open(css_file) as f:
     st.markdown("<style>{}</style>".format(f.read()), unsafe_allow_html=True)
 with open(resume_file, "rb") as pdf_file:
     PDFbyte = pdf_file.read()
-profile_pic = Image.open(profile_pic)
 
 
 # --- HERO SECTION ---
-col1, col2 = st.columns(2, gap="small")
-with col1:
-    st.image(profile_pic, width=230)
 
-with col2:
-    st.title(NAME)
-    st.write(DESCRIPTION)
-    st.download_button(
-        label=" 📄 Download Resume",
-        data=PDFbyte,
-        file_name=resume_file.name,
-        mime="application/octet-stream",
-    )
-    st.write("📫", EMAIL)
+st.title(NAME)
+st.write(DESCRIPTION)
+st.download_button(
+	label=" 📄 Download Resume",
+	data=PDFbyte,
+	file_name=resume_file.name,
+	mime="application/octet-stream",
+)
+st.write("📫", EMAIL)
 
 
 # --- SOCIAL LINKS ---
