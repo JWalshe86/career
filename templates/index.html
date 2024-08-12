@@ -64,7 +64,7 @@
         <section id="home" class="full-height px-lg-5">
         <!-- Login prompt -->
             {% block content %}
-	{% if user.is_authenticated %}
+	{# if user.is_authenticated #}
 	Hi {{ user.username }}!
 	<form action="{% url 'logout' %}" method="post">
 	  {% csrf_token %}
@@ -73,7 +73,7 @@
 	{% else %}
 	<p>You are not logged in</p>
 	<a href="{% url 'login' %}">Log In</a>
-	{% endif %}
+	{# endif #}
 	{% endblock %}
 		<!-- End login prompt -->
 
