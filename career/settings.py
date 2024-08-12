@@ -110,7 +110,7 @@ if "DATABASE_URL" in os.environ:
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': 'postgres',
             'USER': 'postgres',
-            'PASSWORD': os.environ.get("DATABASE_PASSWORDL"),
+            'PASSWORD': 'Sunshine7!',
             'HOST': 'c9tiftt16dc3eo.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com',
             'PORT': '5432',
     }
