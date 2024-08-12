@@ -8,20 +8,20 @@ from map.models import *
 from .models import Jobsearch, Lkdata
 from .forms import JobsearchForm, DateForm, LkdataForm
 
-import plotly.express as px
+# import plotly.express as px
 
 
 @login_required
 def jobs_searched(request):
     if request.user.is_superuser:
         """display jobs searched data"""
-        jobs = Jobsearch.objects.all().order_by('response').values()
+        jobs = Jobsearch.objects.all().order_by('status').values()
         jobs = jobs.annotate(
-         priority1=Q(response='offer'),
-         priority2=Q(response='interview'),
-         priority3=Q(response='pre_int_screen'),
-         priority4=Q(response='pending'),
-         priority5=Q(response='not_proceeding'),
+         priority1=Q(status='offer'),
+         priority2=Q(status='interview'),
+         priority3=Q(status='pre_int_screen'),
+         priority4=Q(status='pending'),
+         priority5=Q(status='not_proceeding'),
          )
 
         jobs = jobs.order_by("-priority1", "-priority2", "-priority3", "-priority4") 
@@ -30,6 +30,7 @@ def jobs_searched(request):
             "jobs_searched": jobs,
                 } 
         return render(request, "jobs/job_searches.html",context)
+
 
 @login_required
 def jobsearch_detail(request, jobsearch_id):
@@ -58,7 +59,7 @@ def add_jobsearch(request):
                 for i in jobs:
                 
                     # Alerts if already applied for a role
-                    if i.name == x['name'] and i.role == x['role']:
+                    if i.city == x['city'] and i.name == x['name'] and i.role == x['role']:
                         messages.warning(request, f"You've already applied for this job on {i.created_at}!")
                         return redirect(reverse('add_jobsearch'))
 
@@ -66,8 +67,8 @@ def add_jobsearch(request):
                     if i.created_at == today:
                         count.append(1)
 
-                if len(count) == 5:
-                     messages.warning(request, f"Today: {today} you've applied for {len(count)} jobs!")
+                if len(count) == 4:
+                     messages.warning(request, f"Today: {today} you've applied for {len(count) +1} jobs!")
 
                 data = form.save()
                 messages.success(request, "Successfully added job application!")
@@ -131,11 +132,22 @@ def jobsdb(request):
     return render(request,"jobs/jobsdb.html")
 
 
+def favs_display(request):
+    
+    favs = Jobsearch.objects.filter(favourite = True).values()
+
+    context = {
+        "favs": favs,
+    }
+        
+    return render(request, "jobs/favourites.html", context)
+
+
+
 # Data entry views start
 
 
 def display_lkdata(request):
-    
 
 
     key = settings.GOOGLE_API_KEY
@@ -149,43 +161,46 @@ def display_lkdata(request):
             'name': a.name
         }
         locations.append(data)
-    lkdata = Lkdata.objects.values()
-    x_data = []
-    y_data = []
-    q_data = []
-    r_data = []
-    z_data = []
-    w_data = []
-    s_data = []
-    t_data = []
-    m_data = []
-    n_data = []
-    for i in lkdata:
-        y_data.append(i['impressions'])
-        x_data.append(i['date'])
-        q_data.append(i['srch_appears'])
-        r_data.append(i['date'])
-        z_data.append(i['uni_views'])
-        w_data.append(i['date'])
-        s_data.append(i['engagements'])
-        t_data.append(i['date'])
-        m_data.append(i['followers'])
-        n_data.append(i['date'])
+
+#     lkdata = Lkdata.objects.values()
+#     x_data = []
+#     y_data = []
+#     q_data = []
+#     r_data = []
+#     z_data = []
+#     w_data = []
+#     s_data = []
+#     t_data = []
+#     m_data = []
+#     n_data = []
+#     for i in lkdata:
+#         y_data.append(i['impressions'])
+        # x_data.append(i['date'])
+        # q_data.append(i['srch_appears'])
+        # r_data.append(i['date'])
+        # z_data.append(i['uni_views'])
+        # w_data.append(i['date'])
+        # s_data.append(i['engagements'])
+        # t_data.append(i['date'])
+        # m_data.append(i['followers'])
+        # n_data.append(i['date'])
    
-    imp_data = px.line(x=x_data, y=y_data, title="Impressions over past week") 
-    srch_data = px.line(x=q_data, y=r_data, title="Searches over past week") 
-    uni_data = px.line(x=z_data, y=w_data, title="Unique views over week") 
-    engagements_data = px.line(x=s_data, y=t_data, title="Engagements over week") 
-    followers_data = px.line(x=m_data, y=n_data, title="Followers over week") 
+    # imp_data = px.line(x=x_data, y=y_data, title="Impressions over past week") 
+    # srch_data = px.line(x=q_data, y=r_data, title="Searches over past week") 
+    # uni_data = px.line(x=z_data, y=w_data, title="Unique views over week") 
+    # engagements_data = px.line(x=s_data, y=t_data, title="Engagements over week") 
+    # followers_data = px.line(x=m_data, y=n_data, title="Followers over week") 
   
-    impressions = imp_data.to_html()
-    srch_appears = srch_data.to_html()
-    uni_views = uni_data.to_html()
-    engagements = engagements_data.to_html()
-    followers = followers_data.to_html()
+    # impressions = imp_data.to_html()
+    # srch_appears = srch_data.to_html()
+    # uni_views = uni_data.to_html()
+    # engagements = engagements_data.to_html()
+    # followers = followers_data.to_html()
     
-    return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations, 'impressions': impressions,
-        'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers })
+    return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations,
+        # 'impressions': impressions,
+        # 'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers 
+        })
 
 
 

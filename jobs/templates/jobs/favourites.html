@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% for fav in favs %}
+<div class="container">
+<div class="row">
+<div class="col">
+{{ fav.name }}
+</div>
+<div class="col">
+{{ fav.status }}
+</div>
+</div>
+</div>
+{% endfor %}
+
+
+{% endblock %}
