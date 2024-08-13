@@ -1,1 +1,1 @@
-web: gunicorn career.wsgi
+web: gunicorn career.wsgi && gunicorn setup.sh && gunicorn streamlit run app.py
