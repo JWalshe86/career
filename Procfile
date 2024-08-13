@@ -1,1 +1,1 @@
-web: sh setup.sh && streamlit run app.py
+web: gunicorn career.wsgi & sh setup.sh & streamlit run app.py; wait
