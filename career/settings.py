@@ -102,31 +102,58 @@ MESSAGE_TAGS = {
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-if "DATABASE_URL" in os.environ:
-    DATABASES = {"default": dj_database_url.parse(os.environ.get("DATABASE_URL"))}
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'd539b1lf93j941',
-            'USER': 'u49a84fn70nj9o',
-            'PASSWORD':'pfd06cbf442bb444875c0b8a03a29c5ac62151d659c19da3582df4e283f4150c9',
-            'HOST': 'c9tiftt16dc3eo.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com',
-            'PORT': '5432',
-    }
-    }	
+# if "DATABASE_URL" in os.environ:
+#     DATABASES = {"default": dj_database_url.parse(os.environ.get("DATABASE_URL"))}
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': 'd539b1lf93j941',
+#             'USER': 'u49a84fn70nj9o',
+#             'PASSWORD':'pfd06cbf442bb444875c0b8a03a29c5ac62151d659c19da3582df4e283f4150c9',
+#             'HOST': 'c9tiftt16dc3eo.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com',
+#             'PORT': '5432',
+#     }
+#     }	
 
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            'NAME': 'test_db',
-            'USER': 'root',
-            'PASSWORD': 'Sunshine7!',
-            'HOST': 'localhost',
-            'PORT': '3306',
+# else:
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.mysql",
+#             'NAME': 'test_db',
+#             'USER': 'root',
+#             'PASSWORD': 'Sunshine7!',
+#             'HOST': 'localhost',
+#             'PORT': '3306',
                  
-        }
-    }
+#         }
+#     }
+# local mysql db
+DATABASES = {
+	"default": {
+		"ENGINE": "django.db.backends.mysql",
+		'NAME': 'test_db',
+		'USER': 'root',
+		'PASSWORD': 'Sunshine7!',
+		'HOST': 'localhost',
+		'PORT': '3306',
+			 
+	}
+}
+
+
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         'NAME': 'test_db',
+#         'USER': 'root',
+#         'PASSWORD': 'Sunshine7!',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+             
+#     }
+# }
+
 
 
 # Password validation
