@@ -21,10 +21,13 @@ def jobs_searched(request):
          priority2=Q(status='interview'),
          priority3=Q(status='pre_int_screen'),
          priority4=Q(status='pending'),
-         priority5=Q(status='not_proceeding'),
+         priority5=Q(status='1week'),
+         priority6=Q(status='2week'),
+         priority7=Q(status='1month'),
+         priority8=Q(status='not_proceeding'),
          )
 
-        jobs = jobs.order_by("-priority1", "-priority2", "-priority3", "-priority4") 
+        jobs = jobs.order_by("-priority1", "-priority2", "-priority3", "-priority4" ,"-priority5", "-priority6", "-priority7", "-priority8") 
         
         context = {
             "jobs_searched": jobs,

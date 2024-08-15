@@ -6,6 +6,11 @@ $("li:contains(pending)").parents('.card').css('background-color', 'yellow');
 $("li:contains(offer)").parents('.card').css('background-color', 'green');    
 
 
+$("li:contains(1week)").parents('.card').css('background-color', 'pink');    
+$("li:contains(2week)").parents('.card').css('background-color', 'purple');    
+$("li:contains(1month)").parents('.card').css('background-color', 'orange');    
+
+
 var $temp = $("<input>");
 var $url = 'www.linkedin.com/in/john-walshe86';
 var $url2 = 'https://github.com/JWalshe86/';
@@ -25,6 +30,7 @@ $('.github').on('click', function() {
   document.execCommand("copy");
   $temp.remove();
   $("p").text("Github URL copied!");
+
 })
 
 $('.cv').on('click', function() {
@@ -34,5 +40,12 @@ $('.cv').on('click', function() {
   $temp.remove();
   $("p").text("CV URL copied!");
 })
-
+const value = JSON.parse(document.getElementById('hello-data').textContent);
+console.log('v', value)
 })
+
+
+
+
+
+
