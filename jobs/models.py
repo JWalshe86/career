@@ -19,7 +19,7 @@ TYPE_CHOICES = (
             )
 
 
-RESPONSE_CHOICES = (
+STATUS_CHOICES = (
     ('pending', 'PENDING'),
     ('pending1mnt', 'PENDING1MNT'),
     ('not_proceeding', 'NOT_PROCEEDING'),
@@ -27,6 +27,9 @@ RESPONSE_CHOICES = (
     ('interview', 'INTERVIEW'),
     ('offer', 'OFFER'),
     ('appinprog', 'APPINPROG'),
+    ('1week', '1WEEK'),
+    ('2week', '2WEEK'),
+    ('1month', '1MONTH'),
             )
 
 
@@ -43,7 +46,7 @@ class Jobsearch(models.Model):
     role = models.CharField(blank=True, default=None, max_length=127, null=True)
     text_used = models.TextField(null=True, blank=True)
     method = models.CharField(blank=True, choices=METHOD_CHOICES, default='lkeasy', max_length=127, null=True)
-    status = models.CharField(blank=True, choices=RESPONSE_CHOICES, default='pending', max_length=127, null=True)
+    status = models.CharField(blank=True, choices=STATUS_CHOICES, default='pending', max_length=127, null=True)
     search_imgs = models.ImageField(blank=True, upload_to='static/images/%Y/%m/%d')
     docfile = models.FileField(blank=True, upload_to='static/documents/%Y/%m/%d')
     created_at = models.DateField(auto_now_add=True)
