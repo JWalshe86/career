@@ -15,7 +15,8 @@ from .forms import JobsearchForm, DateForm, LkdataForm
 def jobs_searched(request):
     if request.user.is_superuser:
         """display jobs searched data"""
-        jobs = Jobsearch.objects.all().order_by('status').values()
+        jobs = Jobsearch.objects.all()
+        jobs = jobs.order_by('status').values()
         jobs = jobs.annotate(
          priority1=Q(status='offer'),
          priority2=Q(status='interview'),

@@ -40,8 +40,16 @@ $('.cv').on('click', function() {
   $temp.remove();
   $("p").text("CV URL copied!");
 })
-const value = JSON.parse(document.getElementById('hello-data').textContent);
-console.log('v', value)
+//return statuses
+     let elements = document.querySelectorAll('li');
+         elements.forEach(element => {
+	                        addStatusDetails(element)
+		   })
+	function addStatusDetails(statusElement){
+             let data = statusElement.dataset
+             console.log('data', data)
+}
+
 })
 
 
