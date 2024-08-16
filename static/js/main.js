@@ -1,4 +1,5 @@
 $(document).ready(function (){
+
 $("li:contains(not_proceeding)").parents('.card').css('background-color', 'red');    
 $("li:contains(interview)").parents('.card').css('background-color', 'blue');    
 $("li:contains(pre_int_screen)").parents('.card').css('background-color', '#83d7ad');    
@@ -40,15 +41,44 @@ $('.cv').on('click', function() {
   $temp.remove();
   $("p").text("CV URL copied!");
 })
-//return statuses
-     let elements = document.querySelectorAll('li');
-         elements.forEach(element => {
-	                        addStatusDetails(element)
+//return dates
+
+let elements = document.querySelectorAll('li');
+      
+var x = elements.forEach(element => {
+                   addcreated_at(element)
 		   })
-	function addStatusDetails(statusElement){
-             let data = statusElement.dataset
-             console.log('data', data)
+console.log('x', x)
+
+function addcreated_at(created_atElement){
+
+        let data = created_atElement.dataset
+        let date_applied = data.jobCreated_at
+        return date_applied;
+      }
+
+// Function to check if one week has passed
+function checkOneWeekPassed(startDate) {
+    // Get the current date
+    const currentDate = new Date();
+    
+    // Calculate the difference in time (in milliseconds)
+    const timeDifference = currentDate - new Date(startDate);
+    
+    // Convert time difference to days
+    const daysDifference = timeDifference / (1000 * 3600 * 24);
+    
+    // Check if the difference is greater than or equal to 7 days
+    if (daysDifference >= 7) {
+        alert("One week has passed!");
+    }
+    console.log('currentDate', currentDate)
 }
+
+// Example usage
+const startDate = "2024-08-09"; // Replace with your start date
+checkOneWeekPassed(startDate);
+
 
 })
 
