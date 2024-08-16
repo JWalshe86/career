@@ -39,7 +39,7 @@
                                         <div class="col">
 						<ul class='list-unstyled'>
                                             <li class="mb-0 text-left">ROLE: {{ data.role }}</li>
-                                            <li class="mb-0 text-left">DATE: {{ data.created_at }}</li>
+                                            <li class="mb-0 text-left">DATE: {{ data.created_at|date:'Y-m-d' }}</li>
                                             <li class="mb-0 text-left">STATUS: {{ data.status }}</li>
 						</ul> 
                                         </div>
@@ -55,11 +55,8 @@
     </div>
     <ul>
 	    {% for job in jobs_searched %}
-	    <li data-job-status="{{ job.status }}">{{ job.status }}</li>
+	    <li class='d-none' data-job="{{ job }}">{{ job }}</li>
 	    {% endfor %}
     </ul>
-
-
-    <div id='status-details'></div>
 
 {% endblock %}
