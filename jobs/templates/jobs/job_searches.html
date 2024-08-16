@@ -53,4 +53,13 @@
             </div>
         </div>
     </div>
+    <ul>
+	    {% for job in jobs_searched %}
+	    <li data-job-status="{{ job.status }}">{{ job.status }}</li>
+	    {% endfor %}
+    </ul>
+
+
+    <div id='status-details'></div>
+
 {% endblock %}
