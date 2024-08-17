@@ -41,22 +41,33 @@ $('.cv').on('click', function() {
   $temp.remove();
   $("p").text("CV URL copied!");
 })
+
 //return dates
 
 let elements = document.querySelectorAll('li');
-      
-var x = elements.forEach(element => {
-                   addcreated_at(element)
+     
+	// Add each job search into the finddateapplied function
+    elements.forEach(element => {
+                   finddateapplied(element)
 		   })
-console.log('x', x)
 
-function addcreated_at(created_atElement){
+function finddateapplied(element){
+	// Access the data-* attributes
+        let data = element.dataset
+        // lists each jobsearch.created_at entry 
+	// eg. DOMStringMap {dateapplied: '2024-07-25'}
+        let dateapplied = data.dateapplied
+	// lists each date a job was applied for 
+	// data.dateapplied works as its set as data- attribute in jobs_searches.html - any other object will not work unless set here.
+	
+	//console.log(element)
+        // lists each element 
+	//e.g <li class=​"d-none" data-dateapplied=​"2024-08-10">​…​</li>​
+       
+        checkOneWeekPassed(dateapplied)
+        // add dateapplied to function which checks if week has passed since its entry
 
-        let data = created_atElement.dataset
-        let date_applied = data.jobCreated_at
-        return date_applied;
-      }
-
+}
 // Function to check if one week has passed
 function checkOneWeekPassed(startDate) {
     // Get the current date
@@ -70,15 +81,13 @@ function checkOneWeekPassed(startDate) {
     
     // Check if the difference is greater than or equal to 7 days
     if (daysDifference >= 7) {
-        alert("One week has passed!");
+        console.log(`One week has passed! ${startDate}`);
     }
-    console.log('currentDate', currentDate)
 }
 
 // Example usage
 const startDate = "2024-08-09"; // Replace with your start date
 checkOneWeekPassed(startDate);
-
 
 })
 
