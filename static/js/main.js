@@ -63,31 +63,27 @@ function finddateapplied(element){
 	//console.log(element)
         // lists each element 
 	//e.g <li class=​"d-none" data-dateapplied=​"2024-08-10">​…​</li>​
-       
-        checkOneWeekPassed(dateapplied)
+            
+        checkOneWeekPassed(dateapplied, element)
         // add dateapplied to function which checks if week has passed since its entry
 
 }
 // Function to check if one week has passed
-function checkOneWeekPassed(startDate) {
+function checkOneWeekPassed(dateapplied, element) {
     // Get the current date
     const currentDate = new Date();
     
     // Calculate the difference in time (in milliseconds)
-    const timeDifference = currentDate - new Date(startDate);
+    const timeDifference = currentDate - new Date(dateapplied);
     
     // Convert time difference to days
     const daysDifference = timeDifference / (1000 * 3600 * 24);
     
     // Check if the difference is greater than or equal to 7 days
-    if (daysDifference >= 7) {
-        console.log(`One week has passed! ${startDate}`);
+    if (daysDifference >= 7 ) {
+        $("li:contains(interview)").parents('.card').css('background-color', 'pink');    
     }
 }
-
-// Example usage
-const startDate = "2024-08-09"; // Replace with your start date
-checkOneWeekPassed(startDate);
 
 })
 
