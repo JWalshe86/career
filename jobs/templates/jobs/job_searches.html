@@ -55,7 +55,7 @@
     </div>
     <ul>
 	    {% for job in jobs_searched %}
-	    <li class='d-none' data-job="{{ job }}">{{ job }}</li>
+	    <li class='d-none' data-dateapplied="{{ job.created_at|date:"Y-m-d" }}">{{ job }}</li>
 	    {% endfor %}
     </ul>
 
