@@ -1,94 +1,74 @@
-$(document).ready(function (){
+dy(function () {
 
-$("li:contains(not_proceeding)").parents('.card').css('background-color', 'red');    
-$("li:contains(interview)").parents('.card').css('background-color', 'blue');    
-$("li:contains(pre_int_screen)").parents('.card').css('background-color', '#83d7ad');    
-$("li:contains(pending)").parents('.card').css('background-color', 'yellow');    
-$("li:contains(offer)").parents('.card').css('background-color', 'green');    
+    // Change background color based on status
+    $("li:contains(not_proceeding)").parents('.card').css('background-color', 'red');
+    $("li:contains(interview)").parents('.card').css('background-color', 'blue');
+    $("li:contains(pre_int_screen)").parents('.card').css('background-color', '#83d7ad');
+    $("li:contains(pending)").parents('.card').css('background-color', 'yellow');
+    $("li:contains(offer)").parents('.card').css('background-color', 'green');
 
+    $("li:contains(1week)").parents('.card').css('background-color', 'pink');
+    $("li:contains(2week)").parents('.card').css('background-color', 'purple');
+    $("li:contains(1month)").parents('.card').css('background-color', 'orange');
 
-$("li:contains(1week)").parents('.card').css('background-color', 'pink');    
-$("li:contains(2week)").parents('.card').css('background-color', 'purple');    
-$("li:contains(1month)").parents('.card').css('background-color', 'orange');    
+    // Copy URL to clipboard and show message
+    $('.linkedin').on('click', function() {
+        copyToClipboard('www.linkedin.com/in/john-walshe86', "LinkedIn URL copied!");
+    });
 
+    $('.github').on('click', function() {
+        copyToClipboard('https://github.com/JWalshe86/', "GitHub URL copied!");
+    });
 
-var $temp = $("<input>");
-var $url = 'www.linkedin.com/in/john-walshe86';
-var $url2 = 'https://github.com/JWalshe86/';
-var $url3 = 'https://github.com/user-attachments/files/16346134/John_Walshe_CV.1.pdf';
+    $('.cv').on('click', function() {
+        copyToClipboard('https://github.com/user-attachments/files/16346134/John_Walshe_CV.1.pdf', "CV URL copied!");
+    });
 
-$('.linkedin').on('click', function() {
-  $("body").append($temp);
-  $temp.val($url).select();
-  document.execCommand("copy");
-  $temp.remove();
-  $("p").text("Linkedin URL copied!");
-})
-
-$('.github').on('click', function() {
-  $("body").append($temp);
-  $temp.val($url2).select();
-  document.execCommand("copy");
-  $temp.remove();
-  $("p").text("Github URL copied!");
-
-})
-
-$('.cv').on('click', function() {
-  $("body").append($temp);
-  $temp.val($url3).select();
-  document.execCommand("copy");
-  $temp.remove();
-  $("p").text("CV URL copied!");
-})
-
-//return dates
-
-let elements = document.querySelectorAll('li');
-     
-	// Add each job search into the finddateapplied function
-    elements.forEach(element => {
-                   finddateapplied(element)
-		   })
-
-function finddateapplied(element){
-	// Access the data-* attributes
-        let data = element.dataset
-        // lists each jobsearch.created_at entry 
-	// eg. DOMStringMap {dateapplied: '2024-07-25'}
-        let dateapplied = data.dateapplied
-	// lists each date a job was applied for 
-	// data.dateapplied works as its set as data- attribute in jobs_searches.html - any other object will not work unless set here.
-	
-	//console.log(element)
-        // lists each element 
-	//e.g <li class=​"d-none" data-dateapplied=​"2024-08-10">​…​</li>​
-            
-        checkOneWeekPassed(dateapplied, element)
-        // add dateapplied to function which checks if week has passed since its entry
-
-}
-// Function to check if one week has passed
-function checkOneWeekPassed(dateapplied, element) {
-    // Get the current date
-    const currentDate = new Date();
-    
-    // Calculate the difference in time (in milliseconds)
-    const timeDifference = currentDate - new Date(dateapplied);
-    
-    // Convert time difference to days
-    const daysDifference = timeDifference / (1000 * 3600 * 24);
-    
-    // Check if the difference is greater than or equal to 7 days
-    if (daysDifference >= 7 ) {
-        $("li:contains(interview)").parents('.card').css('background-color', 'pink');    
+    function copyToClipboard(url, message) {
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(url).select();
+        document.execCommand("copy");
+        $temp.remove();
+        $("p").text(message);
     }
-}
 
-})
+    function checkOneWeekPassed(dateapplied, element) {
+        const currentDate = new Date();
+        const timeDifference = currentDate - new Date(dateapplied);
+        const daysDifference = timeDifference / (1000 * 3600 * 24);
 
+        // Change the status to '1week' 
+dy(function () {
 
+    // Function to check if one week has passed and update the status
+    function checkOneWeekPassed(dateapplied, element) {
+        const currentDate = new Date();
+        const appliedDate = new Date(dateapplied);
+        const timeDifference = currentDate - appliedDate;
+        const daysDifference = timeDifference / (1000 * 3600 * 24);
 
+        // If a week has passed, update the text from 'pending' to '1week'
+        if (daysDifference >= 7) {
+            element.text(function(index, text) {
+                return text.replace('pending', '1week');
+            });
+            element.parents('.card').css('background-color', 'pink');
+        }
+    }
 
+    // Select all list items containing the word "pending"
+    $("li:contains(pending)").each(function() {
+        let element = $(this);
 
+        // Retrieve the 'data-dateapplied' attribute
+        let dateapplied = element.attr('data-dateapplied');
+
+        // Check if a week has passed and update the status and color if so
+        if (dateapplied) {
+            checkOneWeekPassed(dateapplied, element);
+        }
+    });
+
+});
 
