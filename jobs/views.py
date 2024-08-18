@@ -7,37 +7,29 @@ from django.conf import settings
 from .models import Jobsearch, Lkdata
 from .forms import JobsearchForm, DateForm, LkdataForm
 
+from datetime import date, timedelta
+from django.utils import timezone
+from jobs.models import Jobsearch
+
 @login_required
 def jobs_searched(request):
     if request.user.is_superuser:
-        """Display jobs searched data"""
-
-        # Get today's date
-        today = date.today()
-
-        # Define the date one week ago
+        today = timezone.now()
         one_week_ago = today - timedelta(days=7)
 
-        print(f"Today's Date: {today}")
-        print(f"One Week Ago: {one_week_ago}")
-
-        # Update status for jobs created in the past week
-        updated_count = Jobsearch.objects.filter(
-            created_at__gt=one_week_ago,
-            status='pending'
+        # Update status for jobs created within the past week
+        updated_count_wk = Jobsearch.objects.filter(
+            created_at__gt=one_week_ago, status='pending'
         ).update(status='pending<wk')
-        
-        print(f"Number of jobs updated to 'pending<wk': {updated_count}")
+        print(f"Number of jobs updated to 'pending<wk': {updated_count_wk}")
 
         # Update status for jobs created more than a week ago
-        updated_count = Jobsearch.objects.filter(
-            created_at__lte=one_week_ago,
-            status='pending<wk'
+        updated_count_1wk = Jobsearch.objects.filter(
+            created_at__lte=one_week_ago, status='pending'
         ).update(status='1week')
+        print(f"Number of jobs updated to '1week': {updated_count_1wk}")
 
-        print(f"Number of jobs updated to '1week': {updated_count}")
-
-        # Retrieve all job entries
+        # Retrieve all job entries for display
         jobs = Jobsearch.objects.all()
 
         # Annotate and order the jobs for display
@@ -61,8 +53,6 @@ def jobs_searched(request):
             "jobs_searched": jobs,
         }
         return render(request, "jobs/job_searches.html", context)
-
-
 # Data entry views start
 
 @login_required
