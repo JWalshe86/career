@@ -8,6 +8,8 @@
 
 {% for task in tasks %}
     <div>
+	   <!-- returns get method to updateTask view- id added here -->
+	 <a href="{% url 'updateTask' task.id %}">Update</a>
          <p>{{task}}</p>
     </div>	    
 

@@ -18,3 +18,12 @@ def index(request):
     return render(request, 'tasks/list.html', context)
 
 
+def updateTask(request, pk):
+
+    task = Task.objects.get(id=pk)
+
+    return render(request, 'tasks/update_task.html')
+
+
+
+
