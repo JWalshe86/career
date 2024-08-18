@@ -27,6 +27,7 @@ STATUS_CHOICES = (
     ('interview', 'INTERVIEW'),
     ('offer', 'OFFER'),
     ('appinprog', 'APPINPROG'),
+    ('pending<wk', 'PENDING<WK'),
     ('1week', '1WEEK'),
     ('2week', '2WEEK'),
     ('1month', '1MONTH'),
@@ -49,7 +50,7 @@ class Jobsearch(models.Model):
     status = models.CharField(blank=True, choices=STATUS_CHOICES, default='pending', max_length=127, null=True)
     search_imgs = models.ImageField(blank=True, upload_to='static/images/%Y/%m/%d')
     docfile = models.FileField(blank=True, upload_to='static/documents/%Y/%m/%d')
-    created_at = models.DateField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     edited_at = models.DateTimeField(auto_now=True)
 
     lat = models.CharField(max_length=200,blank=True, null=True)

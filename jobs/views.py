@@ -2,39 +2,68 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.db.models import Q
-from datetime import date
+from datetime import date, timedelta
 from django.conf import settings
-from map.models import *
 from .models import Jobsearch, Lkdata
 from .forms import JobsearchForm, DateForm, LkdataForm
-
-# import plotly.express as px
-
 
 @login_required
 def jobs_searched(request):
     if request.user.is_superuser:
-        """display jobs searched data"""
-        jobs = Jobsearch.objects.all()
-        jobs = jobs.order_by('status').values()
-        jobs = jobs.annotate(
-         priority1=Q(status='offer'),
-         priority2=Q(status='interview'),
-         priority3=Q(status='pre_int_screen'),
-         priority4=Q(status='pending'),
-         priority5=Q(status='1week'),
-         priority6=Q(status='2week'),
-         priority7=Q(status='1month'),
-         priority8=Q(status='not_proceeding'),
-         )
+        """Display jobs searched data"""
 
-        jobs = jobs.order_by("-priority1", "-priority2", "-priority3", "-priority4" ,"-priority5", "-priority6", "-priority7", "-priority8") 
+        # Get today's date
+        today = date.today()
+
+        # Define the date one week ago
+        one_week_ago = today - timedelta(days=7)
+
+        print(f"Today's Date: {today}")
+        print(f"One Week Ago: {one_week_ago}")
+
+        # Update status for jobs created in the past week
+        updated_count = Jobsearch.objects.filter(
+            created_at__gt=one_week_ago,
+            status='pending'
+        ).update(status='pending<wk')
         
+        print(f"Number of jobs updated to 'pending<wk': {updated_count}")
+
+        # Update status for jobs created more than a week ago
+        updated_count = Jobsearch.objects.filter(
+            created_at__lte=one_week_ago,
+            status='pending<wk'
+        ).update(status='1week')
+
+        print(f"Number of jobs updated to '1week': {updated_count}")
+
+        # Retrieve all job entries
+        jobs = Jobsearch.objects.all()
+
+        # Annotate and order the jobs for display
+        jobs = jobs.annotate(
+            priority1=Q(status='offer'),
+            priority2=Q(status='interview'),
+            priority3=Q(status='pre_int_screen'),
+            priority4=Q(status='pending<wk'),
+            priority5=Q(status='pending'),
+            priority6=Q(status='1week'),
+            priority7=Q(status='2week'),
+            priority8=Q(status='1month'),
+            priority9=Q(status='not_proceeding'),
+        ).order_by(
+            "-priority1", "-priority2", "-priority3",
+            "-priority4", "-priority5", "-priority6",
+            "-priority7", "-priority8", "-priority9"
+        )
+
         context = {
             "jobs_searched": jobs,
-                } 
-        return render(request, "jobs/job_searches.html",context)
+        }
+        return render(request, "jobs/job_searches.html", context)
 
+
+# Data entry views start
 
 @login_required
 def jobsearch_detail(request, jobsearch_id):
@@ -228,5 +257,3 @@ def add_lkdata(request):
 
 
 	return render(request, template, context)
-
-
