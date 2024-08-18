@@ -16,10 +16,15 @@ def jobs_searched(request):
     if request.user.is_superuser:
         today = timezone.now()
         one_week_ago = today - timedelta(days=7)
+        jobs_past_week = Jobsearch.objects.filter(created_at__gt=one_week_ago, status='1week')
+        print(f'jobs in l week: {jobs_past_week.count()}')
+        print(f'Today {today}')
+        print(f'wk ago: {one_week_ago}')
+        
 
         # Update status for jobs created within the past week
         updated_count_wk = Jobsearch.objects.filter(
-            created_at__gt=one_week_ago, status='pending'
+            created_at__gt=one_week_ago, status='1week'
         ).update(status='pending<wk')
         print(f"Number of jobs updated to 'pending<wk': {updated_count_wk}")
 
