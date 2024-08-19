@@ -7,7 +7,6 @@ urlpatterns = [
           path("jobsdashboard/", views.display_lkdata, name="display_lkdata"),
           path("favs/", views.favs_display, name="favs_display"),
           path("map/", MapView.as_view(), name='my_map_view'),
-          path("add_lkdata/", views.add_lkdata, name="add_lkdata"),
           path("jobs_searched/", views.jobs_searched, name="jobs_searched"),
           path("add_jobsearch/", views.add_jobsearch, name="add_jobsearch"),
           path("^<int:jobsearch_id>/$", views.jobsearch_detail, name="jobsearch_detail"),
