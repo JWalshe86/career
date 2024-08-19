@@ -61,11 +61,11 @@ class DistanceView(View):
         if form.is_valid(): 
             from_location = form.cleaned_data['from_location']
             from_location_info = Jobsearch.objects.get(name=from_location)
-            from_address_string = str(from_location_info.address)+", "+str(from_location_info.zipcode)+", "+str(from_location_info.city)+", "+str(from_location_info.country)
+            from_address_string = str(from_location_info.address)+", "+str(from_location_info.eircode)+", "+str(from_location_info.city)+", "+str(from_location_info.country)
 
             to_location = form.cleaned_data['to_location']
             to_location_info = Jobsearch.objects.get(name=to_location)
-            to_address_string = str(to_location_info.address)+", "+str(to_location_info.zipcode)+", "+str(to_location_info.city)+", "+str(to_location_info.country)
+            to_address_string = str(to_location_info.address)+", "+str(to_location_info.eircode)+", "+str(to_location_info.city)+", "+str(to_location_info.country)
 
             mode = form.cleaned_data['mode']
             now = datetime.now()
@@ -121,8 +121,8 @@ class GeocodingView(View):
             place_id = location.place_id
             label = "from my database"
 
-        elif location.address and location.country and location.zipcode and location.city != None: 
-            address_string = str(location.address)+", "+str(location.zipcode)+", "+str(location.city)+", "+str(location.country)
+        elif location.address and location.country and location.eircode and location.city != None: 
+            address_string = str(location.address)+", "+str(location.eircode)+", "+str(location.city)+", "+str(location.country)
 
             gmaps = googlemaps.Client(key = settings.GOOGLE_API_KEY)
             result = gmaps.geocode(address_string)[0]
