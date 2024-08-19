@@ -2,35 +2,81 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.db.models import Q
-from datetime import date
+from datetime import date, timedelta
 from django.conf import settings
-from map.models import *
 from .models import Jobsearch, Lkdata
 from .forms import JobsearchForm, DateForm, LkdataForm
 
-# import plotly.express as px
-
+from datetime import date, timedelta
+from django.utils import timezone
+from jobs.models import Jobsearch
 
 @login_required
 def jobs_searched(request):
     if request.user.is_superuser:
-        """display jobs searched data"""
-        jobs = Jobsearch.objects.all().order_by('status').values()
-        jobs = jobs.annotate(
-         priority1=Q(status='offer'),
-         priority2=Q(status='interview'),
-         priority3=Q(status='pre_int_screen'),
-         priority4=Q(status='pending'),
-         priority5=Q(status='not_proceeding'),
-         )
-
-        jobs = jobs.order_by("-priority1", "-priority2", "-priority3", "-priority4") 
+        today = timezone.now()
         
+        one_week_ago = today - timedelta(days=7)
+        two_weeks_ago = timezone.now() - timedelta(days=14)
+        one_month_ago = timezone.now() - timedelta(days=30)
+
+
+        jobs_past_week = Jobsearch.objects.filter(created_at__gt=one_week_ago, status='1week')
+        jobs_between_one_and_two_weeks = Jobsearch.objects.filter(
+        created_at__gt=two_weeks_ago,
+        created_at__lt=one_week_ago,
+        status='1week'
+          ) 
+        jobs_between_two_weeks_and_one_month = Jobsearch.objects.filter(
+        created_at__gt=one_month_ago,
+        created_at__lt=two_weeks_ago,
+        status='1week'
+        ) 
+
+        # Update status for jobs created within the past week
+        updated_count_wk = Jobsearch.objects.filter(
+            created_at__gt=one_week_ago, status='1week'
+        ).update(status='pending<wk')
+
+        # Update status for jobs created btween 1 & 2 weeks
+        updated_count_2wk = Jobsearch.objects.filter(
+            created_at__gt=two_weeks_ago, created_at__lt=one_week_ago, status='1week'
+        ).update(status='pending<2wk')
+        
+        # Update status for jobs created btween 1mth & 2 weeks
+        updated_count_2wk_1mt = Jobsearch.objects.filter(
+            created_at__gt=one_month_ago, created_at__lt=two_weeks_ago, status='1week'
+        ).update(status='pend<MONTH')
+        
+        # Update status for jobs created btween 1mth & 2 weeks
+        updated_count_grmt = Jobsearch.objects.filter(
+            created_at__lt=one_month_ago, status='pend+month'
+        ).update(status='not_proceeding')
+
+        # Retrieve all job entries for display
+        jobs = Jobsearch.objects.all()
+
+        # Annotate and order the jobs for display
+        jobs = jobs.annotate(
+            priority1=Q(status='offer'),
+            priority2=Q(status='interview'),
+            priority3=Q(status='pre_int_screen'),
+            priority4=Q(status='pending<wk'),
+            priority5=Q(status='pending'),
+            priority6=Q(status='pending<2wk'),
+            priority7=Q(status='pend<MONTH'),
+            priority8=Q(status='not_proceeding'),
+        ).order_by(
+            "-priority1", "-priority2", "-priority3",
+            "-priority4", "-priority5", "-priority6",
+            "-priority7", "-priority8", 
+        )
+
         context = {
             "jobs_searched": jobs,
-                } 
-        return render(request, "jobs/job_searches.html",context)
-
+        }
+        return render(request, "jobs/job_searches.html", context)
+# Data entry views start
 
 @login_required
 def jobsearch_detail(request, jobsearch_id):
@@ -146,7 +192,6 @@ def favs_display(request):
 
 # Data entry views start
 
-
 def display_lkdata(request):
 
 
@@ -201,28 +246,4 @@ def display_lkdata(request):
         # 'impressions': impressions,
         # 'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers 
         })
-
-
-
-def add_lkdata(request):
-	if request.method == "POST":
-		form = LkdataForm(request.POST, request.FILES)
-		if form.is_valid():
-			lkdata = Lkdata.objects.all()
-			data = form.save()
-			messages.success(request, "Successfully added linkedin data!")
-			return redirect(reverse("display_lkdata"))
-
-	else:
-		form = LkdataForm()
-
-	template = "jobs/add_lkdata.html"
-
-	context = {
-		"form" :form,
-			}
-
-
-	return render(request, template, context)
-
 

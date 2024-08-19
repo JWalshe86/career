@@ -1,8 +1,10 @@
 $(document).ready(function (){
+$("li:contains(pending<wk)").parents('.card').css('background-color', 'yellow');    
+$("li:contains(pending<2wk)").parents('.card').css('background-color', 'orange');    
+$("li:contains(pend<MONTH)").parents('.card').css('background-color', 'purple');    
 $("li:contains(not_proceeding)").parents('.card').css('background-color', 'red');    
-$("li:contains(interview)").parents('.card').css('background-color', 'blue');    
 $("li:contains(pre_int_screen)").parents('.card').css('background-color', '#83d7ad');    
-$("li:contains(pending)").parents('.card').css('background-color', 'yellow');    
+$("li:contains(interview)").parents('.card').css('background-color', 'blue');    
 $("li:contains(offer)").parents('.card').css('background-color', 'green');    
 
 

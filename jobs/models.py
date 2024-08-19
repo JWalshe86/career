@@ -3,10 +3,12 @@ from django.db.models import Case, When, Value
     
 
 METHOD_CHOICES = (
+    ('cislack', 'CISLACK'),
+    ('dm', 'DM'),
     ('indeed', 'INDEED'),
     ('lkeasy', 'LKEASY'),
     ('lkpsearch', 'LKPSearch'),
-    ('cislack', 'CISLACK'),
+    ('jobs.ie', 'JOBS.IE'),
     ('lkjobsug', 'LKJOBSUG'),
     ('inform', 'INFORM'),
     ('irishjobs.ie', 'IRISHJOBS.IE'),
@@ -19,14 +21,17 @@ TYPE_CHOICES = (
             )
 
 
-RESPONSE_CHOICES = (
+STATUS_CHOICES = (
     ('pending', 'PENDING'),
-    ('pending1mnt', 'PENDING1MNT'),
     ('not_proceeding', 'NOT_PROCEEDING'),
     ('pre_int_screen', 'PRE_INT_SCREEN'),
     ('interview', 'INTERVIEW'),
     ('offer', 'OFFER'),
     ('appinprog', 'APPINPROG'),
+    ('pending<wk', 'PENDING<WK'),
+    ('pending<2wk', 'PENDING<2WK'),
+    ('pend<MONTH', 'PEND<MONTH'),
+    ('pend+month', 'PEND+MONTH'),
             )
 
 
@@ -42,11 +47,11 @@ class Jobsearch(models.Model):
     tech = models.CharField(max_length=127, null=True, blank=True)
     role = models.CharField(blank=True, default=None, max_length=127, null=True)
     text_used = models.TextField(null=True, blank=True)
-    method = models.CharField(blank=True, choices=METHOD_CHOICES, default='lkeasy', max_length=127, null=True)
-    status = models.CharField(blank=True, choices=RESPONSE_CHOICES, default='pending', max_length=127, null=True)
+    method = models.CharField(blank=True, choices=METHOD_CHOICES, default='dm', max_length=127, null=True)
+    status = models.CharField(blank=True, choices=STATUS_CHOICES, default='pending', max_length=127, null=True)
     search_imgs = models.ImageField(blank=True, upload_to='static/images/%Y/%m/%d')
     docfile = models.FileField(blank=True, upload_to='static/documents/%Y/%m/%d')
-    created_at = models.DateField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     edited_at = models.DateTimeField(auto_now=True)
 
     lat = models.CharField(max_length=200,blank=True, null=True)

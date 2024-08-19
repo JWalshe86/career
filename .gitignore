@@ -11,6 +11,8 @@ __pycache__/
 node_modules/
 .github/
 creds.json
+credentials.json
+token.json
 *migrations
 None
 static/images/
