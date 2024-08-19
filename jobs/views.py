@@ -65,12 +65,11 @@ def jobs_searched(request):
             priority5=Q(status='pending'),
             priority6=Q(status='pending<2wk'),
             priority7=Q(status='pend<MONTH'),
-            priority8=Q(status='1month'),
-            priority9=Q(status='not_proceeding'),
+            priority8=Q(status='not_proceeding'),
         ).order_by(
             "-priority1", "-priority2", "-priority3",
             "-priority4", "-priority5", "-priority6",
-            "-priority7", "-priority8", "-priority9"
+            "-priority7", "-priority8", 
         )
 
         context = {
@@ -193,7 +192,6 @@ def favs_display(request):
 
 # Data entry views start
 
-
 def display_lkdata(request):
 
 
@@ -249,25 +247,3 @@ def display_lkdata(request):
         # 'srch_appears': srch_appears, 'uni_views': uni_views, 'engagements': engagements, 'followers': followers 
         })
 
-
-
-def add_lkdata(request):
-	if request.method == "POST":
-		form = LkdataForm(request.POST, request.FILES)
-		if form.is_valid():
-			lkdata = Lkdata.objects.all()
-			data = form.save()
-			messages.success(request, "Successfully added linkedin data!")
-			return redirect(reverse("display_lkdata"))
-
-	else:
-		form = LkdataForm()
-
-	template = "jobs/add_lkdata.html"
-
-	context = {
-		"form" :form,
-			}
-
-
-	return render(request, template, context)
