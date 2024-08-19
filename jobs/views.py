@@ -15,24 +15,43 @@ from jobs.models import Jobsearch
 def jobs_searched(request):
     if request.user.is_superuser:
         today = timezone.now()
-        one_week_ago = today - timedelta(days=7)
-        jobs_past_week = Jobsearch.objects.filter(created_at__gt=one_week_ago, status='1week')
-        print(f'jobs in l week: {jobs_past_week.count()}')
-        print(f'Today {today}')
-        print(f'wk ago: {one_week_ago}')
         
+        one_week_ago = today - timedelta(days=7)
+        two_weeks_ago = timezone.now() - timedelta(days=14)
+        one_month_ago = timezone.now() - timedelta(days=30)
+
+
+        jobs_past_week = Jobsearch.objects.filter(created_at__gt=one_week_ago, status='1week')
+        jobs_between_one_and_two_weeks = Jobsearch.objects.filter(
+        created_at__gt=two_weeks_ago,
+        created_at__lt=one_week_ago,
+        status='1week'
+          ) 
+        jobs_between_two_weeks_and_one_month = Jobsearch.objects.filter(
+        created_at__gt=one_month_ago,
+        created_at__lt=two_weeks_ago,
+        status='1week'
+        ) 
 
         # Update status for jobs created within the past week
         updated_count_wk = Jobsearch.objects.filter(
             created_at__gt=one_week_ago, status='1week'
         ).update(status='pending<wk')
-        print(f"Number of jobs updated to 'pending<wk': {updated_count_wk}")
 
-        # Update status for jobs created more than a week ago
-        updated_count_1wk = Jobsearch.objects.filter(
-            created_at__lte=one_week_ago, status='pending'
-        ).update(status='1week')
-        print(f"Number of jobs updated to '1week': {updated_count_1wk}")
+        # Update status for jobs created btween 1 & 2 weeks
+        updated_count_2wk = Jobsearch.objects.filter(
+            created_at__gt=two_weeks_ago, created_at__lt=one_week_ago, status='1week'
+        ).update(status='pending<2wk')
+        
+        # Update status for jobs created btween 1mth & 2 weeks
+        updated_count_2wk_1mt = Jobsearch.objects.filter(
+            created_at__gt=one_month_ago, created_at__lt=two_weeks_ago, status='1week'
+        ).update(status='pend<MONTH')
+        
+        # Update status for jobs created btween 1mth & 2 weeks
+        updated_count_grmt = Jobsearch.objects.filter(
+            created_at__lt=one_month_ago, status='pend+month'
+        ).update(status='not_proceeding')
 
         # Retrieve all job entries for display
         jobs = Jobsearch.objects.all()
@@ -44,8 +63,8 @@ def jobs_searched(request):
             priority3=Q(status='pre_int_screen'),
             priority4=Q(status='pending<wk'),
             priority5=Q(status='pending'),
-            priority6=Q(status='1week'),
-            priority7=Q(status='2week'),
+            priority6=Q(status='pending<2wk'),
+            priority7=Q(status='pend<MONTH'),
             priority8=Q(status='1month'),
             priority9=Q(status='not_proceeding'),
         ).order_by(
