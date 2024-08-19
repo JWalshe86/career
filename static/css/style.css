@@ -1,3 +1,5 @@
+/* styling for base.html */
+
 @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;500;600;700&display=swap');
 
 :root {
@@ -206,9 +208,15 @@ img {
     font-size: 24px;
 }
 
+.card-body, .card-footer {
+    padding: calc(1rem / 3); /* Reduce the padding by a third */
+}
 
-
-
+@media (min-width: 992px) {
+.card .card-footer p.lead {
+    font-size: 1.4vw; /* Adjust based on your design needs */
+}
+}
 
 
 
