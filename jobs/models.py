@@ -20,6 +20,13 @@ TYPE_CHOICES = (
     ('local', 'LOCAL'),
             )
 
+EIRCODE_CHOICES = (
+    ('DO2 PN40', 'DO2 PN40'),
+    ('H91 E2R8', 'H91 E2R8'),
+    ('T23 E6TD', 'T23 E6TD'),
+    ('C15 H04P', 'C15 H04P'),
+            )
+
 
 STATUS_CHOICES = (
     ('pending', 'PENDING'),
@@ -40,7 +47,7 @@ class Jobsearch(models.Model):
 
     favourite = models.BooleanField(default=False)
     name = models.CharField(max_length=127)
-    zipcode = models.CharField(max_length=200,blank=True, null=True)
+    eircode = models.CharField(choices=EIRCODE_CHOICES, max_length=200,blank=True, null=True, default='DO2 PN40')
     city = models.CharField(max_length=127, default='Dublin')
     country = models.CharField(max_length=200,blank=True, null=True, default='Ireland')
     address = models.CharField(max_length=200,blank=True, null=True)
