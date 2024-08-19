@@ -41,46 +41,48 @@
 
     <nav class="navbar2 navbar-expand-lg navbar-dark static-top">
         <div class="container">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav text-lg-center">
                     <li class="nav-item">
-                        <a class="nav-link" href="http://127.0.0.1:8000/">Home</a>
+                        <a class="nav-link text-white" href="http://127.0.0.1:8000/">Home</a>
                     </li>
                 </ul>
-               <div class="dropdown">
-	  <button class="navbar2 text-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                        <!-- Jobsearch dropdown html -->
+		<div class="dropdown">
+	  <button class="bg-dark navbar2 text-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
 		Jobsearch
 	  </button>
-	  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+	  <ul class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuButton1">
                     <li class="nav-item">
-			    <a class="dropdown-item" href="{% url 'display_lkdata' %}">Jobsearch Dashboard</a>
+			    <a class="dropdown-item text-white" href="{% url 'display_lkdata' %}">Jobsearch Dashboard</a>
                     </li>
                     <li class="nav-item">
-			    <a class="dropdown-item" href="{% url 'add_jobsearch' %}">Add_Jobsearch</a>
+			    <a class="dropdown-item text-white" href="{% url 'add_jobsearch' %}">Add_Jobsearch</a>
                     </li>
                     <li class="nav-item">
-			    <a class="dropdown-item" href="{% url 'jobs_searched' %}">Jobs Searched</a>
+			    <a class="dropdown-item text-white" href="{% url 'jobs_searched' %}">Jobs Searched</a>
                     </li>
                     
 	  </ul>
             </div>
+                        <!-- Jobsearch dropdown html End-->
                <div class="dropdown">
-	  <button class="navbar2 text-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+	  <button class="bg-dark navbar2 text-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
 		Prof Links
 	  </button>
-	  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+	  <ul class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuButton2">
                     <li class="nav-item">
-			    <a class="dropdown-item" href="//www.linkedin.com/in/john-walshe86">LinkedIn</a>
+			    <a class="dropdown-item text-white" href="//www.linkedin.com/in/john-walshe86">LinkedIn</a>
                     </li>
                     <li class="nav-item">
-			    <a class="dropdown-item" href="https://github.com/JWalshe86">Github</a>
+			    <a class="dropdown-item text-white" href="https://github.com/JWalshe86">Github</a>
                     </li>
                     <li class="nav-item">
-			    <a class="dropdown-item" href="https://johnwalshecv-622b04707fbb.herokuapp.com/">CV</a>
+			    <a class="dropdown-item text-white" href="https://johnwalshecv-622b04707fbb.herokuapp.com/">CV</a>
                     </li>
                     
 	  </ul>
