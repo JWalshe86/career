@@ -139,3 +139,9 @@ form{
 
 }
 
+@media (max-width: 576px) {
+    #map {
+        height: 60vh; /* Increase height on mobile to make the map more prominent */
+    }
+}
+
