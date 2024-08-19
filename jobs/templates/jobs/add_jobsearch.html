@@ -2,40 +2,199 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
-
 {% block content %}
 
-    <div class="overlay"></div>
-    <div class="container mt-5 text-center">
-        <div class="row">
-            <div class="col-12">
-                <hr>
-                <h2 class="logo-font mb-4">Jobsearch Management</h2>
-                <h5 class="text-muted">Add Job Application</h5>
-                <hr>
-                <h5 class="text-muted">Quick Copy Url Links</h5>
-                       <div class="container d-flex justify-content-center">
-		        <a class="nav-link linkedin" href="#">LinkedIn</a>
-			<a class="nav-link github" href="#">Github</a>
-			<a class="nav-link cv" href="#">CV</a>
-		       </div> 
-            </div>
-	       </div>	
+    <div class="container mt-5">
+        <!-- Header Section -->
+        <div class="text-center mb-4">
+            <h2 class="logo-font">Jobsearch Management</h2>
+            <h5 class="text-muted">Add Job Application</h5>
+            <hr class="my-4">
+        </div>
 
-        <div class="row">
-            <div class="col-12">
-                <form method="POST" action="{% url 'add_jobsearch' %}" class="form mb-2" enctype="multipart/form-data">
+        <!-- Quick Links Section -->
+        <div class="text-center mb-4">
+            <h5 class="text-muted">Quick Copy Url Links</h5>
+            <div class="d-flex justify-content-center">
+                <a class="nav-link mx-2" href="#">LinkedIn</a>
+                <a class="nav-link mx-2" href="#">Github</a>
+                <a class="nav-link mx-2" href="#">CV</a>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <form method="POST" action="{% url 'add_jobsearch' %}" class="form mb-4" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {{ form | crispy }}
-                    <div class="text-right">
-                        <a class="btn text-white rounded-0" href="{% url 'jobs_searched' %}">Cancel</a>
-                        <button class="btn text-white rounded-0" type="submit">Add Jobsearch</button>
+
+                    <!-- Favourite Checkbox -->
+                    <div class="mb-3">
+                        <div id="div_id_favourite" class="form-check">
+                            <input type="checkbox" name="favourite" class="form-check-input" id="id_favourite">
+                            <label for="id_favourite" class="form-check-label">Favourite</label>
+                        </div>
+                    </div>
+
+                    <!-- Name Input -->
+                    <div id="div_id_name" class="mb-3">
+                        <label for="id_name" class="form-label requiredField">Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" maxlength="127" class="form-control form-control-lg" required id="id_name">
+                    </div>
+
+                    <!-- Eircode Input with Modal Button -->
+                    <div id="div_id_eircode" class="mb-3">
+                        <label for="id_eircode" class="form-label">Eircode</label>
+                        <div class="input-group">
+                            <select name="eircode" class="form-select form-select-lg" id="id_eircode">
+                                <option value="">---------</option>
+                                <option value="DO2 PN40" selected>DO2 PN40</option>
+                                <option value="H91 E2R8">H91 E2R8</option>
+                                <option value="T23 E6TD">T23 E6TD</option>
+                                <option value="C15 H04P">C15 H04P</option>
+                            </select>
+                            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#eircodeModal">
+                                Info
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- City Input -->
+                    <div id="div_id_city" class="mb-3">
+                        <label for="id_city" class="form-label requiredField">City <span class="text-danger">*</span></label>
+                        <input type="text" name="city" value="Dublin" maxlength="127" class="form-control form-control-lg" required id="id_city">
+                    </div>
+
+                    <!-- Country Input -->
+                    <div id="div_id_country" class="mb-3">
+                        <label for="id_country" class="form-label">Country</label>
+                        <input type="text" name="country" value="Ireland" maxlength="200" class="form-control form-control-lg" id="id_country">
+                    </div>
+
+                    <!-- Address Input -->
+                    <div id="div_id_address" class="mb-3">
+                        <label for="id_address" class="form-label">Address</label>
+                        <input type="text" name="address" maxlength="200" class="form-control form-control-lg" id="id_address">
+                    </div>
+
+                    <!-- Tech Input -->
+                    <div id="div_id_tech" class="mb-3">
+                        <label for="id_tech" class="form-label">Tech</label>
+                        <input type="text" name="tech" maxlength="127" class="form-control form-control-lg" id="id_tech">
+                    </div>
+
+                    <!-- Role Input -->
+                    <div id="div_id_role" class="mb-3">
+                        <label for="id_role" class="form-label">Role</label>
+                        <input type="text" name="role" maxlength="127" class="form-control form-control-lg" id="id_role">
+                    </div>
+
+                    <!-- Text Used Input -->
+                    <div id="div_id_text_used" class="mb-3">
+                        <label for="id_text_used" class="form-label">Text used</label>
+                        <textarea name="text_used" cols="40" rows="10" class="form-control form-control-lg" id="id_text_used"></textarea>
+                    </div>
+
+                    <!-- Method Input -->
+                    <div id="div_id_method" class="mb-3">
+                        <label for="id_method" class="form-label">Method</label>
+                        <select name="method" class="form-select form-select-lg" id="id_method">
+                            <option value="">---------</option>
+                            <option value="cislack">CISLACK</option>
+                            <option value="dm" selected>DM</option>
+                            <option value="indeed">INDEED</option>
+                            <option value="lkeasy">LKEASY</option>
+                            <option value="lkpsearch">LKPSearch</option>
+                            <option value="jobs.ie">JOBS.IE</option>
+                            <option value="lkjobsug">LKJOBSUG</option>
+                            <option value="inform">INFORM</option>
+                            <option value="irishjobs.ie">IRISHJOBS.IE</option>
+                        </select>
+                    </div>
+
+                    <!-- Status Input -->
+                    <div id="div_id_status" class="mb-3">
+                        <label for="id_status" class="form-label">Status</label>
+                        <select name="status" class="form-select form-select-lg" id="id_status">
+                            <option value="">---------</option>
+                            <option value="pending" selected>PENDING</option>
+                            <option value="not_proceeding">NOT_PROCEEDING</option>
+                            <option value="pre_int_screen">PRE_INT_SCREEN</option>
+                            <option value="interview">INTERVIEW</option>
+                            <option value="offer">OFFER</option>
+                            <option value="appinprog">APPINPROG</option>
+                            <option value="pending&lt;wk">PENDING&lt;WK</option>
+                            <option value="pending&lt;2wk">PENDING&lt;2WK</option>
+                            <option value="pend&lt;MONTH">PEND&lt;MONTH</option>
+                            <option value="pend+month">PEND+MONTH</option>
+                        </select>
+                    </div>
+
+                    <!-- File Inputs -->
+                    <div class="mb-3">
+                        <label class="form-label">Search Images</label>
+                        <input type="file" name="search_imgs" class="form-control" accept="image/*" id="id_search_imgs">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Docfile</label>
+                        <input type="file" name="docfile" class="form-control" id="id_docfile">
+                    </div>
+
+                    <!-- Lat Input -->
+                    <div id="div_id_lat" class="mb-3">
+                        <label for="id_lat" class="form-label">Lat</label>
+                        <input type="text" name="lat" maxlength="200" class="form-control form-control-lg" id="id_lat">
+                    </div>
+
+                    <!-- Lng Input -->
+                    <div id="div_id_lng" class="mb-3">
+                        <label for="id_lng" class="form-label">Lng</label>
+                        <input type="text" name="lng" maxlength="200" class="form-control form-control-lg" id="id_lng">
+                    </div>
+
+                    <!-- Place ID Input -->
+                    <div id="div_id_place_id" class="mb-3">
+                        <label for="id_place_id" class="form-label">Place ID</label>
+                        <input type="text" name="place_id" maxlength="200" class="form-control form-control-lg" id="id_place_id">
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="text-end mt-4">
+                        <a class="btn btn-secondary me-2" href="/jobs/jobs_searched/">Cancel</a>
+                        <button class="btn btn-primary" type="submit">Add Jobsearch</button>
                     </div>
                 </form>
-            </div>            
+            </div>
         </div>
     </div>
-    <script id="hello-data" type="application/json">{"hello": "world"}</script>
-{% endblock %}
 
+    <!-- Modal HTML -->
+    <div class="modal fade" id="eircodeModal" tabindex="-1" aria-labelledby="eircodeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eircodeModalLabel">Eircode Locations</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-unstyled">
+                        <li><strong>DO2 PN40:</strong> Trinity College Dublin</li>
+                        <li><strong>H91 E2R8:</strong> Galway City Center</li>
+                        <li><strong>T23 E6TD:</strong> Cork City Center</li>
+                        <li><strong>Remote:</strong> Home Address</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap JS and Popper.js if not included already -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+{% endblock %}
 
