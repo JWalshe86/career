@@ -3,7 +3,7 @@ from django.db import models
 class Locations(models.Model):
     club = models.CharField(max_length=500,blank=True, null=True)
     name = models.CharField(max_length=500)
-    zipcode = models.CharField(max_length=200,blank=True, null=True)
+    eircode = models.CharField(max_length=200,blank=True, null=True)
     city = models.CharField(max_length=200,blank=True, null=True)
     country = models.CharField(max_length=200,blank=True, null=True)
     address = models.CharField(max_length=200,blank=True, null=True)
