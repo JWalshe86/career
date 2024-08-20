@@ -29,7 +29,6 @@ EIRCODE_CHOICES = (
 
 
 STATUS_CHOICES = (
-    ('pending', 'PENDING'),
     ('not_proceeding', 'NOT_PROCEEDING'),
     ('pre_int_screen', 'PRE_INT_SCREEN'),
     ('interview', 'INTERVIEW'),
@@ -55,7 +54,7 @@ class Jobsearch(models.Model):
     role = models.CharField(blank=True, default=None, max_length=127, null=True)
     text_used = models.TextField(null=True, blank=True)
     method = models.CharField(blank=True, choices=METHOD_CHOICES, default='dm', max_length=127, null=True)
-    status = models.CharField(blank=True, choices=STATUS_CHOICES, default='pending', max_length=127, null=True)
+    status = models.CharField(blank=True, choices=STATUS_CHOICES, default='pending<wk', max_length=127, null=True)
     search_imgs = models.ImageField(blank=True, upload_to='static/images/%Y/%m/%d')
     docfile = models.FileField(blank=True, upload_to='static/documents/%Y/%m/%d')
     created_at = models.DateTimeField(auto_now_add=True)
