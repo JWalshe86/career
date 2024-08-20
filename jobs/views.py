@@ -93,7 +93,6 @@ def jobsearch_detail(request, jobsearch_id):
 @login_required
 def add_jobsearch(request):
     if request.user.is_superuser:
-        "add data from google sheet"
         if request.method == "POST":
             form = JobsearchForm(request.POST, request.FILES)
             if form.is_valid():
@@ -101,19 +100,22 @@ def add_jobsearch(request):
                 x = request.POST
                 today = date.today()
                 count = []
+
                 for i in jobs:
-                
+                    # Convert i.created_at to date
+                    created_date = i.created_at.date()
+
                     # Alerts if already applied for a role
                     if i.city == x['city'] and i.name == x['name'] and i.role == x['role']:
-                        messages.warning(request, f"You've already applied for this job on {i.created_at}!")
+                        messages.warning(request, f"You've already applied for this job on {created_date}!")
                         return redirect(reverse('add_jobsearch'))
 
                     # Alerts if you've applied for 10 jobs in a day
-                    if i.created_at == today:
+                    if created_date == today:
                         count.append(1)
 
                 if len(count) == 4:
-                     messages.warning(request, f"Today: {today} you've applied for {len(count) +1} jobs!")
+                    messages.warning(request, f"Today: {today} you've applied for {len(count) +1} jobs!")
 
                 data = form.save()
                 messages.success(request, "Successfully added job application!")
@@ -123,12 +125,7 @@ def add_jobsearch(request):
             form = JobsearchForm()
 
         template = "jobs/add_jobsearch.html"
-
-        context = {
-            "form" :form,
-                }
-
-
+        context = {"form": form}
         return render(request, template, context)
 
 
