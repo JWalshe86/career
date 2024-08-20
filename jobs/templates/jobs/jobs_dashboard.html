@@ -2,55 +2,105 @@
 
 {% block content %}
 
-{% include 'map/map.html' %}
+    <div class='container'>
+        <!-- Display unread email subjects and senders -->
+        <div class="row mb-2">
+            <div class="col">
+                <h2>Unread Emails</h2>
+                <ul>
+                    {% for email in email_subjects %}
+                        <li>
+                            <strong>From:</strong> {{ email.sender }}<br>
+                            <strong>Subject:</strong> {{ email.subject }}
+                        </li>
+                    {% empty %}
+                        <li>No unread emails</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
 
-<div class='container'>
-<div class="row mb-2">
-<div class="col">
+        <!-- Map container -->
+        <div class="row mb-2">
+            <div class="col">
+                <div id='map' style="height: 500px; width: 100%;"></div>
+            </div>
+        </div>
 
-	<div id='viz1723364822896'><noscript><a href='#'><img alt='Dashboard 1 ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;li&#47;linkedindata8_8_24&#47;Dashboard1&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='linkedindata8_8_24&#47;Dashboard1' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;li&#47;linkedindata8_8_24&#47;Dashboard1&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-GB' /><param name='filter' value='publish=yes' /></object>
-	</div>      
-</div>      
-</div>      
-</div>     
+        <!-- Tableau Visualization -->
+        <div class="row mb-2">
+            <div class="col">
+                <div id='viz1723364822896'>
+                    <noscript>
+                        <a href='#'>
+                            <img alt='Dashboard 1' src='https://public.tableau.com/static/images/li/linkedindata8_8_24/Dashboard1/1_rss.png' style='border: none' />
+                        </a>
+                    </noscript>
+                    <object class='tableauViz' style='display:none;'>
+                        <param name='host_url' value='https://public.tableau.com/' />
+                        <param name='embed_code_version' value='3' />
+                        <param name='site_root' value='' />
+                        <param name='name' value='linkedindata8_8_24/Dashboard1' />
+                        <param name='tabs' value='no' />
+                        <param name='toolbar' value='yes' />
+                        <param name='static_image' value='https://public.tableau.com/static/images/li/linkedindata8_8_24/Dashboard1/1.png' />
+                        <param name='animate_transition' value='yes' />
+                        <param name='display_static_image' value='yes' />
+                        <param name='display_spinner' value='yes' />
+                        <param name='display_overlay' value='yes' />
+                        <param name='display_count' value='yes' />
+                        <param name='language' value='en-GB' />
+                        <param name='filter' value='publish=yes' />
+                    </object>
+                </div>
+                <script type='text/javascript'>
+                    var divElement = document.getElementById('viz1723364822896');
+                    var vizElement = divElement.getElementsByTagName('object')[0];
+                    if (divElement.offsetWidth > 800) {
+                        vizElement.style.width = '90vw';
+                        vizElement.style.height = '80vh';
+                    } else if (divElement.offsetWidth > 500) {
+                        vizElement.style.width = '90vw';
+                    } else {
+                        vizElement.style.width = '100%';
+                        vizElement.style.height = '85vh';
+                    }
+                    var scriptElement = document.createElement('script');
+                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+                    vizElement.parentNode.insertBefore(scriptElement, vizElement);
+                </script>
+            </div>
+        </div>
+    </div>
 
-{% comment %}
+    <!-- Include Google Maps JavaScript API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ key }}"></script>
+    <script>
+        function initMap() {
+            const map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 0, lng: 0 }, // Default center
+                zoom: 2
+            });
 
-<!-- <div class="container"> -->
-<!--   <div class="row g-2"> -->
-<!--     <div class="col-12 col-md-4"> -->
-<!--       <div class="p-3 border bg-light"> -->
-<!--          {{ impressions|safe }} -->
-<!--      </div> -->
-<!--     </div> -->
-<!--     <div class="col-12 col-md-4"> -->
-<!--       <div class="p-3 border bg-light"> -->
-<!--          {{ srch_appears|safe }} -->
-<!--     </div> -->
-<!--     </div> -->
-<!--     <div class="col-12 col-md-4"> -->
-<!--       <div class="p-3 border bg-light"> -->
-<!--            {{ uni_views|safe }} -->
-<!--       </div> -->
-<!--       </div> -->
-<!--     <div class="col-12 col-md-4"> -->
-<!--       <div class="p-3 border bg-light"> -->
-<!--          {{ srch_appears|safe }} -->
-<!--     </div> -->
-<!--     </div> -->
-<!--     <div class="col-12 col-md-4"> -->
-<!--       <div class="p-3 border bg-light"> -->
-<!--         {{ engagements|safe }} -->
-<!--     </div> -->
-<!--     </div> -->
-<!--     <div class="col-12 col-md-4"> -->
-<!--       <div class="p-3 border bg-light"> -->
-<!--         {{ followers|safe }} -->
-<!--     </div> -->
-<!--     </div> -->
-<!-- </div> -->
-<!-- </div> -->
-{% endcomment %}
+            const locations = {{ locations|safe }};
+            const bounds = new google.maps.LatLngBounds();
 
-          <script type='text/javascript'>                    var divElement = document.getElementById('viz1723364822896');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='90vw';vizElement.style.height='80vh';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='90vw'} else { vizElement.style.width='100%';vizElement.style.height='85vh';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
+            locations.forEach(location => {
+                new google.maps.Marker({
+                    position: { lat: location.lat, lng: location.lng },
+                    map: map,
+                    title: location.name
+                });
+                bounds.extend(new google.maps.LatLng(location.lat, location.lng));
+            });
+
+            if (locations.length > 0) {
+                map.fitBounds(bounds);
+            }
+        }
+
+        window.onload = initMap;
+    </script>
+
 {% endblock %}
+
