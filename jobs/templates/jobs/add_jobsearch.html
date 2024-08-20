@@ -16,9 +16,9 @@
         <div class="text-center mb-4">
             <h5 class="text-muted">Quick Copy Url Links</h5>
             <div class="d-flex justify-content-center">
-                <a class="nav-link mx-2" href="#">LinkedIn</a>
-                <a class="nav-link mx-2" href="#">Github</a>
-                <a class="nav-link mx-2" href="#">CV</a>
+                <a class="nav-link linkedin mx-2" href="#">LinkedIn</a>
+                <a class="nav-link github mx-2" href="#">Github</a>
+                <a class="nav-link cv mx-2" href="#">CV</a>
             </div>
         </div>
 
@@ -115,18 +115,17 @@
                     <!-- Status Input -->
                     <div id="div_id_status" class="mb-3">
                         <label for="id_status" class="form-label">Status</label>
-                        <select name="status" class="form-select form-select-lg" id="id_status">
-                            <option value="">---------</option>
-                            <option value="not_proceeding">NOT_PROCEEDING</option>
-                            <option value="pre_int_screen">PRE_INT_SCREEN</option>
-                            <option value="interview">INTERVIEW</option>
-                            <option value="offer">OFFER</option>
-                            <option value="appinprog">APPINPROG</option>
-                            <option value="pending&lt;wk">PENDING&lt;WK</option>
-                            <option value="pending&lt;2wk">PENDING&lt;2WK</option>
-                            <option value="pend&lt;MONTH">PEND&lt;MONTH</option>
-                            <option value="pend+month">PEND+MONTH</option>
-                        </select>
+			<select name="status" class="form-select form-select-lg" id="id_status">
+			    <option value="not_proceeding" {% if form.status.value == 'not_proceeding' %}selected{% endif %}>NOT_PROCEEDING</option>
+			    <option value="pre_int_screen" {% if form.status.value == 'pre_int_screen' %}selected{% endif %}>PRE_INT_SCREEN</option>
+			    <option value="interview" {% if form.status.value == 'interview' %}selected{% endif %}>INTERVIEW</option>
+			    <option value="offer" {% if form.status.value == 'offer' %}selected{% endif %}>OFFER</option>
+			    <option value="appinprog" {% if form.status.value == 'appinprog' %}selected{% endif %}>APPINPROG</option>
+			    <option value="pending&lt;wk" {% if form.status.value == 'pending<wk' %}selected{% endif %}>PENDING&lt;WK</option>
+			    <option value="pending&lt;2wk" {% if form.status.value == 'pending<2wk' %}selected{% endif %}>PENDING&lt;2WK</option>
+			    <option value="pend&lt;MONTH" {% if form.status.value == 'pend<MONTH' %}selected{% endif %}>PEND&lt;MONTH</option>
+			    <option value="pend+month" {% if form.status.value == 'pend+month' %}selected{% endif %}>PEND+MONTH</option>
+			</select>
                     </div>
 
                     <!-- File Inputs -->
