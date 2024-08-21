@@ -127,7 +127,6 @@ def jobs_dashboard_basic(request):
     
     return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations})
 
-
 @login_required
 def jobs_searched(request):
     if request.user.is_superuser:
@@ -175,17 +174,31 @@ def jobs_searched(request):
             *priority_mapping.values()
         )
 
+        # Determine background colors based on status
+        for job in jobs:
+            if "pending<wk" in job.status:
+                job.background_color = 'yellow'
+            elif "pending<2wk" in job.status:
+                job.background_color = 'orange'
+            elif "pend<MONTH" in job.status:
+                job.background_color = 'purple'
+            elif "not_proceeding" in job.status:
+                job.background_color = 'red'
+            elif "pre_int_screen" in job.status:
+                job.background_color = '#83d7ad'
+            elif "interview" in job.status:
+                job.background_color = 'blue'
+            elif "offer" in job.status:
+                job.background_color = 'green'
+            else:
+                job.background_color = 'white'  # default color if none match
+
         context = {
             "jobs_searched": jobs,
             "jobs_applied_today": jobs_applied_today,  # Pass today's applied jobs to the template
         }
         return render(request, "jobs/job_searches.html", context)
 
-
-
-
-
-# Data entry views start
 
 @login_required
 def jobsearch_detail(request, jobsearch_id):
@@ -198,6 +211,7 @@ def jobsearch_detail(request, jobsearch_id):
             "jobsearch": jobsearch,
         }
         return render(request, "jobs/jobsearch_detail.html", context)
+
 
 
 @login_required
@@ -289,4 +303,26 @@ def favs_display(request):
     return render(request, "jobs/favourites.html", context)
 
 
+def job_search_view(request):
+    jobs_searched = Job.objects.all()
+    print('test', jobs_searched)
+    for job in jobs_searched:
+        if "pending<wk" in job.status:
+            job.background_color = 'yellow'
+        elif "pending<2wk" in job.status:
+            job.background_color = 'orange'
+        elif "pend<MONTH" in job.status:
+            job.background_color = 'purple'
+        elif "not_proceeding" in job.status:
+            job.background_color = 'red'
+        elif "pre_int_screen" in job.status:
+            job.background_color = '#83d7ad'
+        elif "interview" in job.status:
+            job.background_color = 'blue'
+        elif "offer" in job.status:
+            job.background_color = 'green'
+        else:
+            job.background_color = 'white'  # default color if none match
+
+    return render(request, 'your_template.html', {'jobs_searched': jobs_searched})
 
