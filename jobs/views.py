@@ -128,12 +128,12 @@ def jobs_dashboard_basic(request):
     return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations})
 
 
-
 @login_required
 def jobs_searched(request):
     if request.user.is_superuser:
+        today = timezone.now().date()  # Get today's date
+
         # Define time periods
-        today = timezone.now()
         time_periods = {
             "one_week_ago": today - timedelta(days=7),
             "two_weeks_ago": today - timedelta(days=14),
@@ -151,6 +151,9 @@ def jobs_searched(request):
         for filters, new_status in status_updates:
             Jobsearch.objects.filter(**filters).update(status=new_status)
 
+        # Fetch jobs applied for today
+        jobs_applied_today = Jobsearch.objects.filter(created_at__date=today)
+
         # Annotate and order the jobs for display
         priority_mapping = {
             'offer': '-priority1',
@@ -161,7 +164,7 @@ def jobs_searched(request):
             'pend<MONTH': '-priority6',
             'not_proceeding': '-priority7',
         }
-        
+
         # Annotate jobs with priority levels
         jobs = Jobsearch.objects.all()
         for status, order in priority_mapping.items():
@@ -174,8 +177,10 @@ def jobs_searched(request):
 
         context = {
             "jobs_searched": jobs,
+            "jobs_applied_today": jobs_applied_today,  # Pass today's applied jobs to the template
         }
         return render(request, "jobs/job_searches.html", context)
+
 
 
 
