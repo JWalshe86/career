@@ -18,67 +18,70 @@
                 <div class="container mt-3">
                     <h2>Jobs Applied Today</h2>
                     {% if jobs_applied_today %}
-                        <div class="row">
-                            {% for job in jobs_applied_today %}
-                                <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
-                                    <div class="card h-100 border-dark d-flex flex-column">
-                                        <div class="card-body d-flex flex-column p-4">
-                                            <div class="card-title-container mb-3">
-                                                <h5 class="card-title text-dark mb-0">{{ job.name }}</h5>
-                                            </div>
-                                            <p class="card-text mb-2 text-dark"><strong>Role:</strong> {{ job.role }}</p>
-                                            <p class="card-text mb-2 text-dark"><strong>City:</strong> {{ job.city }}</p>
-                                            <p class="card-text mb-2 text-dark"><strong>Date Applied:</strong> {{ job.created_at.date }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
+<div class="row">
+    {% for data in jobs_searched %}
+        <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+            <div class="card h-100 border-dark d-flex flex-column" style="background-color: {{ data.background_color }};">
+                <div class="card-body d-flex flex-column p-4">
+                    <a href="{% url 'jobsearch_detail' data.id %}" class="text-decoration-none text-dark">
+                        <div class="card-title-container mb-3">
+                            <h5 class="card-title text-dark mb-0">{{ data.name }}</h5>
+                            {% if data.favourite %}
+                            <span class="ms-2" style="font-size: 2rem; color: black;">
+                                &#9733;  <!-- Unicode character for a filled star (★) -->
+                            </span>
+                            {% endif %}
                         </div>
+                        <p class="card-text mb-2 text-dark"><strong>Role:</strong> {{ data.role }}</p>
+                        <p class="card-text mb-2 text-dark"><strong>Date Applied:</strong> {{ data.created_at|date:'Y-m-d' }}</p>
+                        <p class="card-text mb-2 text-dark"><strong>Status:</strong> {{ data.status }}</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+
                     {% else %}
                         <p>No jobs applied today.</p>
                     {% endif %}
                 </div>
 
-                <!-- Existing content for job searches -->
+                <!-- Section for all job searches -->
                 <div class="container mt-3">
                     <h2>All Job Searches</h2>
-                    <div class="row">
-                        {% for data in jobs_searched %}
-                            <div class="col-sm-6 col-md-6 col-lg-3 col-xl-3 mb-3">
-                                <div class="card h-100 border-dark d-flex flex-column">
-                                    <div class="card-body d-flex flex-column p-4">
-                                        <a href="{% url 'jobsearch_detail' data.id %}" class="text-decoration-none text-dark">
-                                            <div class="card-title-container mb-2">
-                                                <p class="card-title mb-0">{{ data.name }}</p>
-                                                <span class="ms-2" style="font-size: 2rem; color: black;">
-                                                    {% if data.favourite %}
-                                                    &#9733;  <!-- Unicode character for a filled star (★) -->
-                                                    {% endif %}
-                                                </span>
-                                            </div>
-                                        </a>
-                                    </div>
-                                    <div class="card-footer bg-light border-dark text-left d-flex flex-column">
-                                        <div class="row">
-                                            <div class="col">
-                                                <ul class='list-unstyled mb-0'>
-                                                    <li class="mb-1 text-dark">ROLE: {{ data.role }}</li>
-                                                    <li class="mb-1 text-dark">DATE: {{ data.created_at|date:'Y-m-d' }}</li>
-                                                    <li class="mb-1 text-dark">STATUS: {{ data.status }}</li>
-                                                </ul> 
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
+<div class="row">
+    {% for data in jobs_searched %}
+        <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+            <div class="card h-100 border-dark d-flex flex-column" style="background-color: {{ data.background_color }};">
+                <div class="card-body d-flex flex-column p-4">
+                    <a href="{% url 'jobsearch_detail' data.id %}" class="text-decoration-none text-dark">
+                        <div class="card-title-container mb-3">
+                            <h5 class="card-title text-dark mb-0">{{ data.name }}</h5>
+                            {% if data.favourite %}
+                            <span class="ms-2" style="font-size: 2rem; color: black;">
+                                &#9733;  <!-- Unicode character for a filled star (★) -->
+                            </span>
+                            {% endif %}
+                        </div>
+                        <p class="card-text mb-2 text-dark"><strong>Role:</strong> {{ data.role }}</p>
+                        <p class="card-text mb-2 text-dark"><strong>Date Applied:</strong> {{ data.created_at|date:'Y-m-d' }}</p>
+                        <p class="card-text mb-2 text-dark"><strong>Status:</strong> {{ data.status }}</p>
+                        <p class="card-text mb-2 text-dark"><strong>Color:</strong> {{ data.background_color }}</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
                 </div>
             </div>
         </div>
         <ul>
             {% for job in jobs_searched %}
-            <li class='d-none' data-dateapplied="{{ job.created_at|date:"Y-m-d" }}">{{ job }}</li>
+            <li class='d-none' data-dateapplied="{{ job.created_at|date:'Y-m-d' }}">{{ job }}</li>
             {% endfor %}
         </ul>
     </div>
@@ -86,23 +89,24 @@
 
 {% block extra_css %}
 <style>
+    /* Title container for consistency across both sections */
     .card-title-container {
         background-color: #f0f0f0; /* Set background color for the title area */
         padding: 10px; /* Adjust padding as needed */
-        border-bottom: 1px solid #ddd; /* Border separating title from content */
         min-height: 60px; /* Ensure consistent height for all cards */
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
+    /* Title styling */
     .card-title {
         font-weight: bold;
         text-align: center;
-        margin: 0; /* Remove default margin for consistent spacing */
+        margin: 0;
     }
 
-    /* Ensure a fixed height for consistency */
+    /* Ensure card content has consistent spacing */
     .card-body {
         flex-grow: 1;
     }

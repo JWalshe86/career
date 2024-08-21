@@ -1,6 +1,6 @@
 from django.urls import path
 from map.views import MapView  # Import MapView from the map app
-from .views import jobs_dashboard_with_emails, jobs_dashboard_basic
+from .views import jobs_dashboard_with_emails, jobs_dashboard_basic, job_search_view  # Import job_search_view
 
 from . import views
 
@@ -13,5 +13,6 @@ urlpatterns = [
     path("<int:jobsearch_id>/", views.jobsearch_detail, name="jobsearch_detail"),
     path("edit/<int:jobsearch_id>/", views.edit_jobsearch, name="edit_jobsearch"),
     path("delete/<int:jobsearch_id>/", views.delete_jobsearch, name="delete_jobsearch"),
+    path("job-search/", job_search_view, name="job_search_view"),  # Add job_search_view
 ]
 
