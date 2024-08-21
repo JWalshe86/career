@@ -58,7 +58,7 @@
 	  </button>
 	  <ul class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuButton1">
                     <li class="nav-item">
-			    <a class="dropdown-item text-white" href="{% url 'display_lkdata' %}">Jobsearch Dashboard</a>
+			    <a class="dropdown-item text-white" href="{% url 'jobs_dashboard_with_emails' %}">Jobsearch Dashboard</a>
                     </li>
                     <li class="nav-item">
 			    <a class="dropdown-item text-white" href="{% url 'add_jobsearch' %}">Add_Jobsearch</a>
@@ -108,6 +108,17 @@
 	  </ul>
 	       </div>	
                         <!-- Job sites links dropdown html End-->
+
+                              <!-- Unread Emails Count -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'jobs_dashboard_with_emails' %}">
+                            <i class="bi bi-envelope"></i> 
+                            Unread Messages: <span class="badge bg-danger">{{ unread_email_count }}</span>
+                        </a>
+                    </li>
+                </ul>
+                              <!-- Unread Emails Count End -->
         </div>
     </nav>
 
