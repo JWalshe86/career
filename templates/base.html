@@ -108,6 +108,17 @@
 	  </ul>
 	       </div>	
                         <!-- Job sites links dropdown html End-->
+
+                              <!-- Unread Emails Count -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'jobs_dashboard_with_emails' %}">
+                            <i class="bi bi-envelope"></i> 
+                            Unread Messages: <span class="badge bg-danger">{{ unread_email_count }}</span>
+                        </a>
+                    </li>
+                </ul>
+                              <!-- Unread Emails Count End -->
         </div>
     </nav>
 

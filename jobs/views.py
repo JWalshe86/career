@@ -101,13 +101,16 @@ def jobs_dashboard_with_emails(request):
         locations.append(data)
 
     email_subjects = get_unread_emails()
-    print('Test print statement')  # Ensure this prints
-    print('email_sub', email_subjects)
+    unread_email_count = len(email_subjects)  # Calculate the number of unread emails
+
     return render(request, "jobs/jobs_dashboard.html", context={
         'key': key,
         'locations': locations,
         'email_subjects': email_subjects,
+        'unread_email_count': unread_email_count,  # Pass the unread email count to the template
     })
+
+
 
 def jobs_dashboard_basic(request):
     key = settings.GOOGLE_API_KEY
