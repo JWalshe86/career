@@ -22,39 +22,73 @@ from jobs.models import Jobsearch
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 
-
 def get_unread_emails():
-    print("Fetching unread emails...")
+    """Fetches unread emails excluding those under 'Social' and 'Promotions' categories and from specific senders."""
     creds = None
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first time.
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
-       if creds and creds.expired and creds.refresh_token:
+        if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
-       else:
-           flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-           creds = flow.run_local_server(port=0)
-       with open("token.json", "w") as token:
-           token.write(creds.to_json())
-    
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                "credentials.json", SCOPES
+            )
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open("token.json", "w") as token:
+            token.write(creds.to_json())
+
     try:
+        # Call the Gmail API
         service = build("gmail", "v1", credentials=creds)
-        results = service.users().messages().list(userId="me", labelIds=["INBOX"], q="is:unread").execute()
-        messages = results.get("messages", [])
 
-        email_data = []
+        # Define the query to fetch unread emails excluding 'Social' and 'Promotions' and from specific senders
+        excluded_senders = [
+            "no-reply@usebubbles.com",
+            "chandeep@2toucans.com",
+            "craig@itcareerswitch.co.uk",
+            "no-reply@swagapp.com",
+            "no-reply@fathom.video",
+            "mailer@jobleads.com",
+            "careerservice@email.jobleads.com"
+        ]
+        
+        # Construct the query string
+        query = "is:unread -category:social -category:promotions"
+        for sender in excluded_senders:
+            query += f" -from:{sender}"
+        
+        # Retrieve unread messages with the query
+        results = service.users().messages().list(userId="me", q=query).execute()
+        messages = results.get('messages', [])
+
+        if not messages:
+            print("No unread messages found.")
+            return []
+
+        unread_emails = []
         for message in messages:
-            msg = service.users().messages().get(userId="me", id=message["id"]).execute()
-            headers = msg["payload"]["headers"]
-            subject = next((header["value"] for header in headers if header["name"] == "Subject"), "No Subject")
-            sender = next((header["value"] for header in headers if header["name"] == "From"), "No Sender")
-            email_data.append({"subject": subject, "sender": sender})
+            msg = service.users().messages().get(userId="me", id=message['id']).execute()
+            email_data = {
+                'id': message['id'],
+                'snippet': msg['snippet'],
+                'labelIds': msg['labelIds'],
+                'sender': next(header['value'] for header in msg['payload']['headers'] if header['name'] == 'From'),
+                'subject': next(header['value'] for header in msg['payload']['headers'] if header['name'] == 'Subject')
+            }
+            unread_emails.append(email_data)
 
-        print(f"Extracted email data: {email_data}")
-        return email_data
+        return unread_emails
+
     except HttpError as error:
+        # Handle errors from Gmail API
         print(f"An error occurred: {error}")
         return []
+
 
 
 
