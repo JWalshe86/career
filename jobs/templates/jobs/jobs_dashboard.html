@@ -11,7 +11,8 @@
                     {% for email in email_subjects %}
                         <li>
                             <strong>From:</strong> {{ email.sender }}<br>
-                            <strong>Subject:</strong> {{ email.subject }}
+                            <strong>Subject:</strong> {{ email.subject }}<br>
+                            <strong>Snippet:</strong> {{ email.snippet }}
                         </li>
                     {% empty %}
                         <li>No unread emails</li>
