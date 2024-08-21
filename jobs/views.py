@@ -23,30 +23,23 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 
 def get_unread_emails():
-    """Fetches unread emails excluding those under 'Social' and 'Promotions' categories and from specific senders."""
+    """Fetch unread emails excluding specific senders and categories."""
     creds = None
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first time.
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                "credentials.json", SCOPES
-            )
+            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
             creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
         with open("token.json", "w") as token:
             token.write(creds.to_json())
 
     try:
-        # Call the Gmail API
         service = build("gmail", "v1", credentials=creds)
 
-        # Define the query to fetch unread emails excluding 'Social' and 'Promotions' and from specific senders
+        # List of senders to exclude
         excluded_senders = [
             "no-reply@usebubbles.com",
             "chandeep@2toucans.com",
@@ -62,7 +55,6 @@ def get_unread_emails():
         for sender in excluded_senders:
             query += f" -from:{sender}"
         
-        # Retrieve unread messages with the query
         results = service.users().messages().list(userId="me", q=query).execute()
         messages = results.get('messages', [])
 
@@ -73,23 +65,26 @@ def get_unread_emails():
         unread_emails = []
         for message in messages:
             msg = service.users().messages().get(userId="me", id=message['id']).execute()
+            snippet = msg['snippet']
             email_data = {
                 'id': message['id'],
-                'snippet': msg['snippet'],
-                'labelIds': msg['labelIds'],
+                'snippet': snippet,
                 'sender': next(header['value'] for header in msg['payload']['headers'] if header['name'] == 'From'),
-                'subject': next(header['value'] for header in msg['payload']['headers'] if header['name'] == 'Subject')
+                'subject': next(header['value'] for header in msg['payload']['headers'] if header['name'] == 'Subject'),
+                'highlight': 'highlight' if 'unfortunately' in snippet.lower() else ''
             }
             unread_emails.append(email_data)
 
         return unread_emails
 
     except HttpError as error:
-        # Handle errors from Gmail API
         print(f"An error occurred: {error}")
         return []
 
-
+if __name__ == "__main__":
+    unread_emails = get_unread_emails()
+    for email in unread_emails:
+        print(f"Email ID: {email['id']}, From: {email['sender']}, Subject: {email['subject']}, Snippet: {email['snippet']}, Highlight: {email['highlight']}")
 
 
 def jobs_dashboard_with_emails(request):
