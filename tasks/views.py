@@ -20,22 +20,21 @@ def index(request):
 
 
 def updateTask(request, pk):
-
     task = get_object_or_404(Task, id=pk)
-    # prefils the form
-    form = TaskForm(instance=task)
 
     if request.method == 'POST':
-        # return filled in form
-        form = TaskForm(request.POST, instance=task)
-        if form.is_valid():
-            form.save()
-            return redirect('/tasks')
+        # Updating the task based on the POST data
+        task.complete = 'complete' in request.POST  # Update based on checkbox
+        task.title = request.POST.get('title', task.title)  # Preserve the title if unchanged
+        task.save()
+        return redirect('/tasks')  # Redirect to the task list or any other desired page
 
-    context = {'form': form }
+    else:
+        # Pre-fill the form with the existing task data for GET requests
+        form = TaskForm(instance=task)
 
+    context = {'form': form, 'task': task}
     return render(request, 'tasks/update_task.html', context)
-
 
 def deleteTask(request, pk):
     item = get_object_or_404(Task, id=pk)
