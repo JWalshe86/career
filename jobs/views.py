@@ -7,6 +7,7 @@ from django.conf import settings
 from datetime import date, timedelta
 import requests
 import os
+import json
 import logging
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -40,20 +41,18 @@ def refresh_access_token(refresh_token):
 
 def get_unread_emails():
     creds = None
-    # Check if token.json exists and load credentials
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json", SCOPES)
     
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            # Refresh the credentials if expired
             creds.refresh(Request())
             with open("token.json", "w") as token:
                 token.write(creds.to_json())
         else:
-            # Handle the authorization flow for non-interactive environments
+            # Use the local server flow for web applications
             flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            creds = flow.run_console()  # Use console flow for cloud environments
+            creds = flow.run_local_server(port=8080)  # For web applications
             with open("token.json", "w") as token:
                 token.write(creds.to_json())
 
@@ -77,7 +76,7 @@ def get_unread_emails():
         messages = results.get('messages', [])
 
         if not messages:
-            print("No unread messages found.")
+            logger.info("No unread messages found.")
             return []
 
         unread_emails = []
@@ -95,9 +94,10 @@ def get_unread_emails():
 
         return unread_emails
 
-    except HttpError as error:
-        print(f"An error occurred: {error}")
+    except Exception as error:
+        logger.error("An error occurred: %s", error)
         return []
+
 
 
 def jobs_dashboard_with_emails(request):
