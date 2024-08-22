@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'map',
     'jobs',
     'users',
+    'tasks',
 ]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
