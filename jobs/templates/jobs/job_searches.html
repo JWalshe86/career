@@ -18,17 +18,18 @@
 <div class="container">
     <div class="row">
         <!-- Jobs Applied Today Section -->
+ <!-- Jobs Applied Today Section -->
         <div class="col-md-6">
             <h2>Jobs Applied Today</h2>
             {% for job in jobs_applied_today %}
-                <div class="card mb-3">
+            <div class="card mb-3">
                     <div class="card-body" style="background-color: {{ job.background_color }}">
-                        <h5 class="card-title">{{ job.name }}</h5>
-                        <p class="card-text">Role: {{ job.role }}</p>
-                        <p class="card-text">Location: {{ job.city }}</p>
-                        <p class="card-text">Applied On: {{ job.created_at }}</p>
+                        <h5 class="card-title" style="color: #333;">{{ job.name }}</h5>
+                        <p class="card-text" style="color: #666;">Role: {{ job.role }}</p>
                     </div>
                 </div>
+            {% empty %}
+                <p>No jobs applied today.</p>
             {% endfor %}
         </div>
 
