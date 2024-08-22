@@ -130,17 +130,17 @@ if "DATABASE_URL" in os.environ:
 #         }
 #     }
 # local mysql db
-DATABASES = {
-	"default": {
-		"ENGINE": "django.db.backends.mysql",
-		'NAME': 'test_db',
-		'USER': 'root',
-		'PASSWORD': 'Sunshine7!',
-		'HOST': 'localhost',
-		'PORT': '3306',
+# DATABASES = {
+# 	"default": {
+# 		"ENGINE": "django.db.backends.mysql",
+# 		'NAME': 'test_db',
+# 		'USER': 'root',
+# 		'PASSWORD': 'Sunshine7!',
+# 		'HOST': 'localhost',
+# 		'PORT': '3306',
 			 
-	}
-}
+# 	}
+# }
 
 
 
