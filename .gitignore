@@ -16,4 +16,5 @@ token.json
 *migrations
 None
 static/images/
+token.json
 .env
