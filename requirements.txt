@@ -57,7 +57,7 @@ google-api-core==2.19.1
 google-api-python-client==2.141.0
 google-auth==2.32.0
 google-auth-httplib2==0.2.0
-google-auth-oauthlib==1.2.1
+google-auth-oauthlib
 googleapis-common-protos==1.63.2
 googlemaps==4.10.0
 greenlet==1.1.2
