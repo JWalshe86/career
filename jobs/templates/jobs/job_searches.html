@@ -14,6 +14,26 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col text-center mt-3">
+
+<!-- Task Management Section -->
+<h2>Task Management</h2>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Task</button>
+</form>
+
+<div>
+    {% for task in tasks %}
+        <div>
+            <p>{{ task.title }} - {% if task.complete %}Complete{% else %}Incomplete{% endif %}</p>
+            <a href="{% url 'tasks:updateTask' task.id %}">Edit</a> | 
+            <a href="{% url 'tasks:delete' task.id %}">Delete</a>
+        </div>
+    {% endfor %}
+</div>
+
+
                 <!-- Section for jobs applied today -->
                 <div class="container mt-3">
                     <h2>Jobs Applied Today</h2>

@@ -16,7 +16,8 @@ import os.path
 
 from .models import Jobsearch
 from .forms import JobsearchForm, DateForm
-from jobs.models import Jobsearch
+from tasks.forms import TaskForm
+from tasks.models import Task
 
 # Define the scope and initialize other necessary variables
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
@@ -131,16 +132,25 @@ def jobs_dashboard_basic(request):
 @login_required
 def jobs_searched(request):
     if request.user.is_superuser:
-        today = timezone.now().date()  # Get today's date
+        today = timezone.now().date()
 
-        # Define time periods
+        # Fetch tasks and the task form
+        tasks = Task.objects.all()
+        form = TaskForm()
+
+        if request.method == 'POST':
+            form = TaskForm(request.POST)
+            if form.is_valid():
+                form.save()
+            return redirect(reverse('jobs_searched'))  # Redirect to jobs_searched after form submission
+
+        # Define time periods and update job statuses
         time_periods = {
             "one_week_ago": today - timedelta(days=7),
             "two_weeks_ago": today - timedelta(days=14),
             "one_month_ago": today - timedelta(days=30),
         }
 
-        # Update statuses based on time periods
         status_updates = [
             ({"created_at__gt": time_periods["one_week_ago"], "status": "1week"}, "pending<wk"),
             ({"created_at__gt": time_periods["two_weeks_ago"], "created_at__lt": time_periods["one_week_ago"], "status": "1week"}, "pending<2wk"),
@@ -151,10 +161,8 @@ def jobs_searched(request):
         for filters, new_status in status_updates:
             Jobsearch.objects.filter(**filters).update(status=new_status)
 
-        # Fetch jobs applied for today
         jobs_applied_today = Jobsearch.objects.filter(created_at__date=today)
 
-        # Annotate and order the jobs for display
         priority_mapping = {
             'offer': '-priority1',
             'interview': '-priority2',
@@ -165,17 +173,12 @@ def jobs_searched(request):
             'not_proceeding': '-priority7',
         }
 
-        # Annotate jobs with priority levels
         jobs = Jobsearch.objects.all()
         for status, order in priority_mapping.items():
             jobs = jobs.annotate(**{f"priority{order[-1]}": Q(status=status)})
 
-        # Order jobs by priority levels
-        jobs = jobs.order_by(
-            *priority_mapping.values()
-        )
+        jobs = jobs.order_by(*priority_mapping.values())
 
-        # Determine background colors based on status
         for job in jobs:
             if "pending<wk" in job.status:
                 job.background_color = 'yellow'
@@ -192,14 +195,15 @@ def jobs_searched(request):
             elif "offer" in job.status:
                 job.background_color = 'green'
             else:
-                job.background_color = 'white'  # default color if none match
+                job.background_color = 'white'
 
         context = {
-            "jobs_searched": jobs,  # All jobs
-            "jobs_applied_today": jobs_applied_today,  # Jobs applied today
+            "jobs_searched": jobs,
+            "jobs_applied_today": jobs_applied_today,
+            "tasks": tasks,  # Include tasks
+            "form": form,    # Include the task form
         }
         return render(request, "jobs/job_searches.html", context)
-
 
 
 @login_required
