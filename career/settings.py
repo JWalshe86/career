@@ -1,4 +1,5 @@
 import os
+import json
 import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
@@ -16,6 +17,14 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+
+
+GMAIL_TOKEN_JSON = os.getenv('GMAIL_TOKEN_JSON')
+if GMAIL_TOKEN_JSON:
+    GMAIL_TOKEN = json.loads(GMAIL_TOKEN_JSON)
+else:
+    GMAIL_TOKEN = None
+
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
