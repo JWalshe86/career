@@ -19,7 +19,7 @@ GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['johnsite-d251709cf12b.herokuapp.com', '127.0.0.1', 'www.jwalshedev.ie']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS')
 
 # Application definition
 INSTALLED_APPS = [
