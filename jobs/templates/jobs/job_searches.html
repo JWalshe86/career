@@ -15,35 +15,46 @@
         <div class="row">
             <div class="col text-center mt-3">
 
-<!-- Task Management Section -->
-<h2>Task Management</h2>
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Add Task</button>
-</form>
-
-<div>
-    {% for task in tasks %}
-        <div>
-            <p>{{ task.title }} - {% if task.complete %}Complete{% else %}Incomplete{% endif %}</p>
-            <a href="{% url 'tasks:updateTask' task.id %}">Edit</a> | 
-            <a href="{% url 'tasks:delete' task.id %}">Delete</a>
+<div class="container">
+    <div class="row">
+        <!-- Jobs Applied Today Section -->
+        <div class="col-md-6">
+            <h2>Jobs Applied Today</h2>
+            {% for job in jobs_applied_today %}
+                <div class="card mb-3">
+                    <div class="card-body" style="background-color: {{ job.background_color }}">
+                        <h5 class="card-title">{{ job.name }}</h5>
+                        <p class="card-text">Role: {{ job.role }}</p>
+                        <p class="card-text">Location: {{ job.city }}</p>
+                        <p class="card-text">Applied On: {{ job.created_at }}</p>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-    {% endfor %}
+
+        <!-- Tasks Section -->
+        <div class="col-md-6">
+            <h2>Tasks</h2>
+            <form method="POST" action="{% url 'tasks:list' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Add Task</button>
+            </form>
+            <hr>
+            <ul class="list-group">
+                {% for task in tasks %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ task.title }}</span>
+                        <div>
+                            <a href="{% url 'tasks:updateTask' task.id %}" class="btn btn-sm btn-warning">Update</a>
+                            <a href="{% url 'tasks:delete' task.id %}" class="btn btn-sm btn-danger">Delete</a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </div>
-
-
-                <!-- Section for jobs applied today -->
-                <div class="container mt-3">
-                    <h2>Jobs Applied Today</h2>
-		{% if jobs_applied_today %}
-		    {% for job in jobs_applied_today %}
-			<div>{{ job.name }} - {{ job.status }}</div>
-		    {% endfor %}
-		{% else %}
-		    <div>No jobs applied for today.</div>
-		{% endif %}
 
 
                 <!-- Section for all job searches -->
