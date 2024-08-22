@@ -1,3 +1,4 @@
+
 from django.urls import path
 from map.views import MapView  # Import MapView from the map app
 from .views import jobs_dashboard_with_emails, jobs_dashboard_basic, job_search_view  # Import job_search_view
