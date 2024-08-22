@@ -31,7 +31,13 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
+
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+
+
 DEBUG = True
+
 
 ALLOWED_HOSTS = ['johnsite-d251709cf12b.herokuapp.com', '127.0.0.1']
 

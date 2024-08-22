@@ -5,41 +5,61 @@ from django.db.models import Q
 from django.utils import timezone
 from django.conf import settings
 from datetime import date, timedelta
-
- # config for gmail api integration
+import requests
+import os
+import logging
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-import os.path
-
 from .models import Jobsearch
-from .forms import JobsearchForm, DateForm
-from jobs.models import Jobsearch
+from .forms import JobsearchForm
 
 # Define the scope and initialize other necessary variables
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
+logger = logging.getLogger(__name__)
+
+
+def refresh_access_token(refresh_token):
+    token_url = "https://oauth2.googleapis.com/token"
+    payload = {
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token,
+        'client_id': settings.GOOGLE_CLIENT_ID,
+        'client_secret': settings.GOOGLE_CLIENT_SECRET
+    }
+    response = requests.post(token_url, data=payload)
+    response_data = response.json()
+    if response.status_code == 200:
+        return response_data
+    else:
+        logger.error("Error refreshing token: %s", response_data)
+        return None
+
 
 def get_unread_emails():
-    """Fetch unread emails excluding specific senders and categories."""
     creds = None
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+    
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
+            new_tokens = refresh_access_token(creds.refresh_token)
+            if new_tokens:
+                creds = Credentials.from_authorized_user_info(new_tokens)
+                with open("token.json", "w") as token:
+                    token.write(creds.to_json())
+        if not creds or not creds.valid:
+            # Use a specific port for local server and handle OAuth manually if needed
             flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open("token.json", "w") as token:
-            token.write(creds.to_json())
+            creds = flow.run_local_server(port=8080)  # Specify a port, e.g., 8080
+            with open("token.json", "w") as token:
+                token.write(creds.to_json())
 
     try:
         service = build("gmail", "v1", credentials=creds)
-
-        # List of senders to exclude
         excluded_senders = [
             "no-reply@usebubbles.com",
             "chandeep@2toucans.com",
@@ -50,7 +70,6 @@ def get_unread_emails():
             "careerservice@email.jobleads.com"
         ]
         
-        # Construct the query string
         query = "is:unread -category:social -category:promotions"
         for sender in excluded_senders:
             query += f" -from:{sender}"
@@ -81,11 +100,6 @@ def get_unread_emails():
         print(f"An error occurred: {error}")
         return []
 
-if __name__ == "__main__":
-    unread_emails = get_unread_emails()
-    for email in unread_emails:
-        print(f"Email ID: {email['id']}, From: {email['sender']}, Subject: {email['subject']}, Snippet: {email['snippet']}, Highlight: {email['highlight']}")
-
 
 def jobs_dashboard_with_emails(request):
     key = settings.GOOGLE_API_KEY
@@ -110,8 +124,6 @@ def jobs_dashboard_with_emails(request):
         'unread_email_count': unread_email_count,  # Pass the unread email count to the template
     })
 
-
-
 def jobs_dashboard_basic(request):
     key = settings.GOOGLE_API_KEY
     eligible_locations = Jobsearch.objects.filter(place_id__isnull=False)
@@ -131,16 +143,25 @@ def jobs_dashboard_basic(request):
 @login_required
 def jobs_searched(request):
     if request.user.is_superuser:
-        today = timezone.now().date()  # Get today's date
+        today = timezone.now().date()
 
-        # Define time periods
+        # Fetch tasks and the task form
+        tasks = Task.objects.all()
+        form = TaskForm()
+
+        if request.method == 'POST':
+            form = TaskForm(request.POST)
+            if form.is_valid():
+                form.save()
+            return redirect(reverse('jobs_searched'))  # Redirect to jobs_searched after form submission
+
+        # Define time periods and update job statuses
         time_periods = {
             "one_week_ago": today - timedelta(days=7),
             "two_weeks_ago": today - timedelta(days=14),
             "one_month_ago": today - timedelta(days=30),
         }
 
-        # Update statuses based on time periods
         status_updates = [
             ({"created_at__gt": time_periods["one_week_ago"], "status": "1week"}, "pending<wk"),
             ({"created_at__gt": time_periods["two_weeks_ago"], "created_at__lt": time_periods["one_week_ago"], "status": "1week"}, "pending<2wk"),
@@ -151,10 +172,8 @@ def jobs_searched(request):
         for filters, new_status in status_updates:
             Jobsearch.objects.filter(**filters).update(status=new_status)
 
-        # Fetch jobs applied for today
         jobs_applied_today = Jobsearch.objects.filter(created_at__date=today)
 
-        # Annotate and order the jobs for display
         priority_mapping = {
             'offer': '-priority1',
             'interview': '-priority2',
@@ -165,17 +184,12 @@ def jobs_searched(request):
             'not_proceeding': '-priority7',
         }
 
-        # Annotate jobs with priority levels
         jobs = Jobsearch.objects.all()
         for status, order in priority_mapping.items():
             jobs = jobs.annotate(**{f"priority{order[-1]}": Q(status=status)})
 
-        # Order jobs by priority levels
-        jobs = jobs.order_by(
-            *priority_mapping.values()
-        )
+        jobs = jobs.order_by(*priority_mapping.values())
 
-        # Determine background colors based on status
         for job in jobs:
             if "pending<wk" in job.status:
                 job.background_color = 'yellow'
@@ -192,14 +206,15 @@ def jobs_searched(request):
             elif "offer" in job.status:
                 job.background_color = 'green'
             else:
-                job.background_color = 'white'  # default color if none match
+                job.background_color = 'white'
 
         context = {
-            "jobs_searched": jobs,  # All jobs
-            "jobs_applied_today": jobs_applied_today,  # Jobs applied today
+            "jobs_searched": jobs,
+            "jobs_applied_today": jobs_applied_today,
+            "tasks": tasks,  # Include tasks
+            "form": form,    # Include the task form
         }
         return render(request, "jobs/job_searches.html", context)
-
 
 
 @login_required
@@ -327,4 +342,3 @@ def job_search_view(request):
             job.background_color = 'white'  # default color if none match
 
     return render(request, 'your_template.html', {'jobs_searched': jobs_searched})
-
