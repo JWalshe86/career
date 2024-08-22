@@ -59,7 +59,7 @@
         <div class="item-row d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
                 <!-- Checkbox for marking task as complete -->
-                <form method="POST" action="{% url 'updateTask' task.id %}" class="inline-form">
+                <form method="POST" action="{% url 'tasks:updateTask' task.id %}" class="inline-form">
                     {% csrf_token %}
                     <input type="checkbox" name="complete" {% if task.complete %}checked{% endif %} onchange="this.form.submit();">
                     <input type="hidden" name="title" value="{{ task.title }}">
@@ -75,8 +75,8 @@
             
             <!-- Update and Delete buttons -->
             <div>
-                <a class="btn btn-sm btn-info" href="{% url 'updateTask' task.id %}">Update</a>
-                <a class="btn btn-sm btn-danger" href="{% url 'delete' task.id %}">Delete</a>
+                <a class="btn btn-sm btn-info" href="{% url 'tasks:updateTask' task.id %}">Update</a>
+                <a class="btn btn-sm btn-danger" href="{% url 'tasks:delete' task.id %}">Delete</a>
             </div>
         </div>
         {% endfor %}
