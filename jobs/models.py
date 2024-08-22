@@ -12,6 +12,7 @@ METHOD_CHOICES = (
     ('lkjobsug', 'LKJOBSUG'),
     ('inform', 'INFORM'),
     ('irishjobs.ie', 'IRISHJOBS.IE'),
+    ('seekrefr', 'SEEKREFR')
             )
 
 TYPE_CHOICES = (
