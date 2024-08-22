@@ -127,6 +127,7 @@ def jobs_dashboard_basic(request):
     
     return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations})
 
+
 @login_required
 def jobs_searched(request):
     if request.user.is_superuser:
@@ -194,10 +195,11 @@ def jobs_searched(request):
                 job.background_color = 'white'  # default color if none match
 
         context = {
-            "jobs_searched": jobs,
-            "jobs_applied_today": jobs_applied_today,  # Pass today's applied jobs to the template
+            "jobs_searched": jobs,  # All jobs
+            "jobs_applied_today": jobs_applied_today,  # Jobs applied today
         }
         return render(request, "jobs/job_searches.html", context)
+
 
 
 @login_required
