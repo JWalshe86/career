@@ -4,6 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
 import logging
+from django.contrib import messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -16,7 +17,7 @@ GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['johnsite-d251709cf12b.herokuapp.com', '127.0.0.1', 'www.jwalshedev.ie']
 
@@ -79,22 +80,33 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
+
+# Determine if we're running on Heroku
+HEROKU = 'DYNO' in os.environ
+
 # Database configuration
-if 'DATABASE_URL' in os.environ:
+if HEROKU:
+    # Use PostgreSQL on Heroku
     DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600
+        )
     }
 else:
+    # Use MySQL locally
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('MYSQL_DATABASE', 'test_db'),
-            'USER': os.environ.get('MYSQL_USER', 'root'),
-            'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'Sunshine7!'),
-            'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
-            'PORT': os.environ.get('MYSQL_PORT', '3306'),
+            'NAME': os.environ.get('MYSQL_DB_NAME', 'test_db'),
+            'USER': os.environ.get('MYSQL_DB_USER', 'root'),
+            'PASSWORD': os.environ.get('MYSQL_DB_PASSWORD', 'Sunshine7!'),
+            'HOST': os.environ.get('MYSQL_DB_HOST', 'localhost'),
+            'PORT': os.environ.get('MYSQL_DB_PORT', '3306'),
         }
     }
+
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
