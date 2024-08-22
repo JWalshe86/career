@@ -38,23 +38,22 @@ def refresh_access_token(refresh_token):
         logger.error("Error refreshing token: %s", response_data)
         return None
 
-
 def get_unread_emails():
     creds = None
+    # Check if token.json exists and load credentials
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json", SCOPES)
     
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            new_tokens = refresh_access_token(creds.refresh_token)
-            if new_tokens:
-                creds = Credentials.from_authorized_user_info(new_tokens)
-                with open("token.json", "w") as token:
-                    token.write(creds.to_json())
-        if not creds or not creds.valid:
-            # Use a specific port for local server and handle OAuth manually if needed
+            # Refresh the credentials if expired
+            creds.refresh(Request())
+            with open("token.json", "w") as token:
+                token.write(creds.to_json())
+        else:
+            # Handle the authorization flow for non-interactive environments
             flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            creds = flow.run_local_server(port=8080)  # Specify a port, e.g., 8080
+            creds = flow.run_console()  # Use console flow for cloud environments
             with open("token.json", "w") as token:
                 token.write(creds.to_json())
 
