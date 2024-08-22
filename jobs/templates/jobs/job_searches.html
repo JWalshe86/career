@@ -47,7 +47,7 @@
                             <form method="POST" action="{% url 'tasks:updateTask' task.id %}" class="d-flex flex-row align-items-center w-100">
                                 {% csrf_token %}
                                 <input type="checkbox" name="complete" {% if task.complete %}checked{% endif %} class="mr-2">
-                                <span class="flex-grow-1">{{ task.title }}</span>
+                                <span class="p-2 flex-grow-1">{{ task.title }}</span>
                                 <div class="btn-group">
                                     <button type="submit" class="btn btn-sm btn-warning">Update</button>
                                     <a href="{% url 'tasks:delete' task.id %}" class="btn btn-sm btn-danger">Delete</a>
