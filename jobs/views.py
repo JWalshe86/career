@@ -231,15 +231,15 @@ def jobs_searched(request):
 
 @login_required
 def jobsearch_detail(request, jobsearch_id):
-        if request.user.is_superuser:
-            """A view to show job search details"""
+    if request.user.is_superuser:
+        """A view to show job search details"""
 
-        jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
+    jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
 
-        context = {
-            "jobsearch": jobsearch,
-        }
-        return render(request, "jobs/jobsearch_detail.html", context)
+    context = {
+        "jobsearch": jobsearch,
+    }
+    return render(request, "jobs/jobsearch_detail.html", context)
 
 @login_required
 def add_jobsearch(request):
@@ -318,7 +318,7 @@ def delete_jobsearch(request, jobsearch_id):
 
 def favs_display(request):
     
-    favs = Jobsearch.objects.filter(favourite = True).values()
+    favs = Jobsearch.objects.filter(favourite=True).values()
 
     context = {
         "favs": favs,
