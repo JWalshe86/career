@@ -41,6 +41,18 @@ def refresh_access_token(refresh_token):
         logger.error("Error refreshing token: %s", response_data)
         return None
 
+def get_oauth2_authorization_url():
+    flow = InstalledAppFlow.from_client_secrets_file(
+        "credentials.json",
+        SCOPES
+    )
+    auth_url, _ = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true',
+        redirect_uri=settings.GOOGLE_REDIRECT_URI
+    )
+    return auth_url
+
 def get_unread_emails():
     creds = None
     if os.path.exists("token.json"):
@@ -52,13 +64,7 @@ def get_unread_emails():
             with open("token.json", "w") as token:
                 token.write(creds.to_json())
         else:
-            # Redirect user to Google's OAuth 2.0 server for authorization
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            auth_url, _ = flow.authorization_url(
-                access_type='offline',
-                include_granted_scopes='true',
-                redirect_uri=settings.GOOGLE_REDIRECT_URI
-            )
+            auth_url = get_oauth2_authorization_url()
             return redirect(auth_url)  # Redirect to Google OAuth2 authorization page
 
     try:
@@ -282,7 +288,7 @@ def add_jobsearch(request):
 @login_required
 def edit_jobsearch(request, jobsearch_id):
     if request.user.is_superuser:
-        """Edit a plant in the store"""
+        """Edit a job search entry"""
         jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
         if request.method == "POST":
             form = JobsearchForm(request.POST, request.FILES, instance=jobsearch)
@@ -310,14 +316,13 @@ def edit_jobsearch(request, jobsearch_id):
 @login_required
 def delete_jobsearch(request, jobsearch_id):
     if request.user.is_superuser:
-        """Delete a jobsearch"""
+        """Delete a job search entry"""
         jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
         jobsearch.delete()
         messages.success(request, "Jobsearch deleted!")
         return redirect(reverse("jobs_searched"))
 
 def favs_display(request):
-    
     favs = Jobsearch.objects.filter(favourite=True).values()
 
     context = {
