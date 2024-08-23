@@ -25,7 +25,6 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 logger = logging.getLogger(__name__)
 
-
 def refresh_access_token(refresh_token):
     token_url = "https://oauth2.googleapis.com/token"
     payload = {
@@ -53,11 +52,14 @@ def get_unread_emails():
             with open("token.json", "w") as token:
                 token.write(creds.to_json())
         else:
-            # Use the local server flow for web applications
+            # Redirect user to Google's OAuth 2.0 server for authorization
             flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            creds = flow.run_local_server(port=8080)  # For web applications
-            with open("token.json", "w") as token:
-                token.write(creds.to_json())
+            auth_url, _ = flow.authorization_url(
+                access_type='offline',
+                include_granted_scopes='true',
+                redirect_uri=settings.GOOGLE_REDIRECT_URI
+            )
+            return redirect(auth_url)  # Redirect to Google OAuth2 authorization page
 
     try:
         service = build("gmail", "v1", credentials=creds)
@@ -101,7 +103,17 @@ def get_unread_emails():
         logger.error("An error occurred: %s", error)
         return []
 
-
+def oauth2callback(request):
+    flow = InstalledAppFlow.from_client_secrets_file(
+        "credentials.json",
+        SCOPES
+    )
+    flow.fetch_token(authorization_response=request.build_absolute_uri())
+    creds = flow.credentials
+    with open("token.json", "w") as token:
+        token.write(creds.to_json())
+    
+    return redirect(reverse('jobs_dashboard_with_emails'))  # Redirect back to the original view
 
 def jobs_dashboard_with_emails(request):
     key = settings.GOOGLE_API_KEY
@@ -140,7 +152,6 @@ def jobs_dashboard_basic(request):
         locations.append(data)
     
     return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations})
-
 
 @login_required
 def jobs_searched(request):
@@ -218,7 +229,6 @@ def jobs_searched(request):
         }
         return render(request, "jobs/job_searches.html", context)
 
-
 @login_required
 def jobsearch_detail(request, jobsearch_id):
         if request.user.is_superuser:
@@ -230,8 +240,6 @@ def jobsearch_detail(request, jobsearch_id):
             "jobsearch": jobsearch,
         }
         return render(request, "jobs/jobsearch_detail.html", context)
-
-
 
 @login_required
 def add_jobsearch(request):
@@ -271,7 +279,6 @@ def add_jobsearch(request):
         context = {"form": form}
         return render(request, template, context)
 
-
 @login_required
 def edit_jobsearch(request, jobsearch_id):
     if request.user.is_superuser:
@@ -309,8 +316,6 @@ def delete_jobsearch(request, jobsearch_id):
         messages.success(request, "Jobsearch deleted!")
         return redirect(reverse("jobs_searched"))
 
-
-
 def favs_display(request):
     
     favs = Jobsearch.objects.filter(favourite = True).values()
@@ -320,7 +325,6 @@ def favs_display(request):
     }
         
     return render(request, "jobs/favourites.html", context)
-
 
 def job_search_view(request):
     jobs_searched = Job.objects.all()
@@ -344,3 +348,4 @@ def job_search_view(request):
             job.background_color = 'white'  # default color if none match
 
     return render(request, 'your_template.html', {'jobs_searched': jobs_searched})
+
