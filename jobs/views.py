@@ -1,4 +1,5 @@
-from django.contrib import messages
+
+m django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.db.models import Q
@@ -327,8 +328,7 @@ def favs_display(request):
     return render(request, "jobs/favourites.html", context)
 
 def job_search_view(request):
-    jobs_searched = Job.objects.all()
-    print('test', jobs_searched)
+    jobs_searched = Jobsearch.objects.all()
     for job in jobs_searched:
         if "pending<wk" in job.status:
             job.background_color = 'yellow'
