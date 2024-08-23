@@ -57,7 +57,7 @@ google-api-core==2.19.1
 google-api-python-client==2.141.0
 google-auth==2.32.0
 google-auth-httplib2==0.2.0
-google-auth-oauthlib
+google-auth-oauthlib==1.2.1
 googleapis-common-protos==1.63.2
 googlemaps==4.10.0
 gspread==6.1.2
@@ -151,7 +151,7 @@ typing_extensions==4.12.2
 tzdata==2024.1
 ua-parser==0.18.0
 uritemplate==4.1.1
-urllib3
+urllib3==2.2.2
 user-agents==2.2.0
 watchdog==4.0.2
 Werkzeug==3.0.3
