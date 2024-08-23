@@ -19,6 +19,8 @@ GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
+# Add the Google Redirect URI
+GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/oauth2callback/'
 
 GMAIL_TOKEN_JSON = os.getenv('GMAIL_TOKEN_JSON')
 if GMAIL_TOKEN_JSON:
@@ -26,13 +28,10 @@ if GMAIL_TOKEN_JSON:
 else:
     GMAIL_TOKEN = None
 
-
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # Retrieve ALLOWED_HOSTS from environment and convert it to a list
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
-
-
 
 # Application definition
 INSTALLED_APPS = [
@@ -94,7 +93,6 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
-
 # Determine if we're running on Heroku
 HEROKU = 'DYNO' in os.environ
 
@@ -119,8 +117,6 @@ else:
             'PORT': os.environ.get('MYSQL_DB_PORT', '3306'),
         }
     }
-
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -149,11 +145,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-
 # Enable gzip and brotli compression for faster load times
 if not DEBUG:
-        STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
-
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
