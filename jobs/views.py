@@ -18,6 +18,7 @@ from googleapiclient.errors import HttpError
 from tasks.models import Task
 from .models import Jobsearch
 from .forms import JobsearchForm
+from tasks.forms import TaskForm
 
 # Define the scope and initialize other necessary variables
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
