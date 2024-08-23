@@ -1,4 +1,5 @@
 import os
+import json
 import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
@@ -18,10 +19,19 @@ GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
+
+GMAIL_TOKEN_JSON = os.getenv('GMAIL_TOKEN_JSON')
+if GMAIL_TOKEN_JSON:
+    GMAIL_TOKEN = json.loads(GMAIL_TOKEN_JSON)
+else:
+    GMAIL_TOKEN = None
+
+
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # Retrieve ALLOWED_HOSTS from environment and convert it to a list
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
+
 
 
 # Application definition
@@ -38,6 +48,7 @@ INSTALLED_APPS = [
     'map',
     'jobs',
     'users',
+    'tasks',
 ]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
@@ -135,7 +146,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 # Default primary key field type

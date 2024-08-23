@@ -13,6 +13,83 @@
     <div class="overlay"></div>
     <div class="container-fluid">
         <div class="row">
+
+            <!-- Jobs Applied Today Section -->
+            <div class="col-md-6">
+                <h2>Jobs Applied Today</h2>
+                {% for job in jobs_applied_today %}
+                <div class="card mb-3">
+                    <div class="card-body" style="background-color: {{ job.background_color }}">
+                        <h5 class="card-title" style="color: #333;">{{ job.name }}</h5>
+                        <p class="card-text" style="color: #666;">Role: {{ job.role }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p>No jobs applied today.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Tasks Section -->
+            <div class="col-md-6">
+                <h2>Tasks</h2>
+                <!-- Task Creation Form -->
+                <form class='d-flex flex-row justify-content-between mb-3' method="POST" action="{% url 'tasks:list' %}">
+                    {% csrf_token %}
+                    <div class="flex-grow-1">
+                        {{ form.title.label_tag }} {{ form.title }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Task</button>
+                </form>
+                <hr>
+                <!-- Task List -->
+                <ul class="list-group">
+                    {% for task in tasks %}
+                        <li class="list-group-item d-flex align-items-center justify-content-between mb-2">
+                            <form method="POST" action="{% url 'tasks:updateTask' task.id %}" class="d-flex flex-row align-items-center w-100">
+                                {% csrf_token %}
+                                <input type="checkbox" name="complete" {% if task.complete %}checked{% endif %} class="mr-2">
+                                <span class="p-2 flex-grow-1">{{ task.title }}</span>
+                                <div class="btn-group">
+                                    <button type="submit" class="btn btn-sm btn-warning">Update</button>
+                                    <a href="{% url 'tasks:delete' task.id %}" class="btn btn-sm btn-danger">Delete</a>
+                                </div>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section for all job searches -->
+        <div class="container mt-3">
+            <h2>All Job Searches</h2>
+            <div class="row">
+                {% for data in jobs_searched %}
+                    <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
+                        <div class="card h-100 border-dark d-flex flex-column" style="background-color: {{ data.background_color }};">
+                            <div class="card-body d-flex flex-column p-4">
+                                <a href="{% url 'jobsearch_detail' data.id %}" class="text-decoration-none text-dark">
+                                    <div class="card-title-container mb-3">
+                                        <h5 class="card-title text-dark mb-0">{{ data.name }}</h5>
+                                        {% if data.favourite %}
+                                        <span class="ms-2" style="font-size: 2rem; color: black;">
+                                            &#9733;  <!-- Unicode character for a filled star (★) -->
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="card-text mb-2 text-dark"><strong>Role:</strong> {{ data.role }}</p>
+                                    <p class="card-text mb-2 text-dark"><strong>Date Applied:</strong> {{ data.created_at|date:'Y-m-d' }}</p>
+                                    <p class="card-text mb-2 text-dark"><strong>Status:</strong> {{ data.status }}</p>
+                                    <p class="card-text mb-2 text-dark"><strong>Color:</strong> {{ data.background_color }}</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+=======
             <div class="col text-center mt-3">
                 <!-- Section for jobs applied today -->
                 <div class="container mt-3">
@@ -67,6 +144,58 @@
 
 {% block extra_css %}
 <style>
+
+    /* Ensure task items are aligned horizontally */
+    .task-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .task-item form {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .task-item input[type="checkbox"] {
+        margin-right: 10px;
+    }
+
+    .task-title {
+        flex-grow: 1;
+        margin-right: 10px;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 10px; /* Space between buttons */
+    }
+
+    /* Task creation form adjustments */
+    .form-group {
+        display: flex;
+        flex-grow: 1;
+        margin-right: 10px;
+    }
+
+    .d-flex {
+        display: flex;
+    }
+
+    /* Ensure proper alignment of the task creation form */
+    .form-group input,
+    .form-group label {
+        margin-right: 10px;
+    }
+
+    @media (max-width: 767px) {
+        .card-title-container {
+            flex-direction: column;
+            text-align: center;
+        }
+
     /* Title container for consistency across both sections */
     .card-title-container {
         background-color: #f0f0f0; /* Set background color for the title area */
@@ -87,6 +216,7 @@
     /* Ensure card content has consistent spacing */
     .card-body {
         flex-grow: 1;
+
     }
 </style>
 {% endblock %}
