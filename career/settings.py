@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 import logging
 from django.contrib import messages
+from google.oauth2.credentials import Credentials
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,6 +15,22 @@ LOGOUT_REDIRECT_URL = "/"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
+
+# Retrieve credentials from environment variables
+client_id = os.getenv('GOOGLE_CLIENT_ID')
+client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+
+# Construct credentials object as needed
+# Note: Google OAuth credentials object is typically constructed from token, not directly from client_id and client_secret
+credentials = Credentials.from_authorized_user_info(
+    {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "refresh_token": os.getenv("GOOGLE_REFRESH_TOKEN"),  # Make sure you have refresh token
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "scopes": ["https://www.googleapis.com/auth/gmail.readonly"]
+    }
+)
 
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
