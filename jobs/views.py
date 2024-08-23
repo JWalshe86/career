@@ -7,12 +7,15 @@ from django.conf import settings
 from datetime import date, timedelta
 import requests
 import os
+import json
 import logging
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+
+from tasks.models import Task
 from .models import Jobsearch
 from .forms import JobsearchForm
 
@@ -38,7 +41,6 @@ def refresh_access_token(refresh_token):
         logger.error("Error refreshing token: %s", response_data)
         return None
 
-
 def get_unread_emails():
     creds = None
     if os.path.exists("token.json"):
@@ -46,15 +48,13 @@ def get_unread_emails():
     
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            new_tokens = refresh_access_token(creds.refresh_token)
-            if new_tokens:
-                creds = Credentials.from_authorized_user_info(new_tokens)
-                with open("token.json", "w") as token:
-                    token.write(creds.to_json())
-        if not creds or not creds.valid:
-            # Use a specific port for local server and handle OAuth manually if needed
+            creds.refresh(Request())
+            with open("token.json", "w") as token:
+                token.write(creds.to_json())
+        else:
+            # Use the local server flow for web applications
             flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            creds = flow.run_local_server(port=8080)  # Specify a port, e.g., 8080
+            creds = flow.run_local_server(port=8080)  # For web applications
             with open("token.json", "w") as token:
                 token.write(creds.to_json())
 
@@ -78,7 +78,7 @@ def get_unread_emails():
         messages = results.get('messages', [])
 
         if not messages:
-            print("No unread messages found.")
+            logger.info("No unread messages found.")
             return []
 
         unread_emails = []
@@ -96,9 +96,10 @@ def get_unread_emails():
 
         return unread_emails
 
-    except HttpError as error:
-        print(f"An error occurred: {error}")
+    except Exception as error:
+        logger.error("An error occurred: %s", error)
         return []
+
 
 
 def jobs_dashboard_with_emails(request):

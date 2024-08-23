@@ -14,6 +14,7 @@ LOGOUT_REDIRECT_URL = "/"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
+
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
@@ -28,7 +29,9 @@ else:
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['johnsite-d251709cf12b.herokuapp.com', '127.0.0.1', 'www.jwalshedev.ie']
+# Retrieve ALLOWED_HOSTS from environment and convert it to a list
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
+
 
 
 # Application definition
