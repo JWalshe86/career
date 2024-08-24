@@ -18,7 +18,7 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 if DEBUG:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 else:
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'https://www.jwalshedev.ie').split(',')
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'www.jwalshedev.ie', '.herokuapp.com','https://www.jwalshedev.ie').split(',')
 
 DEFAULT_HOSTNAME = 'https://www.jwalshedev.ie'
 
@@ -55,6 +55,13 @@ else:
             'PORT': os.environ.get('MYSQL_DB_PORT', '3306'),
         }
     }
+
+CSRF_TRUSTED_ORIGINS = [
+            'https://www.jwalshedev.ie',
+                'https://johnsite.herokuapp.com',
+                ]
+
+
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
