@@ -1,121 +1,43 @@
 import os
-import json
-import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
-load_dotenv()
-import logging
-from django.contrib import messages
-from google.oauth2.credentials import Credentials
+import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Load environment variables from .env file
+load_dotenv()
+
+# Define BASE_DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
+
+# Retrieve DEBUG setting
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+
+# Define ALLOWED_HOSTS
+
+# Define ALLOWED_HOSTS
+if DEBUG:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+else:
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'https://www.jwalshedev.ie').split(',')
+
+DEFAULT_HOSTNAME = 'https://www.jwalshedev.ie'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-# Retrieve credentials from environment variables
-client_id = os.getenv('GOOGLE_CLIENT_ID')
-client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
-
-# Construct credentials object as needed
-# Note: Google OAuth credentials object is typically constructed from token, not directly from client_id and client_secret
-credentials = Credentials.from_authorized_user_info(
-    {
-        "client_id": client_id,
-        "client_secret": client_secret,
-        "refresh_token": os.getenv("GOOGLE_REFRESH_TOKEN"),  # Make sure you have refresh token
-        "token_uri": "https://oauth2.googleapis.com/token",
-        "scopes": ["https://www.googleapis.com/auth/gmail.readonly"]
-    }
-)
-
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
+# Google credentials
+GOOGLE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials.json')
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-
-# Add the Google Redirect URI
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/oauth2callback/'
 
-GMAIL_TOKEN_JSON = os.getenv('GMAIL_TOKEN_JSON')
-if GMAIL_TOKEN_JSON:
-    GMAIL_TOKEN = json.loads(GMAIL_TOKEN_JSON)
-else:
-    GMAIL_TOKEN = None
-
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-
-# Retrieve ALLOWED_HOSTS from environment and convert it to a list
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
-
-# Application definition
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_extensions',
-    'crispy_forms',
-    'crispy_bootstrap5',
-    'map',
-    'jobs',
-    'users',
-    'tasks',
-]
-
-X_FRAME_OPTIONS = 'SAMEORIGIN'
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = 'bootstrap5'
-
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-ROOT_URLCONF = 'career.urls'
-
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, "templates")],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
-
-WSGI_APPLICATION = 'career.wsgi.application'
-
-MESSAGE_TAGS = {
-    messages.DEBUG: 'alert-info',
-    messages.INFO: 'alert-info',
-    messages.SUCCESS: 'alert-success',
-    messages.WARNING: 'alert-warning',
-    messages.ERROR: 'alert-danger',
-}
-
-# Determine if we're running on Heroku
-HEROKU = 'DYNO' in os.environ
+# Token file path
+TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
 
 # Database configuration
+HEROKU = 'DYNO' in os.environ
 if HEROKU:
-    # Use PostgreSQL on Heroku
     DATABASES = {
         'default': dj_database_url.config(
             default=os.environ.get('DATABASE_URL'),
@@ -123,7 +45,6 @@ if HEROKU:
         )
     }
 else:
-    # Use MySQL locally
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -135,42 +56,12 @@ else:
         }
     }
 
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
-# Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
-
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-# Enable gzip and brotli compression for faster load times
-if not DEBUG:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
-
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-DATE_FORMAT = "Y-m-d"
-USE_L10N = False
 
 # Logging configuration
 LOGGING = {
@@ -187,4 +78,61 @@ LOGGING = {
         'level': 'DEBUG',
     },
 }
+
+# URLs configuration
+ROOT_URLCONF = 'career.urls'  # Update this if your project has a different module name
+
+# WSGI configuration
+WSGI_APPLICATION = 'career.wsgi.application'
+
+# Middleware
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+# Installed apps
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'tasks',
+    'jobs',
+    'map',
+]
+
+# Templates
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+# Internationalization
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

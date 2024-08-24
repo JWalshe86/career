@@ -1,0 +1,506 @@
+views.py:        # value doesn't match an authorized URI, you will get a 'redirect_uri_mismatch'
+views.py:        flow.redirect_uri = get_oauth_cb_url(request, cb_hostname=gsheets_settings.OAUTH_REDIRECT_HOSTNAME)
+views.py:        logger.debug(f'flow redirect URI is {flow.redirect_uri}')
+views.py:        flow.redirect_uri = get_oauth_cb_url(request, cb_hostname=gsheets_settings.OAUTH_REDIRECT_HOSTNAME)
+flow.py:        redirect_uri=None,
+flow.py:            redirect_uri (str): The OAuth 2.0 redirect URI if known at flow
+flow.py:                :attr:`redirect_uri`.
+flow.py:        self.redirect_uri = redirect_uri
+flow.py:        redirect_uri = kwargs.get("redirect_uri", None)
+flow.py:            redirect_uri,
+flow.py:    def redirect_uri(self):
+flow.py:        ``self.oauth2session.redirect_uri``."""
+flow.py:        return self.oauth2session.redirect_uri
+flow.py:    @redirect_uri.setter
+flow.py:    def redirect_uri(self, value):
+flow.py:        ``self.oauth2session.redirect_uri``."""
+flow.py:        self.oauth2session.redirect_uri = value
+flow.py:        redirect_uri_trailing_slash=True,
+flow.py:            redirect_uri_trailing_slash (bool): whether or not to add trailing
+flow.py:                slash when constructing the redirect_uri. Default value is True.
+flow.py:            redirect_uri_format = (
+{}:{}"
+flow.py:            self.redirect_uri = redirect_uri_format.format(
+broker.py:            or "AADSTS7000218" in context  # This "request body must contain ... client_secret" is just a symptom of current app has no WAM redirect_uri
+broker.py:            "MsalRuntime won't work unless this one more redirect_uri is registered to current app: "
+nativeclient")
+broker.py:        # This default redirect_uri value is not currently used by the broker
+application.py:            # that other platforms have different redirect_uri requirements,
+application.py:            redirect_uri=None,
+application.py:        Later when the response reaches your redirect_uri,
+application.py:        :param str redirect_uri:
+application.py:            redirect_uri=redirect_uri, state=state, login_hint=login_hint,
+application.py:            redirect_uri=None,
+application.py:        :param str redirect_uri:
+application.py:                redirect_uri=redirect_uri, state=state, login_hint=login_hint,
+application.py:            redirect_uri=None,
+application.py:                # REQUIRED, if the "redirect_uri" parameter was included in the
+application.py:                code, redirect_uri=redirect_uri,
+application.py:               and already registered their corresponding redirect_uri
+localhost``.)
+localhost:{port}".format(
+authcode.py:It starts a web server to listen redirect_uri, waiting for auth code.
+authcode.py:        # For flexibility, we choose to not check self.path matching redirect_uri
+authcode.py:            #   you will still be able to specify your redirect_uri using either
+authcode.py:    p.add_argument('--port', type=int, default=0, help="The port in redirect_uri")
+authcode.py:    p.add_argument('--host', default="127.0.0.1", help="The host of redirect_uri")
+{h}:{p}".format(h=args.host, p=receiver.get_port()),
+oauth2.py:            response_type, redirect_uri=None, scope=None, state=None, **kwargs):
+oauth2.py:            response_type, redirect_uri=redirect_uri, scope=scope, state=state,
+oauth2.py:            response_type, redirect_uri=None, scope=None, state=None, **kwargs):
+oauth2.py:            response_type, redirect_uri=redirect_uri, scope=scope, state=state,
+oauth2.py:            scope=None, redirect_uri=None, state=None,
+oauth2.py:        Later when the response reaches your redirect_uri,
+oauth2.py:        :param str redirect_uri:
+oauth2.py:            "redirect_uri": redirect_uri,
+oauth2.py:                redirect_uri=auth_code_flow.get("redirect_uri"),
+oauth2.py:                    # Required, if "redirect_uri" parameter was included in the
+oauth2.py:            redirect_uri=None,
+oauth2.py:        :param string redirect_uri:
+oauth2.py:            The redirect_uri to be sent via auth request to Identity Provider (IdP),
+oauth2.py:            then the actual redirect_uri will contain that port.
+oauth2.py:                auth_code_receiver, redirect_uri=redirect_uri, **kwargs)
+oauth2.py:        # Otherwise we will listen on _redirect_uri.port
+127.0.0.1:0")
+oauth2.py:        if not _redirect_uri.hostname:
+oauth2.py:            raise ValueError("redirect_uri should contain hostname")
+oauth2.py:            80 if _redirect_uri.port is None else _redirect_uri.port)
+oauth2.py:                uri = redirect_uri if _redirect_uri.port != 0 else urlunparse((
+oauth2.py:                    _redirect_uri.scheme,
+oauth2.py:                    "{}:{}".format(_redirect_uri.hostname, receiver.get_port()),
+oauth2.py:                    _redirect_uri.path,
+oauth2.py:                    _redirect_uri.params,
+oauth2.py:                    _redirect_uri.query,
+oauth2.py:                    _redirect_uri.fragment,
+oauth2.py:                    ))  # It could be slightly different than raw redirect_uri
+oauth2.py:                self.logger.debug("Using {} as redirect_uri".format(uri))
+oauth2.py:                    receiver, redirect_uri=uri, **kwargs)
+oauth2.py:            redirect_uri=None,
+oauth2.py:            redirect_uri=redirect_uri,
+oauth2.py:            self, code, redirect_uri=None, scope=None, **kwargs):
+oauth2.py:        :param redirect_uri:
+oauth2.py:            Required, if the "redirect_uri" parameter was included in the
+oauth2.py:            code, redirect_uri=redirect_uri, scope=scope, **kwargs)
+oauth2.py:            self, code, redirect_uri=None, scope=None, **kwargs):
+oauth2.py:        data.update(code=code, redirect_uri=redirect_uri)
+METADATA:- `InteractiveBrowserCredential` keyword argument `redirect_uri` enables
+authorization_server.py:        redirect_uri = request.redirect_uri
+authorization_server.py:        if redirect_uri:
+authorization_server.py:            token['oauth_callback'] = redirect_uri
+apps.py:    async def authorize_redirect(self, request, redirect_uri=None, **kwargs):
+apps.py:        :param redirect_uri: Callback or redirect URI for authorization.
+apps.py:        # Handle Starlette >= 0.26.0 where redirect_uri may now be a URL and not a string
+apps.py:        if redirect_uri and isinstance(redirect_uri, URL):
+apps.py:            redirect_uri = str(redirect_uri)
+apps.py:        rv = await self.create_authorization_url(redirect_uri, **kwargs)
+apps.py:        await self.save_authorize_data(request, redirect_uri=redirect_uri, **rv)
+async_app.py:    async def create_authorization_url(self, redirect_uri=None, **kwargs):
+async_app.py:        :param redirect_uri: Callback or redirect URI for authorization.
+async_app.py:            client.redirect_uri = redirect_uri
+async_app.py:    async def create_authorization_url(self, redirect_uri=None, **kwargs):
+async_app.py:        :param redirect_uri: Callback or redirect URI for authorization.
+async_app.py:            client.redirect_uri = redirect_uri
+async_app.py:    async def fetch_access_token(self, redirect_uri=None,  **kwargs):
+async_app.py:        :param redirect_uri: Callback or Redirect URI that is used in
+async_app.py:            if redirect_uri is not None:
+async_app.py:                client.redirect_uri = redirect_uri
+sync_app.py:    def create_authorization_url(self, redirect_uri=None, **kwargs):
+sync_app.py:        :param redirect_uri: Callback or redirect URI for authorization.
+sync_app.py:            client.redirect_uri = redirect_uri
+sync_app.py:        redirect_uri = state_data.get('redirect_uri')
+sync_app.py:        if redirect_uri:
+sync_app.py:            params['redirect_uri'] = redirect_uri
+sync_app.py:    def create_authorization_url(self, redirect_uri=None, **kwargs):
+sync_app.py:        :param redirect_uri: Callback or redirect URI for authorization.
+sync_app.py:            if redirect_uri is not None:
+sync_app.py:                client.redirect_uri = redirect_uri
+sync_app.py:    def fetch_access_token(self, redirect_uri=None, **kwargs):
+sync_app.py:        :param redirect_uri: Callback or Redirect URI that is used in
+sync_app.py:            if redirect_uri is not None:
+sync_app.py:                client.redirect_uri = redirect_uri
+apps.py:    def authorize_redirect(self, redirect_uri=None, **kwargs):
+apps.py:        :param redirect_uri: Callback or redirect URI for authorization.
+apps.py:        rv = self.create_authorization_url(redirect_uri, **kwargs)
+apps.py:        self.save_authorize_data(redirect_uri=redirect_uri, **rv)
+cache.py:    def create_temporary_credential(token, client_id, redirect_uri):
+cache.py:        if redirect_uri:
+cache.py:            token['oauth_callback'] = redirect_uri
+authorization_server.py:            return func(token, request.client_id, request.redirect_uri)
+oauth1_session.py:                 redirect_uri=None, rsa_key=None, verifier=None,
+oauth1_session.py:            redirect_uri=redirect_uri, rsa_key=rsa_key, verifier=verifier,
+oauth2_session.py:    :param redirect_uri: Redirect URI you registered as callback.
+oauth2_session.py:                 scope=None, state=None, redirect_uri=None,
+oauth2_session.py:            scope=scope, state=state, redirect_uri=redirect_uri,
+tokens_mixins.py:    redirect_uri = Column(Text, default='')
+tokens_mixins.py:    def get_redirect_uri(self):
+tokens_mixins.py:        return self.redirect_uri
+client_mixin.py:    def redirect_uris(self):
+client_mixin.py:        return self.client_metadata.get('redirect_uris', [])
+client_mixin.py:    def get_default_redirect_uri(self):
+client_mixin.py:        if self.redirect_uris:
+client_mixin.py:            return self.redirect_uris[0]
+client_mixin.py:    def check_redirect_uri(self, redirect_uri):
+client_mixin.py:        return redirect_uri in self.redirect_uris
+apps.py:    def authorize_redirect(self, request, redirect_uri=None, **kwargs):
+apps.py:        :param redirect_uri: Callback or redirect URI for authorization.
+apps.py:        rv = self.create_authorization_url(redirect_uri, **kwargs)
+apps.py:        self.save_authorize_data(request, redirect_uri=redirect_uri, **rv)
+oauth2_client.py:                 scope=None, redirect_uri=None,
+oauth2_client.py:            scope=scope, redirect_uri=redirect_uri,
+oauth2_client.py:                 scope=None, redirect_uri=None,
+oauth2_client.py:            scope=scope, redirect_uri=redirect_uri,
+oauth1_client.py:                 redirect_uri=None, rsa_key=None, verifier=None,
+oauth1_client.py:            redirect_uri=redirect_uri, rsa_key=rsa_key, verifier=verifier,
+oauth1_client.py:                 redirect_uri=None, rsa_key=None, verifier=None,
+oauth1_client.py:            redirect_uri=redirect_uri, rsa_key=rsa_key, verifier=verifier,
+util.py:def validate_request_prompt(grant, redirect_uri, redirect_fragment=False):
+util.py:            redirect_uri=redirect_uri,
+util.py:            redirect_uri=redirect_uri,
+util.py:        end_user, prompts, redirect_uri, redirect_fragment=redirect_fragment)
+util.py:def create_response_mode_response(redirect_uri, params, response_mode):
+util.py:        body = tpl.format(quote_url(redirect_uri), inputs)
+util.py:        uri = add_params_to_uri(redirect_uri, params, fragment=False)
+util.py:        uri = add_params_to_uri(redirect_uri, params, fragment=True)
+util.py:def _guess_prompt_value(end_user, prompts, redirect_uri, redirect_fragment):
+util.py:                redirect_uri=redirect_uri,
+util.py:                redirect_uri=redirect_uri,
+implicit.py:                redirect_uri=self.request.redirect_uri,
+implicit.py:        redirect_uri = super().validate_authorization_request()
+implicit.py:            error.redirect_uri = redirect_uri
+implicit.py:        return redirect_uri
+implicit.py:        redirect_uri = self.validate_authorization_request()
+implicit.py:        validate_request_prompt(self, redirect_uri, redirect_fragment=True)
+implicit.py:    def create_authorization_response(self, redirect_uri, grant_user):
+implicit.py:            redirect_uri=redirect_uri,
+hybrid.py:                    redirect_uri=request.redirect_uri,
+hybrid.py:                redirect_uri=self.request.redirect_uri,
+claims.py:        'redirect_uris',
+claims.py:        self.validate_redirect_uris()
+claims.py:    def validate_redirect_uris(self):
+claims.py:        uris = self.get('redirect_uris')
+claims.py:                self._validate_uri('redirect_uris', uri)
+errors.py:    error = 'invalid_redirect_uri'
+base.py:                 redirect_uri=None, redirect_fragment=False, error=None):
+base.py:        self.redirect_uri = redirect_uri
+base.py:        if self.redirect_uri:
+base.py:            loc = add_params_to_uri(self.redirect_uri, params, self.redirect_fragment)
+client.py:    :param redirect_uri: Redirect URI you registered as callback.
+client.py:                 scope=None, state=None, redirect_uri=None, code_challenge_method=None,
+client.py:        self.redirect_uri = redirect_uri
+client.py:        if 'redirect_uri' not in kwargs:
+client.py:            kwargs['redirect_uri'] = self.redirect_uri
+client.py:            if 'redirect_uri' not in kwargs:
+client.py:                kwargs['redirect_uri'] = self.redirect_uri
+requests.py:    def redirect_uri(self):
+requests.py:        return self.data.get('redirect_uri')
+parameters.py:def prepare_grant_uri(uri, client_id, response_type, redirect_uri=None,
+parameters.py:    :param redirect_uri: The client provided URI to redirect back to after
+parameters.py:        &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+parameters.py:    if redirect_uri:
+parameters.py:        params.append(('redirect_uri', redirect_uri))
+parameters.py:def prepare_token_request(grant_type, body='', redirect_uri=None, **kwargs):
+parameters.py:    :param redirect_uri: If the "redirect_uri" parameter was included in the
+parameters.py:        &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+parameters.py:    if redirect_uri:
+parameters.py:        params.append(('redirect_uri', redirect_uri))
+base.py:        self.redirect_uri = None
+base.py:            &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+base.py:    def validate_authorization_redirect_uri(request: OAuth2Request, client):
+base.py:        if request.redirect_uri:
+base.py:            if not client.check_redirect_uri(request.redirect_uri):
+base.py:                    f'Redirect URI {request.redirect_uri} is not supported by client.',
+base.py:            return request.redirect_uri
+base.py:            redirect_uri = client.get_default_redirect_uri()
+base.py:            if not redirect_uri:
+base.py:                    'Missing "redirect_uri" in request.',
+base.py:            return redirect_uri
+base.py:        redirect_uri = self.validate_authorization_request()
+base.py:        self.execute_hook('after_validate_consent_request', redirect_uri)
+base.py:        self.redirect_uri = redirect_uri
+base.py:    def create_authorization_response(self, redirect_uri: str, grant_user):
+authorization_code.py:        redirect_uri
+1.1
+authorization_code.py:    def create_authorization_response(self, redirect_uri: str, grant_user):
+authorization_code.py:        :param redirect_uri: Redirect to the given URI for the authorization
+authorization_code.py:            raise AccessDeniedError(state=self.request.state, redirect_uri=redirect_uri)
+authorization_code.py:        uri = add_params_to_uri(redirect_uri, params)
+authorization_code.py:        redirect_uri
+authorization_code.py:             REQUIRED, if the "redirect_uri" parameter was included in the
+authorization_code.py:            &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+authorization_code.py:        # validate redirect_uri parameter
+authorization_code.py:        log.debug('Validate token redirect_uri of %r', client)
+authorization_code.py:        redirect_uri = self.request.redirect_uri
+authorization_code.py:        original_redirect_uri = authorization_code.get_redirect_uri()
+authorization_code.py:        if original_redirect_uri and redirect_uri != original_redirect_uri:
+authorization_code.py:            raise InvalidGrantError('Invalid "redirect_uri" in request.')
+authorization_code.py:                    redirect_uri=request.redirect_uri,
+authorization_code.py:    redirect_uri = grant.validate_authorization_redirect_uri(request, client)
+authorization_code.py:            redirect_uri=redirect_uri,
+authorization_code.py:        error.redirect_uri = redirect_uri
+authorization_code.py:    return redirect_uri
+implicit.py:        redirect_uri
+1.1
+implicit.py:        redirect_uri = self.validate_authorization_redirect_uri(
+implicit.py:                redirect_uri=redirect_uri,
+implicit.py:            error.redirect_uri = redirect_uri
+implicit.py:        return redirect_uri
+implicit.py:    def create_authorization_response(self, redirect_uri, grant_user):
+implicit.py:        :param redirect_uri: Redirect to the given URI for the authorization
+implicit.py:            uri = add_params_to_uri(redirect_uri, params, fragment=True)
+implicit.py:                redirect_uri=redirect_uri,
+models.py:    def get_default_redirect_uri(self):
+models.py:        """A method to get client default redirect_uri. For instance, the
+models.py:        database table for client has a column called ``default_redirect_uri``::
+models.py:            def get_default_redirect_uri(self):
+models.py:                return self.default_redirect_uri
+models.py:    def check_redirect_uri(self, redirect_uri):
+models.py:        """Validate redirect_uri parameter in Authorization Endpoints. For
+models.py:        instance, in the client table, there is an ``allowed_redirect_uris``
+models.py:            def check_redirect_uri(self, redirect_uri):
+models.py:                return redirect_uri in self.allowed_redirect_uris
+models.py:        :param redirect_uri: A URL string for redirecting.
+models.py:    def get_redirect_uri(self):
+models.py:        """A method to get authorization code's ``redirect_uri``.
+models.py:        column called ``redirect_uri``::
+models.py:            def get_redirect_uri(self):
+models.py:                return self.redirect_uri
+authorization_server.py:            redirect_uri = grant.validate_authorization_request()
+authorization_server.py:            args = grant.create_authorization_response(redirect_uri, grant_user)
+client_auth.py:                 redirect_uri=None, rsa_key=None, verifier=None,
+client_auth.py:        self.redirect_uri = redirect_uri
+client_auth.py:        if self.redirect_uri:
+client_auth.py:            oauth_params.append(('oauth_callback', self.redirect_uri))
+wrapper.py:    def redirect_uri(self):
+models.py:    def get_default_redirect_uri(self):
+models.py:        """A method to get client default redirect_uri. For instance, the
+models.py:        database table for client has a column called ``default_redirect_uri``::
+models.py:            def get_default_redirect_uri(self):
+models.py:                return self.default_redirect_uri
+models.py:    def get_redirect_uri(self):
+models.py:            def get_redirect_uri(self):
+models.py:    def get_redirect_uri(self):
+authorization_server.py:        oauth_callback = request.redirect_uri
+authorization_server.py:        if not request.redirect_uri:
+authorization_server.py:        redirect_uri = temporary_credentials.get_redirect_uri()
+authorization_server.py:        if not redirect_uri or redirect_uri == 'oob':
+authorization_server.py:            redirect_uri = client.get_default_redirect_uri()
+authorization_server.py:            location = add_params_to_uri(redirect_uri, error.get_body())
+authorization_server.py:        location = add_params_to_uri(redirect_uri, params)
+authorization_server.py:                    redirect_uri=request.redirect_uri,
+client.py:                 redirect_uri=None, rsa_key=None, verifier=None,
+client.py:            redirect_uri=redirect_uri,
+client.py:    def redirect_uri(self):
+client.py:        return self.auth.redirect_uri
+client.py:    @redirect_uri.setter
+client.py:    def redirect_uri(self, uri):
+client.py:        self.auth.redirect_uri = uri
+client.py:        if self.auth.redirect_uri:
+client.py:            kwargs['oauth_callback'] = self.auth.redirect_uri
+aad_client.py:        self, scopes: Iterable[str], code: str, redirect_uri: str, client_secret: Optional[str] = None, **kwargs: Any
+aad_client.py:            scopes=scopes, code=code, redirect_uri=redirect_uri, client_secret=client_secret, **kwargs
+aad_client_base.py:    def obtain_token_by_authorization_code(self, scopes, code, redirect_uri, client_secret=None, **kwargs):
+aad_client_base.py:        self, scopes: Iterable[str], code: str, redirect_uri: str, client_secret: Optional[str] = None, **kwargs: Any
+aad_client_base.py:            "redirect_uri": redirect_uri,
+aad_client.py:        self, scopes: Iterable[str], code: str, redirect_uri: str, client_secret: Optional[str] = None, **kwargs
+aad_client.py:            scopes=scopes, code=code, redirect_uri=redirect_uri, client_secret=client_secret, **kwargs
+authorization_code.py:    :param str redirect_uri: The application's redirect URI. Must match the URI used to request the authorization code.
+authorization_code.py:        redirect_uri: str,
+authorization_code.py:        self._redirect_uri = redirect_uri
+authorization_code.py:                scopes=scopes, code=self._authorization_code, redirect_uri=self._redirect_uri, **kwargs
+authorization_code.py:    :param str redirect_uri: The application's redirect URI. Must match the URI used to request the authorization code.
+authorization_code.py:        self, tenant_id: str, client_id: str, authorization_code: str, redirect_uri: str, **kwargs: Any
+authorization_code.py:        self._redirect_uri = redirect_uri
+authorization_code.py:                scopes=scopes, code=self._authorization_code, redirect_uri=self._redirect_uri, **kwargs
+browser.py:    :keyword str redirect_uri: a redirect URI for the application identified by `client_id` as configured in Azure
+browser.py:    :raises ValueError: invalid **redirect_uri**
+browser.py:        redirect_uri = kwargs.pop("redirect_uri", None)
+browser.py:        if redirect_uri:
+browser.py:            self._parsed_url = urlparse(redirect_uri)
+localhost:8400"')
+browser.py:        redirect_uri: str = ""
+{}:{}".format(self._parsed_url.hostname, self._parsed_url.port)
+browser.py:                raise CredentialUnavailableError(message="Couldn't start an HTTP server on " + redirect_uri) from ex
+localhost:{}".format(port)
+browser.py:            redirect_uri=redirect_uri,
+oauth2_session.py:        redirect_uri=None,
+oauth2_session.py:        :param redirect_uri: Redirect URI you registered as callback
+oauth2_session.py:        self.redirect_uri = redirect_uri
+oauth2_session.py:                redirect_uri=self.redirect_uri,
+oauth2_session.py:            redirect_uri=self.redirect_uri,
+auth.py:            # Google requires an exact match for redirect_uri, so it's
+auth.py:            redirect_uri = urllib.parse.urljoin(self.application.settings['redirect_base_uri'],
+auth.py:                        redirect_uri=redirect_uri,
+auth.py:                        redirect_uri=redirect_uri,
+auth.py:        redirect_uri: Optional[str] = None,
+auth.py:        if redirect_uri is not None:
+auth.py:            args["redirect_uri"] = redirect_uri
+auth.py:        redirect_uri: Optional[str] = None,
+auth.py:        if redirect_uri is not None:
+auth.py:            args["redirect_uri"] = redirect_uri
+auth.py:    * You must register the ``redirect_uri`` you plan to use with this class
+auth.py:        redirect_uri: str,
+auth.py:                    # Google requires an exact match for redirect_uri, so it's
+auth.py:                    redirect_uri = urllib.parse.urljoin(self.application.settings['redirect_base_uri'],
+auth.py:                                redirect_uri=redirect_uri,
+auth.py:                                redirect_uri=redirect_uri,
+auth.py:                "redirect_uri": redirect_uri,
+auth.py:        redirect_uri: str,
+auth.py:                redirect_uri = urllib.parse.urljoin(
+auth.py:                        redirect_uri=redirect_uri,
+auth.py:                        redirect_uri=redirect_uri,
+auth.py:            "redirect_uri": redirect_uri,
+auth_test.py:                redirect_uri=self.request.full_url(),
+auth_test.py:                redirect_uri=self.request.full_url(),
+auth_test.py:                redirect_uri=self._OAUTH_REDIRECT_URI,
+auth_test.py:        # issue a fake auth code and redirect to redirect_uri
+auth_test.py:        self.redirect(url_concat(self.get_argument("redirect_uri"), dict(code=code)))
+__init__.py:        self.assertGreater(q["redirect_uri"][0].find(complete_url), 0)
+__init__.py:                    and data.get("redirect_uri", "").endswith(complete_url)
+views.py:    redirect_uri_protocol = None
+tests.py:        self.assertGreater(q["redirect_uri"][0].find(complete_url), 0)
+views.py:        protocol = self.redirect_uri_protocol
+views.py:    redirect_uri_protocol = "https"
+tests.py:        self.assertGreater(q["redirect_uri"][0].find(complete_url), 0)
+client.py:            "redirect_uri": self.callback_url,
+client.py:            "redirect_uri": self.callback_url,
+provider.py:        `redirect_uri`, `response_type`.
+provider.py:        `redirect_uri`, `response_type`.
+client.py:            "redirect_uri": self.callback_url,
+client.py:            "redirect_uri": self.callback_url,
+views.py:    redirect_uri_protocol: Optional[str] = None
+views.py:        protocol = self.redirect_uri_protocol
+client.py:            "redirect_uri": self.callback_url,
+tests.py:        self.assertGreater(q["redirect_uri"][0].find(complete_url), 0)
+client.py:                "redirect_uri": redirect_url,
+client.py:            "redirect_uri": self.request.build_absolute_uri(self.callback_url),
+client.py:            "redirect_uri": self.callback_url,
+views.py:        protocol = self.redirect_uri_protocol or app_settings.DEFAULT_HTTP_PROTOCOL
+views.py:    redirect_uri_protocol = "https"
+provider.py:        # Untappd uses redirect_url instead of redirect_uri
+client.py:        * uses redirect_url instead of redirect_uri
+request_validator.py:    def get_authorization_code_scopes(self, client_id, code, redirect_uri, request):
+request_validator.py:        any storage you are using, `client_id` and `redirect_uri` can have a
+request_validator.py:        :param redirect_uri: Unicode absolute URI
+request_validator.py:    def get_authorization_code_nonce(self, client_id, code, redirect_uri, request):
+request_validator.py:        any storage you are using. However, `client_id` and `redirect_uri`
+request_validator.py:        :param redirect_uri: Unicode absolute URI
+dispatchers.py:        redirect_uri = parameters.get('redirect_uri', None)
+dispatchers.py:            scopes = self.request_validator.get_authorization_code_scopes(client_id, code, redirect_uri, request)
+authorization_code.py:            request.redirect_uri,
+base.py:            authorization_url, redirect_uri=self.redirect_url,
+base.py:                                         redirect_uri=self.redirect_url, **kwargs)
+mobile_application.py:    def prepare_request_uri(self, uri, redirect_uri=None, scope=None,
+mobile_application.py:        :param redirect_uri:  OPTIONAL. The redirect URI must be an absolute URI
+callback')
+example.com?client_id=your_id&response_type=token&redirect_uri=https%3A%2F%2Fa.b%2Fcallback'
+mobile_application.py:                                 redirect_uri=redirect_uri, state=state, scope=scope, **kwargs)
+web_application.py:    def prepare_request_uri(self, uri, redirect_uri=None, scope=None,
+web_application.py:        :param redirect_uri:  OPTIONAL. The redirect URI must be an absolute URI
+callback')
+example.com?client_id=your_id&response_type=code&redirect_uri=https%3A%2F%2Fa.b%2Fcallback'
+web_application.py:                                 redirect_uri=redirect_uri, scope=scope, state=state, code_challenge=code_challenge,
+web_application.py:    def prepare_request_body(self, code=None, redirect_uri=None, body='',
+web_application.py:        :param redirect_uri:    REQUIRED, if the "redirect_uri" parameter was included in the
+web_application.py:                                     redirect_uri=redirect_uri, code_verifier=code_verifier, **kwargs)
+request_validator.py:    def confirm_redirect_uri(self, client_id, code, redirect_uri, client, request,
+request_validator.py:        code began with this 'redirect_uri'.
+request_validator.py:        If the client specifies a redirect_uri when obtaining code then that
+request_validator.py:        :param redirect_uri: Unicode absolute URI.
+request_validator.py:    def get_default_redirect_uri(self, client_id, request, *args, **kwargs):
+request_validator.py:            - the redirect URI used (``request.redirect_uri``)
+request_validator.py:    def validate_redirect_uri(self, client_id, redirect_uri, request, *args, **kwargs):
+request_validator.py:        """Ensure client is authorized to redirect to the redirect_uri requested.
+request_validator.py:        :param redirect_uri: Unicode absolute URI.
+request_validator.py:        :param redirect_uri: Unicode origin.
+parameters.py:def prepare_grant_uri(uri, client_id, response_type, redirect_uri=None,
+parameters.py:    :param redirect_uri: The client provided URI to redirect back to after
+1.1
+parameters.py:    if redirect_uri:
+parameters.py:        params.append(('redirect_uri', redirect_uri))
+parameters.py:    :param redirect_uri: If the "redirect_uri" parameter was included in the
+parameters.py:        &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+parameters.py:    # this handles: `code`, `redirect_uri`, and other undocumented params
+base.py:                request.redirect_uri, token_items, fragment=False)
+base.py:                request.redirect_uri, token_items, fragment=True)
+base.py:        if request.redirect_uri is not None:
+base.py:            request.using_default_redirect_uri = False
+base.py:            log.debug('Using provided redirect_uri %s', request.redirect_uri)
+base.py:            if not is_absolute_uri(request.redirect_uri):
+base.py:            if not self.request_validator.validate_redirect_uri(
+base.py:                    request.client_id, request.redirect_uri, request):
+base.py:            request.redirect_uri = self.request_validator.get_default_redirect_uri(
+base.py:            request.using_default_redirect_uri = True
+base.py:            log.debug('Using default redirect_uri %s.', request.redirect_uri)
+base.py:            if not request.redirect_uri:
+base.py:            if not is_absolute_uri(request.redirect_uri):
+authorization_code.py:        redirect_uri
+authorization_code.py:            ...                   '&redirect_uri=http%3A%2F%2Fclient.com%2F')
+authorization_code.py:            ...                   '&redirect_uri=http%3A%2F%2Fclient.com%2F'
+authorization_code.py:            request.redirect_uri = request.redirect_uri or self.error_uri
+authorization_code.py:            redirect_uri = common.add_params_to_uri(
+authorization_code.py:                request.redirect_uri, e.twotuples,
+authorization_code.py:            return {'Location': redirect_uri}, None, 302
+authorization_code.py:        Fatal errors occur when the client_id or redirect_uri is invalid or
+authorization_code.py:        for param in ('client_id', 'response_type', 'redirect_uri', 'scope', 'state'):
+authorization_code.py:                  request.redirect_uri, request.client_id)
+authorization_code.py:            'redirect_uri': request.redirect_uri,
+authorization_code.py:        for param in ('client_id', 'grant_type', 'redirect_uri'):
+authorization_code.py:        # REQUIRED, if the "redirect_uri" parameter was included in the
+authorization_code.py:        if request.redirect_uri is None:
+authorization_code.py:            request.using_default_redirect_uri = True
+authorization_code.py:            request.redirect_uri = self.request_validator.get_default_redirect_uri(
+authorization_code.py:            log.debug('Using default redirect_uri %s.', request.redirect_uri)
+authorization_code.py:            if not request.redirect_uri:
+authorization_code.py:            request.using_default_redirect_uri = False
+authorization_code.py:            log.debug('Using provided redirect_uri %s', request.redirect_uri)
+authorization_code.py:        if not self.request_validator.confirm_redirect_uri(request.client_id, request.code,
+authorization_code.py:                                                           request.redirect_uri, request.client,
+authorization_code.py:                      request.redirect_uri, request.client_id, request.client)
+implicit.py:        redirect_uri
+implicit.py:            return {'Location': common.add_params_to_uri(request.redirect_uri, e.twotuples,
+implicit.py:        Fatal errors occur when the client_id or redirect_uri is invalid or
+implicit.py:        for param in ('client_id', 'response_type', 'redirect_uri', 'scope', 'state'):
+implicit.py:            'redirect_uri': request.redirect_uri,
+errors.py:            self.redirect_uri = request.redirect_uri
+errors.py:            self.redirect_uri = None
+request_validator.py:    - validate_redirect_uri
+request_validator.py:    - get_redirect_uri
+request_validator.py:    def get_redirect_uri(self, token, request):
+request_validator.py:        raise self._subclass_must_implement("get_redirect_uri")
+request_validator.py:    def validate_redirect_uri(self, client_key, redirect_uri, request):
+request_validator.py:        :param redirect_uri: The URI the client which to redirect back to after
+request_validator.py:        redirect_uri is valid or not.
+request_validator.py:        raise self._subclass_must_implement("validate_redirect_uri")
+authorization.py:        redirect_uri = self.request_validator.get_redirect_uri(
+authorization.py:        if redirect_uri == 'oob':
+authorization.py:                redirect_uri, verifier.items())
+base.py:        request.redirect_uri = oauth_params.get('oauth_callback')
+request_token.py:        if not request.redirect_uri:
+request_token.py:        valid_redirect = self.request_validator.validate_redirect_uri(
+request_token.py:            request.client_key, request.redirect_uri, request)
+request_token.py:        if not request.redirect_uri:
+common.py:            "redirect_uri": None,
+discoveryengine.v1beta.json:"description": "The URI of a customer-defined redirect page. If redirect action is triggered, no search is performed, and only redirect_uri and attribution_token are set in the response.",
+identitytoolkit.v3.json:"description": "The query parameter that client can customize by themselves in auth url. The following parameters are reserved for server so that they cannot be customized by clients: client_id, response_type, scope, redirect_uri, state, oauth_token.",
+auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=authorization_code&client_id=client_id&scope=data_source_scopes * The client_id is the OAuth client_id of the data source as returned by ListDataSources method. * data_source_scopes are the scopes returned by ListDataSources method. Note that this should not be set when `service_account_name` is used to create the transfer config.",
+auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=version_info&client_id=client_id&scope=data_source_scopes * The client_id is the OAuth client_id of the data source as returned by ListDataSources method. * data_source_scopes are the scopes returned by ListDataSources method. Note that this should not be set when `service_account_name` is used to create the transfer config.",
+auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=authorization_code&client_id=client_id&scope=data_source_scopes * The client_id is the OAuth client_id of the data source as returned by ListDataSources method. * data_source_scopes are the scopes returned by ListDataSources method. Note that this should not be set when `service_account_name` is used to update the transfer config.",
+auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=version_info&client_id=client_id&scope=data_source_scopes * The client_id is the OAuth client_id of the data source as returned by ListDataSources method. * data_source_scopes are the scopes returned by ListDataSources method. Note that this should not be set when `service_account_name` is used to update the transfer config.",
+auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=authorization_code&client_id=client_id&scope=data_source_scopes * The client_id is the OAuth client_id of the data source as returned by ListDataSources method. * data_source_scopes are the scopes returned by ListDataSources method. Note that this should not be set when `service_account_name` is used to create the transfer config.",
+auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=version_info&client_id=client_id&scope=data_source_scopes * The client_id is the OAuth client_id of the data source as returned by ListDataSources method. * data_source_scopes are the scopes returned by ListDataSources method. Note that this should not be set when `service_account_name` is used to create the transfer config.",
+auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=authorization_code&client_id=client_id&scope=data_source_scopes * The client_id is the OAuth client_id of the data source as returned by ListDataSources method. * data_source_scopes are the scopes returned by ListDataSources method. Note that this should not be set when `service_account_name` is used to update the transfer config.",
+auth?redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=version_info&client_id=client_id&scope=data_source_scopes * The client_id is the OAuth client_id of the data source as returned by ListDataSources method. * data_source_scopes are the scopes returned by ListDataSources method. Note that this should not be set when `service_account_name` is used to update the transfer config.",
+identitytoolkit.v1.json:"description": "Additional customized query parameters to be added to the authorization URI. The following parameters are reserved and cannot be added: `client_id`, `response_type`, `scope`, `redirect_uri`, `state`. For the Microsoft provider, the Azure AD tenant to sign-in to can be specified in the `tenant` custom parameter.",
+retail.v2alpha.json:"description": "The URI of a customer-defined redirect page. If redirect action is triggered, no search is performed, and only redirect_uri and attribution_token are set in the response.",
+discoveryengine.v1alpha.json:"description": "The URI of a customer-defined redirect page. If redirect action is triggered, no search is performed, and only redirect_uri and attribution_token are set in the response.",
+retail.v2.json:"description": "The URI of a customer-defined redirect page. If redirect action is triggered, no search is performed, and only redirect_uri and attribution_token are set in the response.",
+retail.v2beta.json:"description": "The URI of a customer-defined redirect page. If redirect action is triggered, no search is performed, and only redirect_uri and attribution_token are set in the response.",
+discoveryengine.v1.json:"description": "The URI of a customer-defined redirect page. If redirect action is triggered, no search is performed, and only redirect_uri and attribution_token are set in the response.",
+span>
+drop own dialog": [[59, "index-0"], [69, "index-0"], [195, "index-0"]], "rule dialog": [[59, "index-0"], [75, "index-0"], [196, "index-0"]], "schema dialog": [[59, "index-0"], [70, "index-0"], [197, "index-0"]], "sequence dialog": [[59, "index-0"], [70, "index-0"], [200, "index-0"]], "storage manager": [[59, "index-0"], [68, "index-0"], [204, "index-0"]], "subscription dialog": [[59, "index-0"], [70, "index-0"], [206, "index-0"]], "synonym dialog": [[59, "index-0"], [70, "index-0"], [207, "index-0"]], "table dialog": [[59, "index-0"], [75, "index-0"], [209, "index-0"]], "tablespace dialog": [[59, "index-0"], [69, "index-0"], [210, "index-0"]], "trigger dialog": [[59, "index-0"], [75, "index-0"], [214, "index-0"]], "trigger function dialog": [[59, "index-0"], [70, "index-0"], [215, "index-0"]], "type dialog": [[59, "index-0"], [70, "index-0"], [216, "index-0"]], "unique constraint dialog": [[59, "index-0"], [75, "index-0"], [217, "index-0"]], "user mapping dialog": [[59, "index-0"], [70, "index-0"], [220, "index-0"]], "using pgagent": [[59, "index-0"], [78, "index-0"], [221, "index-0"]], "view dialog": [[59, "index-0"], [70, "index-0"], [222, "index-0"]], "pgagent": [[59, "index-0"], [78, "index-0"]], "pgd replication server node dialog": [[69, "index-0"], [81, "index-0"], [82, "index-0"]], "query tool toolbar": [[89, "index-0"], [90, "index-0"]]}})
+oauth2.py:                redirect_uri=request.url_root,
+__init__.py:                redirect_uri=self._redirect_url)
+__init__.py:                redirect_uri=self._redirect_url)
+logout?post_logout_redirect_uri={redirect_uri}&id_token_hint={id_token}'
+views.py:        redirect_uri=settings.GOOGLE_REDIRECT_URI
+credentials.json:    "redirect_uris": [
