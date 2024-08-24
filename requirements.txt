@@ -50,16 +50,18 @@ Flask-Security-Too==5.4.3
 Flask-SocketIO==5.3.6
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.1
+git-filter-repo==2.45.0
 gitdb==4.0.11
 GitPython==3.1.43
 google==3.0.0
 google-api-core==2.19.1
 google-api-python-client==2.141.0
-google-auth==2.32.0
+google-auth==2.34.0
 google-auth-httplib2==0.2.0
-google-auth-oauthlib
+google-auth-oauthlib==1.2.0
 googleapis-common-protos==1.63.2
 googlemaps==4.10.0
+greenlet==1.1.2
 gspread==6.1.2
 gunicorn==22.0.0
 h11==0.14.0
@@ -115,6 +117,7 @@ Pygments==2.18.0
 PyJWT==2.9.0
 PyMySQL==1.1.1
 PyNaCl==1.5.0
+pyOpenSSL==24.2.1
 pyotp==2.9.0
 pyparsing==3.1.2
 pypng==0.20220715.0
@@ -151,7 +154,7 @@ typing_extensions==4.12.2
 tzdata==2024.1
 ua-parser==0.18.0
 uritemplate==4.1.1
-urllib3
+urllib3==1.26.15
 user-agents==2.2.0
 watchdog==4.0.2
 Werkzeug==3.0.3

@@ -23,6 +23,7 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 logger = logging.getLogger(__name__)
 
 def refresh_access_token(refresh_token):
+    logger.debug("Starting token refresh process.")
     token_url = "https://oauth2.googleapis.com/token"
     payload = {
         'grant_type': 'refresh_token',
@@ -35,80 +36,138 @@ def refresh_access_token(refresh_token):
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
-        logger.error("Error refreshing token: %s", e)
         return None
 
 
-logger = logging.getLogger(__name__)
-
-
 def get_oauth2_authorization_url():
-    flow = InstalledAppFlow.from_client_secrets_file(
-        settings.GOOGLE_CREDENTIALS_PATH,
-        SCOPES
-    )
-    logger.info("Creating authorization URL...")
+    logger.debug("Starting to generate OAuth2 authorization URL.")
     
-    # Explicitly pass the redirect_uri
-    auth_url, _ = flow.authorization_url(
-        access_type='offline',
-        include_granted_scopes='true',
-        redirect_uri=settings.GOOGLE_REDIRECT_URI  # Ensure this matches your Google API Console settings
-    )
+    # Log the settings and scopes used
+    logger.debug("GOOGLE_CREDENTIALS_PATH: %s", settings.GOOGLE_CREDENTIALS_PATH)
+    logger.debug("SCOPES: %s", SCOPES)
     
-    logger.info(f"Authorization URL: {auth_url}")
-    return auth_url
-
+    try:
+        # Create the OAuth2 flow object
+        flow = InstalledAppFlow.from_client_secrets_file(
+            settings.GOOGLE_CREDENTIALS_PATH,
+            SCOPES
+        )
+        logger.debug("OAuth2 flow created successfully.")
+        
+        # Log the flow details
+        logger.debug("Flow client secrets file: %s", settings.GOOGLE_CREDENTIALS_PATH)
+        logger.debug("Flow scopes: %s", SCOPES)
+        
+        # Generate the authorization URL
+        auth_url, state = flow.authorization_url(
+            access_type='offline',
+            include_granted_scopes='true'
+        )
+        logger.debug("Generated authorization URL and state.")
+        
+        # Log the generated URL and state
+        logger.info("Generated authorization URL: %s", auth_url)
+        logger.debug("Generated state: %s", state)
+        
+        return auth_url
+    
+    except Exception as e:
+        # Log detailed error information
+        logger.error("Error generating authorization URL: %s", e)
+        logger.error("Type of error: %s", type(e))
+        if hasattr(e, 'response'):
+            logger.error("Response content: %s", e.response.content)
+        raise
 
 def oauth2callback(request):
-    flow = InstalledAppFlow.from_client_secrets_file(
-        settings.GOOGLE_CREDENTIALS_PATH,
-        SCOPES
-    )
-    flow.redirect_uri = settings.GOOGLE_REDIRECT_URI  # Set the redirect URI explicitly
-    flow.fetch_token(authorization_response=request.build_absolute_uri())
-    creds = flow.credentials
-    with open(settings.TOKEN_FILE_PATH, "w") as token:
-        token.write(creds.to_json())
-    
-    return redirect(reverse('jobs_dashboard_with_emails'))
+    logger.debug("Handling OAuth2 callback.")
+
+    try:
+        # Initialize OAuth2 flow
+        flow = InstalledAppFlow.from_client_secrets_file(
+            settings.GOOGLE_CREDENTIALS_PATH,
+            SCOPES
+        )
+        logger.debug("OAuth2 flow initialized successfully.")
+
+        # Set redirect URI
+        flow.redirect_uri = settings.GOOGLE_REDIRECT_URI
+        logger.debug("Redirect URI set to: %s", settings.GOOGLE_REDIRECT_URI)
+
+        # Fetch authorization response URL from the request
+        authorization_response = request.build_absolute_uri()
+        logger.debug("Authorization response URL: %s", authorization_response)
+
+        # Fetch the token
+        flow.fetch_token(authorization_response=authorization_response)
+        creds = flow.credentials
+        logger.debug("Token fetched successfully.")
+        logger.debug("Token details: %s", creds.to_json())
+
+        # Save the token to a file
+        with open(settings.TOKEN_FILE_PATH, "w") as token_file:
+            token_file.write(creds.to_json())
+        logger.info("Token saved to %s", settings.TOKEN_FILE_PATH)
+
+        # Redirect to the dashboard
+        return redirect(reverse('jobs_dashboard_with_emails'))
+
+    except Exception as e:
+        logger.error("Error in OAuth callback: %s", e)
+        logger.error("Type of error: %s", type(e))
+        if hasattr(e, 'response') and e.response:
+            logger.error("Response content: %s", e.response.content)
+        return redirect(reverse('jobs_dashboard_with_emails'))
 
 
 def get_unread_emails():
+    # Check if token.json file exists
+    if not os.path.exists('token.json'):
+        # Load credentials from the file
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'credentials.json',
+            scopes=['https://www.googleapis.com/auth/gmail.readonly']
+        )
+        creds = flow.run_local_server(port=0)
+        # Save credentials for later use
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+    else:
+        # Load credentials from the saved file
+        from google.oauth2.credentials import Credentials
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+
+    if not creds or not creds.valid:
+        raise Exception('Credentials are invalid or expired.')
+    logger.debug("Fetching unread emails.")
     creds = None
     if os.path.exists(settings.TOKEN_FILE_PATH):
+        logger.debug("Loading credentials from %s", settings.TOKEN_FILE_PATH)
         creds = Credentials.from_authorized_user_file(settings.TOKEN_FILE_PATH, SCOPES)
-    
+
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            with open(settings.TOKEN_FILE_PATH, "w") as token:
-                token.write(creds.to_json())
+            logger.debug("Credentials expired. Refreshing token.")
+            try:
+                creds.refresh(Request())
+                with open(settings.TOKEN_FILE_PATH, "w") as token:
+                    token.write(creds.to_json())
+                logger.info("Credentials refreshed and saved.")
+            except Exception as e:
+                logger.error("Error refreshing credentials: %s", e)
+                auth_url = get_oauth2_authorization_url()
+                return [], auth_url
         else:
+            logger.debug("No valid credentials found. Redirecting to authorization URL.")
             auth_url = get_oauth2_authorization_url()
-            return [], auth_url  # Return an empty list and the auth URL
+            return [], auth_url
 
     try:
         service = build("gmail", "v1", credentials=creds)
-        excluded_senders = [
-            "no-reply@usebubbles.com",
-            "chandeep@2toucans.com",
-            "craig@itcareerswitch.co.uk",
-            "no-reply@swagapp.com",
-            "no-reply@fathom.video",
-            "mailer@jobleads.com",
-            "careerservice@email.jobleads.com"
-        ]
-        
         query = "is:unread -category:social -category:promotions"
-        query += "".join(f" -from:{sender}" for sender in excluded_senders)
-        
         results = service.users().messages().list(userId="me", q=query).execute()
         messages = results.get('messages', [])
-
-        if not messages:
-            logger.info("No unread messages found.")
-            return [], None  # Return an empty list and no auth URL
+        logger.info("Fetched messages: %s", messages)
 
         unread_emails = []
         for message in messages:
@@ -123,37 +182,37 @@ def get_unread_emails():
             }
             unread_emails.append(email_data)
 
+        logger.info("Processed unread emails: %s", unread_emails)
         return unread_emails, None
-
     except HttpError as error:
-        logger.error("An HTTP error occurred: %s", error)
+        logger.error("An error occurred while fetching emails: %s", error)
         return [], None
-    except Exception as error:
-        logger.error("An error occurred: %s", error)
+    except Exception as e:
+        logger.error("An unexpected error occurred: %s", e)
         return [], None
-
 
 @login_required
 def jobs_dashboard_with_emails(request):
-    key = settings.GOOGLE_API_KEY
-    eligible_locations = Jobsearch.objects.filter(place_id__isnull=False)
-    locations = [{'lat': float(a.lat), 'lng': float(a.lng), 'name': a.name} for a in eligible_locations]
-    
+    logger.debug("Rendering jobs dashboard with emails.")
     email_subjects, auth_url = get_unread_emails()
     if auth_url:
-        return redirect(auth_url)  # Redirect if authorization URL is provided
+        logger.debug("Redirecting to authorization URL: %s", auth_url)
+        return redirect(auth_url)
 
     unread_email_count = len(email_subjects) if email_subjects else 0
 
-    return render(request, "jobs/jobs_dashboard.html", context={
-        'key': key,
-        'locations': locations,
+    context = {
+        'key': settings.GOOGLE_API_KEY,
+        'locations': [{'lat': float(a.lat), 'lng': float(a.lng), 'name': a.name} for a in Jobsearch.objects.filter(place_id__isnull=False)],
         'email_subjects': email_subjects,
         'unread_email_count': unread_email_count,
-    })
+    }
+    logger.debug("Context for rendering: %s", context)
+    return render(request, "jobs/jobs_dashboard.html", context)
 
 @login_required
 def jobs_dashboard_basic(request):
+    logger.debug("Rendering basic jobs dashboard.")
     key = settings.GOOGLE_API_KEY
     eligible_locations = Jobsearch.objects.filter(place_id__isnull=False)
     locations = [{'lat': float(a.lat), 'lng': float(a.lng), 'name': a.name} for a in eligible_locations]
@@ -162,6 +221,7 @@ def jobs_dashboard_basic(request):
 
 @login_required
 def jobs_searched(request):
+    logger.debug("Rendering jobs searched dashboard.")
     if request.user.is_superuser:
         today = timezone.now().date()
         tasks = Task.objects.all()
@@ -171,6 +231,7 @@ def jobs_searched(request):
             form = TaskForm(request.POST)
             if form.is_valid():
                 form.save()
+                logger.info("Task form submitted and saved.")
                 return redirect(reverse('jobs_searched'))
 
         time_periods = {
@@ -188,6 +249,7 @@ def jobs_searched(request):
 
         for filters, new_status in status_updates:
             Jobsearch.objects.filter(**filters).update(status=new_status)
+            logger.debug("Updated jobs with filters %s to status %s", filters, new_status)
 
         jobs_applied_today = Jobsearch.objects.filter(created_at__date=today)
 
@@ -224,10 +286,12 @@ def jobs_searched(request):
             "tasks": tasks,
             "form": form,
         }
+        logger.debug("Context for jobs_searched rendering: %s", context)
         return render(request, "jobs/job_searches.html", context)
 
 @login_required
 def jobsearch_detail(request, jobsearch_id):
+    logger.debug("Rendering job search detail for ID: %s", jobsearch_id)
     if request.user.is_superuser:
         jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
         context = {"jobsearch": jobsearch}
@@ -235,6 +299,7 @@ def jobsearch_detail(request, jobsearch_id):
 
 @login_required
 def add_jobsearch(request):
+    logger.debug("Handling add jobsearch.")
     if request.user.is_superuser:
         if request.method == "POST":
             form = JobsearchForm(request.POST, request.FILES)
@@ -246,14 +311,17 @@ def add_jobsearch(request):
 
                 if count:
                     messages.warning(request, f"You've already applied for this job on {i.created_at.date()}!")
+                    logger.warning("User has already applied for this job on %s.", i.created_at.date())
                     return redirect(reverse('add_jobsearch'))
 
                 if len(count) >= 10:
                     messages.warning(request, "You've reached the limit of 10 applications per day.")
+                    logger.warning("User has reached the limit of 10 applications per day.")
                     return redirect(reverse('add_jobsearch'))
 
                 form.save()
                 messages.success(request, "Job search added successfully!")
+                logger.info("Job search added successfully.")
                 return redirect(reverse('jobs_searched'))
         else:
             form = JobsearchForm()
@@ -261,12 +329,14 @@ def add_jobsearch(request):
 
 @login_required
 def edit_jobsearch(request, jobsearch_id):
+    logger.debug("Handling edit jobsearch for ID: %s", jobsearch_id)
     jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
     if request.method == "POST":
         form = JobsearchForm(request.POST, request.FILES, instance=jobsearch)
         if form.is_valid():
             form.save()
             messages.success(request, "Job search updated successfully!")
+            logger.info("Job search updated successfully for ID: %s", jobsearch_id)
             return redirect(reverse('jobsearch_detail', args=[jobsearch_id]))
     else:
         form = JobsearchForm(instance=jobsearch)
@@ -274,15 +344,18 @@ def edit_jobsearch(request, jobsearch_id):
 
 @login_required
 def delete_jobsearch(request, jobsearch_id):
+    logger.debug("Handling delete jobsearch for ID: %s", jobsearch_id)
     jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
     if request.method == "POST":
         jobsearch.delete()
         messages.success(request, "Job search deleted successfully!")
+        logger.info("Job search deleted successfully for ID: %s", jobsearch_id)
         return redirect(reverse('jobs_searched'))
     return render(request, "jobs/delete_jobsearch.html", {'jobsearch': jobsearch})
 
 @login_required
 def job_search_view(request):
+    logger.debug("Rendering job search view.")
     jobs_searched = Jobsearch.objects.all()
     for job in jobs_searched:
         job.background_color = {
@@ -299,13 +372,14 @@ def job_search_view(request):
 
 @login_required
 def favs_display(request):
+    logger.debug("Rendering favorite jobs display.")
     if request.user.is_authenticated:
-        # Assuming the favorite jobs are marked by a boolean field 'is_favorite' in Jobsearch model
         favorite_jobs = Jobsearch.objects.filter(is_favorite=True)
         context = {
             'favorite_jobs': favorite_jobs,
         }
         return render(request, 'jobs/favs_display.html', context)
     else:
+        logger.debug("User is not authenticated, redirecting to login.")
         return redirect(reverse('login'))
 

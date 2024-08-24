@@ -1,3 +1,4 @@
+
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -12,25 +13,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Retrieve DEBUG setting
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# Define ALLOWED_HOSTS
-
-# Define ALLOWED_HOSTS
+# Define ALLOWED_HOSTS based on environment
 if DEBUG:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+    ALLOWED_HOSTS = ['127.0.0.1', '5b57-86-46-100-229.ngrok-free.app']
 else:
     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'https://www.jwalshedev.ie').split(',')
 
-DEFAULT_HOSTNAME = 'https://www.jwalshedev.ie'
+# Define Google Redirect URI based on environment
+GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/oauth2callback/'
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# Security settings
 SECRET_KEY = os.environ.get("SECRET_KEY")
-
+SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 # Google credentials
 GOOGLE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials.json')
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
-GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/oauth2callback/'
 
 # Token file path
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
@@ -56,12 +55,12 @@ else:
         }
     }
 
+# CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
-            'https://www.jwalshedev.ie',
-                'https://johnsite.herokuapp.com',
-                ]
-
-
+    'https://www.jwalshedev.ie',
+    'https://johnsite.herokuapp.com',
+    'https://5b57-86-46-100-229.ngrok-free.app',
+]
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
@@ -88,7 +87,7 @@ LOGGING = {
 }
 
 # URLs configuration
-ROOT_URLCONF = 'career.urls'  # Update this if your project has a different module name
+ROOT_URLCONF = 'career.urls'
 
 # WSGI configuration
 WSGI_APPLICATION = 'career.wsgi.application'
@@ -112,6 +111,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'tasks',
     'jobs',
     'map',
