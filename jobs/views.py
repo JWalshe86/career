@@ -79,6 +79,7 @@ def get_oauth2_authorization_url():
             logger.error("Response content: %s", e.response.content)
         raise
 
+
 def oauth2callback(request):
     logger.debug("Handling OAuth2 callback.")
 
@@ -97,6 +98,10 @@ def oauth2callback(request):
         # Fetch authorization response URL from the request
         authorization_response = request.build_absolute_uri()
         logger.debug("Authorization response URL: %s", authorization_response)
+
+        # Check if the authorization response is None
+        if not authorization_response:
+            raise RuntimeError("Authorization response not received. OAuth2 flow may not have completed successfully.")
 
         # Fetch the token
         flow.fetch_token(authorization_response=authorization_response)
@@ -120,54 +125,50 @@ def oauth2callback(request):
         return redirect(reverse('jobs_dashboard_with_emails'))
 
 
+SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+
 def get_unread_emails():
-    # Check if token.json file exists
-    if not os.path.exists('token.json'):
-        # Load credentials from the file
-        flow = InstalledAppFlow.from_client_secrets_file(
-            'credentials.json',
-            scopes=['https://www.googleapis.com/auth/gmail.readonly']
-        )
+    creds = None
+
+    # Check if token file exists and load credentials
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+        logger.debug("Loaded credentials from token.json")
+    else:
+        # If no token file, run the OAuth flow
+        flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
         creds = flow.run_local_server(port=0)
-        # Save credentials for later use
+        logger.debug("Obtained credentials from OAuth flow")
+
+        # Save the credentials for the next run
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
-    else:
-        # Load credentials from the saved file
-        from google.oauth2.credentials import Credentials
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+        logger.info("Saved credentials to token.json")
 
-    if not creds or not creds.valid:
-        raise Exception('Credentials are invalid or expired.')
-    logger.debug("Fetching unread emails.")
-    creds = None
-    if os.path.exists(settings.TOKEN_FILE_PATH):
-        logger.debug("Loading credentials from %s", settings.TOKEN_FILE_PATH)
-        creds = Credentials.from_authorized_user_file(settings.TOKEN_FILE_PATH, SCOPES)
-
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            logger.debug("Credentials expired. Refreshing token.")
-            try:
-                creds.refresh(Request())
-                with open(settings.TOKEN_FILE_PATH, "w") as token:
-                    token.write(creds.to_json())
-                logger.info("Credentials refreshed and saved.")
-            except Exception as e:
-                logger.error("Error refreshing credentials: %s", e)
-                auth_url = get_oauth2_authorization_url()
-                return [], auth_url
-        else:
-            logger.debug("No valid credentials found. Redirecting to authorization URL.")
+    # Refresh the token if necessary
+    if creds and creds.expired and creds.refresh_token:
+        try:
+            creds.refresh(Request())
+            with open('token.json', 'w') as token:
+                token.write(creds.to_json())
+            logger.info("Credentials refreshed and saved")
+        except Exception as e:
+            logger.error("Error refreshing credentials: %s", e)
             auth_url = get_oauth2_authorization_url()
             return [], auth_url
 
+    # If no valid credentials, return to auth
+    if not creds or not creds.valid:
+        logger.debug("No valid credentials found. Redirecting to authorization URL.")
+        auth_url = get_oauth2_authorization_url()
+        return [], auth_url
+
+    # Try to fetch unread emails
     try:
         service = build("gmail", "v1", credentials=creds)
         query = "is:unread -category:social -category:promotions"
         results = service.users().messages().list(userId="me", q=query).execute()
         messages = results.get('messages', [])
-        logger.info("Fetched messages: %s", messages)
 
         unread_emails = []
         for message in messages:
@@ -184,12 +185,15 @@ def get_unread_emails():
 
         logger.info("Processed unread emails: %s", unread_emails)
         return unread_emails, None
+
     except HttpError as error:
         logger.error("An error occurred while fetching emails: %s", error)
         return [], None
     except Exception as e:
         logger.error("An unexpected error occurred: %s", e)
         return [], None
+
+
 
 @login_required
 def jobs_dashboard_with_emails(request):
