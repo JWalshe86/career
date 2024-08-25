@@ -108,17 +108,22 @@
 	  </ul>
 	       </div>	
                         <!-- Job sites links dropdown html End-->
-
-                              <!-- Unread Emails Count -->
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'jobs_dashboard_with_emails' %}">
-                            <i class="bi bi-envelope"></i> 
-                            Unread Messages: <span class="badge bg-danger">{{ unread_email_count }}</span>
-                        </a>
-                    </li>
-                </ul>
-                              <!-- Unread Emails Count End -->
+	                 <!-- Unread Emails Count and ChatGPT Link -->
+<ul class="navbar-nav ms-auto">
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'jobs_dashboard_with_emails' %}">
+            <i class="bi bi-envelope"></i> 
+            Unread Messages: <span class="badge bg-danger">{{ unread_email_count }}</span>
+        </a>
+    </li>
+    <!-- ChatGPT Link -->
+    <li class="nav-item">
+        <a class="nav-link text-white" href="https://chat.openai.com" target="_blank">
+            <i class="fas fa-robot"></i> ChatGPT
+        </a>
+    </li>
+</ul>
+ 
         </div>
     </nav>
 
