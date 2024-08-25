@@ -1,4 +1,3 @@
-
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -17,7 +16,7 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 if DEBUG:
     ALLOWED_HOSTS = ['127.0.0.1', '5b57-86-46-100-229.ngrok-free.app']
 else:
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'https://www.jwalshedev.ie').split(',')
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'www.jwalshedev.ie').split(',')
 
 # Define Google Redirect URI based on environment
 GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/oauth2callback/'
@@ -25,10 +24,12 @@ GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'htt
 # Security settings
 SECRET_KEY = os.environ.get("SECRET_KEY")
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
+
 # Google credentials
-GOOGLE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials.json')
-GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
-GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
+GOOGLE_CREDENTIALS = json.loads(GOOGLE_CREDENTIALS_JSON)
+GOOGLE_CLIENT_ID = GOOGLE_CREDENTIALS.get('web', {}).get('client_id')
+GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('web', {}).get('client_secret')
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 # Token file path
