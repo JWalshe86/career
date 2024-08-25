@@ -129,6 +129,7 @@ def oauth2callback(request):
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 
+
 def get_unread_emails():
     creds = None
 
@@ -180,7 +181,19 @@ def get_unread_emails():
     # Try to fetch unread emails
     try:
         service = build("gmail", "v1", credentials=creds)
+        excluded_senders = [
+            "no-reply@usebubbles.com",
+            "chandeep@2toucans.com",
+            "craig@itcareerswitch.co.uk",
+            "no-reply@swagapp.com",
+            "no-reply@fathom.video",
+            "mailer@jobleads.com",
+            "careerservice@email.jobleads.com"
+        ]
+
         query = "is:unread -category:social -category:promotions"
+        for sender in excluded_senders:
+            query += f" -from:{sender}"
         results = service.users().messages().list(userId="me", q=query).execute()
         messages = results.get('messages', [])
 
@@ -206,6 +219,10 @@ def get_unread_emails():
     except Exception as e:
         logger.error("An unexpected error occurred: %s", e)
         return [], None
+
+
+
+
 
 
 @login_required
