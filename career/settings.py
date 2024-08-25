@@ -4,7 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
 
-# Load environment variables from .env file
+# Load environment variables from .env file (for local development)
 load_dotenv()
 
 # Define BASE_DIR
@@ -27,8 +27,14 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 # Google credentials
-GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
-GOOGLE_CREDENTIALS = json.loads(GOOGLE_CREDENTIALS_JSON)
+if 'DYNO' in os.environ:  # Heroku environment
+    GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
+    GOOGLE_CREDENTIALS = json.loads(GOOGLE_CREDENTIALS_JSON)
+else:  # Local environment
+    GOOGLE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials.json')
+    with open(GOOGLE_CREDENTIALS_PATH) as f:
+        GOOGLE_CREDENTIALS = json.load(f)
+
 GOOGLE_CLIENT_ID = GOOGLE_CREDENTIALS.get('web', {}).get('client_id')
 GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('web', {}).get('client_secret')
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")

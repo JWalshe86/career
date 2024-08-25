@@ -127,30 +127,43 @@ def oauth2callback(request):
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
+
 def get_unread_emails():
     creds = None
 
-    # Check if token file exists and load credentials
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-        logger.debug("Loaded credentials from token.json")
-    else:
-        # If no token file, run the OAuth flow
-        flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-        creds = flow.run_local_server(port=0)
-        logger.debug("Obtained credentials from OAuth flow")
+    if 'DYNO' in os.environ:  # Heroku environment
+        # Load credentials from environment variables
+        google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
+        google_credentials = json.loads(google_credentials_json)
+        if not google_credentials.get('web'):
+            logger.error("No credentials found in environment variables.")
+            return [], None
 
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-        logger.info("Saved credentials to token.json")
+        creds = Credentials.from_authorized_user_info(google_credentials, SCOPES)
+        logger.debug("Loaded credentials from environment variables")
+    else:  # Local environment
+        # Check if token file exists and load credentials
+        if os.path.exists('token.json'):
+            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+            logger.debug("Loaded credentials from token.json")
+        else:
+            # If no token file, run the OAuth flow
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+            logger.debug("Obtained credentials from OAuth flow")
+
+            # Save the credentials for the next run
+            with open('token.json', 'w') as token:
+                token.write(creds.to_json())
+            logger.info("Saved credentials to token.json")
 
     # Refresh the token if necessary
     if creds and creds.expired and creds.refresh_token:
         try:
             creds.refresh(Request())
-            with open('token.json', 'w') as token:
-                token.write(creds.to_json())
+            if not 'DYNO' in os.environ:  # Only save the token file locally
+                with open('token.json', 'w') as token:
+                    token.write(creds.to_json())
             logger.info("Credentials refreshed and saved")
         except Exception as e:
             logger.error("Error refreshing credentials: %s", e)
@@ -192,7 +205,6 @@ def get_unread_emails():
     except Exception as e:
         logger.error("An unexpected error occurred: %s", e)
         return [], None
-
 
 
 @login_required
