@@ -1,5 +1,6 @@
 import os
 import json
+import dj_database_url
 from django.http import HttpResponse
 from pathlib import Path
 import logging
