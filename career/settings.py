@@ -33,15 +33,22 @@ GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'htt
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 # Function to load Google credentials
+
 def get_google_credentials():
     google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
+    logger.debug(f"GMAIL_TOKEN_JSON retrieved: {google_credentials_json}")
     if not google_credentials_json:
+        logger.error("GMAIL_TOKEN_JSON environment variable not found.")
         raise EnvironmentError("GMAIL_TOKEN_JSON environment variable not found.")
+    
     try:
         credentials = json.loads(google_credentials_json)
+        logger.debug(f"GOOGLE_CREDENTIALS loaded: {credentials}")
         return credentials
     except json.JSONDecodeError as e:
+        logger.error("Error decoding GMAIL_TOKEN_JSON: %s", e)
         raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
+
 
 # Check if the app is running on Heroku
 HEROKU = 'DYNO' in os.environ
