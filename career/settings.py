@@ -49,8 +49,19 @@ logger.debug(f"GMAIL_TOKEN_JSON: {'REDACTED' if GMAIL_TOKEN_JSON else 'Not set'}
 # Define Token File Path
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
 
+# Retrieve environment variables
+GMAIL_TOKEN_JSON = os.getenv('GMAIL_TOKEN_JSON')
+
+# Log environment variable values
+if GMAIL_TOKEN_JSON:
+    logger.debug(f"GMAIL_TOKEN_JSON: {GMAIL_TOKEN_JSON}")
+else:
+    logger.error("GMAIL_TOKEN_JSON environment variable is missing or empty.")
+
+
 # Function to get Google credentials from environment variable
 def get_google_credentials():
+    GMAIL_TOKEN_JSON = os.getenv('GMAIL_TOKEN_JSON')
     if not GMAIL_TOKEN_JSON:
         logger.error("GMAIL_TOKEN_JSON environment variable not found.")
         raise EnvironmentError("GMAIL_TOKEN_JSON environment variable not found.")
