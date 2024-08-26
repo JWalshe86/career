@@ -232,7 +232,7 @@ def get_unread_emails():
 
 
 def jobs_dashboard_with_emails(request):
-    logger.debug("Rendering jobs dashboard with emails.")
+    logger.debug("Rendering jobs dashboard with emails.", request)
     email_subjects, auth_url = get_unread_emails()
     if auth_url:
         logger.debug("Redirecting to authorization URL: %s", auth_url)

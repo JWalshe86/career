@@ -29,6 +29,14 @@ GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'htt
 # Security settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
+def save_token_to_env(token):
+    os.environ['GOOGLE_ACCESS_TOKEN'] = token
+
+GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON')
+if not GOOGLE_CREDENTIALS_JSON:
+    raise ValueError("GOOGLE_CREDENTIALS_JSON environment variable is not set.")
+
+
 def get_google_credentials():
     google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
     logger.debug(f"GMAIL_TOKEN_JSON retrieved: {google_credentials_json}")
