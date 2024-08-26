@@ -76,7 +76,7 @@ def refresh_google_token():
         
         return new_token_info
     else:
-        logger.error(f"Failed to refresh token: {response.text}")
+        logger.error(f"Faitled to refresh token: {response.text}")
         raise Exception(f"Failed to refresh token: {response.text}")
 
 def get_google_credentials():
