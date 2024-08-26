@@ -30,9 +30,6 @@ GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'htt
 # Security settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-
 # Retrieve environment variables
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
@@ -49,6 +46,10 @@ logger.debug(f"SECRET_KEY: {'REDACTED' if SECRET_KEY else 'Not set'}")
 logger.debug(f"DATABASE_URL: {'REDACTED' if DATABASE_URL else 'Not set'}")
 logger.debug(f"GMAIL_TOKEN_JSON: {'REDACTED' if GMAIL_TOKEN_JSON else 'Not set'}")
 
+# Define Token File Path
+TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
+
+# Function to get Google credentials from environment variable
 def get_google_credentials():
     if not GMAIL_TOKEN_JSON:
         logger.error("GMAIL_TOKEN_JSON environment variable not found.")
@@ -60,12 +61,13 @@ def get_google_credentials():
     except json.JSONDecodeError as e:
         logger.error("Error decoding GMAIL_TOKEN_JSON: %s", e)
         raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
-# Save token to environment (or you can store it securely in a file or database)
+
+# Save token to a file
 def save_token_to_file(token_info):
     with open(TOKEN_FILE_PATH, 'w') as f:
         json.dump(token_info, f)
 
-
+# View to display token information
 def token_file_view(request):
     if os.path.isfile(TOKEN_FILE_PATH):
         with open(TOKEN_FILE_PATH) as f:
@@ -73,9 +75,7 @@ def token_file_view(request):
         return HttpResponse(f"Token info: {json.dumps(token_info)}")
     return HttpResponse("Token file not found.")
 
-
-
-
+# Retrieve or refresh access token
 def get_access_token():
     if os.path.isfile(TOKEN_FILE_PATH):
         with open(TOKEN_FILE_PATH) as f:
@@ -89,7 +89,6 @@ def get_access_token():
     token_info = refresh_google_token()
     save_token_to_file(token_info)
     return token_info['access_token']
-
 
 # Refresh Google token when it expires
 def refresh_google_token():
@@ -183,10 +182,7 @@ GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('client_secret')
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 logger.debug(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
-logger.debug(f"GOOGLE_CLIENT_SECRET: {GOOGLE_CLIENT_SECRET}")
-
-# Token file path
-TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
+logger.debug(f"GOOGLE_CLIENT_SECRET: {'REDACTED' if GOOGLE_CLIENT_SECRET else 'Not set'}")
 
 # Database configuration
 if HEROKU:
