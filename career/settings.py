@@ -38,6 +38,21 @@ def get_access_token():
     return google_credentials.get('token')
 
 
+def get_token_info(token):
+    response = requests.get(f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={token}')
+    if response.status_code == 200:
+        return response.json()
+    else:
+        logger.error(f"Failed to get token info: {response.text}")
+        return None
+
+# Check the token
+token_info = get_token_info(token)
+if token_info:
+    logger.debug(f"Token info: {token_info}")
+
+
+
 def make_google_api_request(url, token):
     headers = {
         'Authorization': f'Bearer {token}',
@@ -56,6 +71,22 @@ def make_google_api_request(url, token):
         logger.error(f"JSON decode error: {json_err}")
     return None
 
+# Example usage
+try:
+    # Example Gmail API endpoint to list messages
+    url = 'https://www.googleapis.com/gmail/v1/users/me/messages'
+    new_token_info = refresh_google_token()
+    token = new_token_info['access_token']  # Use this token
+    data = make_google_api_request(url, token)
+    if data:
+        logger.info(f"API response data: {data}")
+    else:
+        logger.error("Failed to get data from API.")
+except Exception as e:
+    logger.error(f"Failed to refresh token: {e}")
+
+
+
 def get_google_credentials():
     google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
     logger.debug(f"GMAIL_TOKEN_JSON retrieved: {google_credentials_json}")
@@ -73,28 +104,43 @@ def get_google_credentials():
 
 def refresh_google_token():
     credentials = get_google_credentials()
-    
     payload = {
         'client_id': credentials['client_id'],
         'client_secret': credentials['client_secret'],
         'refresh_token': credentials['refresh_token'],
         'grant_type': 'refresh_token',
     }
-
     response = requests.post(credentials['token_uri'], data=payload)
-    
     if response.status_code == 200:
         new_token_info = response.json()
-        new_token_info['refresh_token'] = credentials['refresh_token']  # Keep the original refresh token
+        new_token_info['refresh_token'] = credentials['refresh_token']
         return new_token_info
     else:
         raise Exception(f"Failed to refresh token: {response.text}")
 
-# Example usage
+def make_google_api_request(url, token):
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Content-Type': 'application/json',
+    }
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        return data
+    except requests.HTTPError as http_err:
+        logger.error(f"HTTP error occurred: {http_err}")
+    except requests.RequestException as req_err:
+        logger.error(f"Request error occurred: {req_err}")
+    except ValueError as json_err:
+        logger.error(f"JSON decode error: {json_err}")
+    return None
+
 try:
     new_token_info = refresh_google_token()
-    token = new_token_info['access_token']  # Use this token
-    data = make_google_api_request('https://www.googleapis.com/gmail/v1/users/me/messages', token)
+    token = new_token_info['access_token']
+    url = 'https://www.googleapis.com/gmail/v1/users/me/messages'  # Correct endpoint for listing messages
+    data = make_google_api_request(url, token)
     if data:
         logger.info(f"API response data: {data}")
     else:
