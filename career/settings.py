@@ -31,17 +31,23 @@ GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'htt
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 # Save token to environment (or you can store it securely in a file or database)
-def save_token_to_env(token_info):
-    os.environ['GOOGLE_ACCESS_TOKEN'] = token_info['access_token']
-    os.environ['GOOGLE_REFRESH_TOKEN'] = token_info['refresh_token']
-    # Optionally save to a file or other secure storage
+def save_token_to_file(token_info):
     with open(TOKEN_FILE_PATH, 'w') as f:
         json.dump(token_info, f)
 
+
 def get_access_token():
+    if os.path.isfile(TOKEN_FILE_PATH):
+        with open(TOKEN_FILE_PATH) as f:
+            token_info = json.load(f)
+        if 'access_token' in token_info and 'expiry' in token_info:
+            expiry = datetime.fromisoformat(token_info['expiry'].replace('Z', '+00:00'))
+            if datetime.utcnow() < expiry:
+                return token_info['access_token']
+    
     # Retrieve or refresh access token
     token_info = refresh_google_token()
-    save_token_to_env(token_info)
+    save_token_to_file(token_info)
     return token_info['access_token']
 
 # Retrieve Google credentials from environment

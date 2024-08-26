@@ -1,3 +1,5 @@
+load_dotenv()
+
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -20,6 +22,15 @@ from tasks.models import Task
 from .models import Jobsearch
 from .forms import JobsearchForm
 from tasks.forms import TaskForm
+
+
+def token_file_view(request):
+    if os.path.isfile(TOKEN_FILE_PATH):
+        with open(TOKEN_FILE_PATH) as f:
+            token_info = json.load(f)
+        return HttpResponse(f"Token info: {json.dumps(token_info)}")
+    return HttpResponse("Token file not found.")
+
 
 def show_env_var(request):
     google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
