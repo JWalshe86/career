@@ -30,6 +30,34 @@ GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'htt
 # Security settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
+# Retrieve environment variables
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
+DATABASE_URL = os.getenv('DATABASE_URL')
+GMAIL_TOKEN_JSON = os.getenv('GMAIL_TOKEN_JSON')
+
+# Ensure that environment variables are loaded
+logger.debug(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
+logger.debug(f"GOOGLE_CLIENT_SECRET: {GOOGLE_CLIENT_SECRET}")
+logger.debug(f"GOOGLE_API_KEY: {GOOGLE_API_KEY}")
+logger.debug(f"SECRET_KEY: {SECRET_KEY}")
+logger.debug(f"DATABASE_URL: {DATABASE_URL}")
+logger.debug(f"GMAIL_TOKEN_JSON: {GMAIL_TOKEN_JSON}")
+
+def get_google_credentials():
+    if not GMAIL_TOKEN_JSON:
+        logger.error("GMAIL_TOKEN_JSON environment variable not found.")
+        raise EnvironmentError("GMAIL_TOKEN_JSON environment variable not found.")
+    try:
+        credentials = json.loads(GMAIL_TOKEN_JSON)
+        logger.debug(f"GOOGLE_CREDENTIALS loaded: {credentials}")
+        return credentials
+    except json.JSONDecodeError as e:
+        logger.error("Error decoding GMAIL_TOKEN_JSON: %s", e)
+        raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
+
 # Save token to environment (or you can store it securely in a file or database)
 def save_token_to_file(token_info):
     with open(TOKEN_FILE_PATH, 'w') as f:
@@ -60,21 +88,6 @@ def get_access_token():
     save_token_to_file(token_info)
     return token_info['access_token']
 
-# Retrieve Google credentials from environment
-def get_google_credentials():
-    google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
-    logger.debug(f"GMAIL_TOKEN_JSON retrieved: {google_credentials_json}")
-    if not google_credentials_json:
-        logger.error("GMAIL_TOKEN_JSON environment variable not found.")
-        raise EnvironmentError("GMAIL_TOKEN_JSON environment variable not found.")
-    
-    try:
-        credentials = json.loads(google_credentials_json)
-        logger.debug(f"GOOGLE_CREDENTIALS loaded: {credentials}")
-        return credentials
-    except json.JSONDecodeError as e:
-        logger.error("Error decoding GMAIL_TOKEN_JSON: %s", e)
-        raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
 
 # Refresh Google token when it expires
 def refresh_google_token():
