@@ -61,7 +61,7 @@ google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.2.0
 googleapis-common-protos==1.63.2
 googlemaps==4.10.0
-greenlet==1.1.2
+greenlet==3.0.3
 gspread==6.1.2
 gunicorn==22.0.0
 h11==0.14.0
@@ -97,7 +97,6 @@ packaging==24.1
 pandas==2.2.2
 paramiko==3.4.0
 passlib==1.7.4
-pgadmin4==8.10
 pillow==10.4.0
 plotly==5.23.0
 portalocker==2.10.1
