@@ -52,7 +52,6 @@ def get_google_credentials():
 
 # Refresh Google token when it expires
 
-
 def refresh_google_token():
     credentials = get_google_credentials()
     payload = {
@@ -78,20 +77,6 @@ def refresh_google_token():
     else:
         logger.error(f"Failed to refresh token: {response.text}")
         raise Exception(f"Failed to refresh token: {response.text}")
-
-def get_google_credentials():
-    google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
-    if not google_credentials_json:
-        logger.error("GMAIL_TOKEN_JSON environment variable not found.")
-        raise EnvironmentError("GMAIL_TOKEN_JSON environment variable not found.")
-    
-    try:
-        credentials = json.loads(google_credentials_json)
-        logger.debug(f"GOOGLE_CREDENTIALS loaded: {credentials}")
-        return credentials
-    except json.JSONDecodeError as e:
-        logger.error("Error decoding GMAIL_TOKEN_JSON: %s", e)
-        raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
 
 def get_google_credentials():
     google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
