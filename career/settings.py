@@ -25,7 +25,6 @@ else:
 GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/oauth2callback/'
 
 # Security settings
-SECRET_KEY = os.environ.get("SECRET_KEY")
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 # Google credentials
@@ -164,29 +163,45 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-def env_view(request):
-    return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {os.getenv('GOOGLE_CREDENTIALS_JSON')}")
+# Function to load Google credentials
+def load_google_credentials():
+    if 'DYNO' in os.environ:  # Heroku environment
+        google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
+        if not google_credentials_json:
+            logger.error("GOOGLE_CREDENTIALS_JSON environment variable not found.")
+            raise EnvironmentError("GOOGLE_CREDENTIALS_JSON environment variable not found.")
+        try:
+            credentials = json.loads(google_credentials_json)
+            logger.debug("Successfully parsed GOOGLE_CREDENTIALS_JSON from environment.")
+            return credentials
+        except json.JSONDecodeError as e:
+            logger.error("Error decoding GOOGLE_CREDENTIALS_JSON: %s", e)
+            raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON") from e
+    else:  # Local environment
+        google_credentials_path = os.path.join(BASE_DIR, 'credentials.json')
+        if not os.path.isfile(google_credentials_path):
+            logger.error("File not found: %s", google_credentials_path)
+            raise FileNotFoundError(f"File not found: {google_credentials_path}")
+        try:
+            with open(google_credentials_path) as f:
+                credentials = json.load(f)
+                logger.debug("Successfully loaded GOOGLE_CREDENTIALS_JSON from file.")
+                return credentials
+        except json.JSONDecodeError as e:
+            logger.error("Error decoding GOOGLE_CREDENTIALS_JSON from file: %s", e)
+            raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON from file") from e
 
-
-
-def get_google_credentials():
-    # Check if the environment variable is set
-    google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
-    if not google_credentials_json:
-        logger.error("GOOGLE_CREDENTIALS_JSON environment variable not found.")
-        raise EnvironmentError("GOOGLE_CREDENTIALS_JSON environment variable not found.")
-
-    # Try to parse the JSON
-    try:
-        credentials = json.loads(google_credentials_json)
-        logger.debug("Successfully parsed GOOGLE_CREDENTIALS_JSON.")
-        return credentials
-    except json.JSONDecodeError as e:
-        logger.error("Error decoding GOOGLE_CREDENTIALS_JSON: %s", e)
-        raise
 # Load Google credentials
-GOOGLE_CREDENTIALS = get_google_credentials()
+GOOGLE_CREDENTIALS = load_google_credentials()
 
+
+# Example view to display Google credentials JSON for debugging
+def env_view(request):
+    google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
+    return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {google_credentials_json}")
+
+# Ensure that the secret key and other settings are properly loaded
+SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')  # Replace with your actual secret key handling
 
 
 
