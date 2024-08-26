@@ -29,6 +29,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 # Google credentials
+HEROKU = 'DYNO' in os.environ
 if 'DYNO' in os.environ:  # Heroku environment
     GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
     GOOGLE_CREDENTIALS = json.loads(GOOGLE_CREDENTIALS_JSON)
@@ -45,7 +46,6 @@ GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
 
 # Database configuration
-HEROKU = 'DYNO' in os.environ
 if HEROKU:
     DATABASES = {
         'default': dj_database_url.config(
