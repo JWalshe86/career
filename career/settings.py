@@ -93,28 +93,25 @@ def get_access_token():
     return token_info['access_token']
 
 # Refresh Google token when it expires
-def refresh_google_token():
-    credentials = get_google_credentials()
-    payload = {
-        'client_id': credentials['client_id'],
-        'client_secret': credentials['client_secret'],
-        'refresh_token': credentials['refresh_token'],
+def refresh_google_token(refresh_token):
+    client_id = config('GOOGLE_CLIENT_ID')
+    client_secret = config('GOOGLE_CLIENT_SECRET')
+    token_url = "https://oauth2.googleapis.com/token"
+    
+    response = requests.post(token_url, data={
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'refresh_token': refresh_token,
         'grant_type': 'refresh_token',
-    }
-    response = requests.post(credentials['token_uri'], data=payload)
+    })
+    
     if response.status_code == 200:
-        new_token_info = response.json()
-        
-        # Extract expires_in and calculate the new expiry
-        expires_in = new_token_info.get('expires_in', 3600)
-        new_expiry_time = datetime.utcnow() + timedelta(seconds=expires_in)
-        new_token_info['expiry'] = new_expiry_time.isoformat() + 'Z'
-        
-        return new_token_info
+        return response.json()
     else:
-        logger.error(f"Failed to refresh token: {response.text}")
-        raise Exception(f"Failed to refresh token: {response.text}")
+        raise Exception(f"Failed to refresh token: {response.content}")
 
+# Example usage
+new_token_data = refresh_google_token('your_refresh_token_here')
 # Get information about the current token
 def get_token_info(token):
     response = requests.get(f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={token}')
