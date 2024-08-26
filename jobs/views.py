@@ -229,8 +229,6 @@ def get_unread_emails():
     except Exception as e:
         logger.error("An unexpected error occurred: %s", e)
         return [], None
-# Configure logging
-logger = logging.getLogger(__name__)
 
 
 @login_required
