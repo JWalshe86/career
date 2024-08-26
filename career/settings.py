@@ -1,15 +1,14 @@
 import os
 import json
-import logging
 from pathlib import Path
+import logging
 from dotenv import load_dotenv
-import dj_database_url
 
-# Configure logging to debug level
+# Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Load environment variables from .env file (for local development)
+# Load environment variables
 load_dotenv()
 
 # Define BASE_DIR
@@ -32,36 +31,28 @@ def get_google_credentials():
 
 # Load Google credentials
 GOOGLE_CREDENTIALS = get_google_credentials()
-GOOGLE_CLIENT_ID = GOOGLE_CREDENTIALS.get('client_id')  # Adjust based on your JSON structure
-GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('client_secret')  # Adjust based on your JSON structure
 
-# Define other settings
+# Extract values
+GOOGLE_CLIENT_ID = GOOGLE_CREDENTIALS.get('web', {}).get('client_id')
+GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('web', {}).get('client_secret')
+
+# Additional settings
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ['127.0.0.1', '5b57-86-46-100-229.ngrok-free.app'] if DEBUG else os.getenv('ALLOWED_HOSTS', 'www.jwalshedev.ie').split(',')
-GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/oauth2callback/'
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1').split(',')
+GOOGLE_REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT_URI', 'http://localhost:8000/oauth2callback')
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY', '')
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
-SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
-
-# Define GOOGLE_API_KEY
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", '')
-
-# Token file path
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
 
 # Database configuration
-HEROKU = 'DYNO' in os.environ
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600
-    ) if HEROKU else {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQL_DB_NAME', 'test_db'),
-        'USER': os.environ.get('MYSQL_DB_USER', 'root'),
-        'PASSWORD': os.environ.get('MYSQL_DB_PASSWORD', 'Sunshine7!'),
-        'HOST': os.environ.get('MYSQL_DB_HOST', 'localhost'),
-        'PORT': os.environ.get('MYSQL_DB_PORT', '3306'),
+    'default': {
+        'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.mysql'),
+        'NAME': os.environ.get('DB_NAME', 'test_db'),
+        'USER': os.environ.get('DB_USER', 'root'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'Sunshine7!'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
     }
 }
 
@@ -72,7 +63,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://5b57-86-46-100-229.ngrok-free.app',
 ]
 
-# Static files (CSS, JavaScript, Images)
+# Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
@@ -157,4 +148,3 @@ USE_TZ = True
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
