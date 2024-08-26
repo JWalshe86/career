@@ -21,71 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # Define ALLOWED_HOSTS based on environment
-if DEBUG:
-    ALLOWED_HOSTS = ['127.0.0.1', '5b57-86-46-100-229.ngrok-free.app']
-else:
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'www.jwalshedev.ie').split(',')
+ALLOWED_HOSTS = ['127.0.0.1', '5b57-86-46-100-229.ngrok-free.app'] if DEBUG else os.getenv('ALLOWED_HOSTS', 'www.jwalshedev.ie').split(',')
 
 # Define Google Redirect URI based on environment
 GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/oauth2callback/'
 
 # Security settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
-
-def get_access_token():
-    # Fetch the token from the environment or other secure storage
-    google_credentials = get_google_credentials()
-    return google_credentials.get('token')
-
-
-def get_token_info(token):
-    response = requests.get(f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={token}')
-    if response.status_code == 200:
-        return response.json()
-    else:
-        logger.error(f"Failed to get token info: {response.text}")
-        return None
-
-# Check the token
-token_info = get_token_info(token)
-if token_info:
-    logger.debug(f"Token info: {token_info}")
-
-
-
-def make_google_api_request(url, token):
-    headers = {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'application/json',
-    }
-    try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()  # Raises HTTPError for bad responses
-        data = response.json()  # Attempt to parse JSON response
-        return data
-    except requests.HTTPError as http_err:
-        logger.error(f"HTTP error occurred: {http_err}")
-    except requests.RequestException as req_err:
-        logger.error(f"Request error occurred: {req_err}")
-    except ValueError as json_err:
-        logger.error(f"JSON decode error: {json_err}")
-    return None
-
-# Example usage
-try:
-    # Example Gmail API endpoint to list messages
-    url = 'https://www.googleapis.com/gmail/v1/users/me/messages'
-    new_token_info = refresh_google_token()
-    token = new_token_info['access_token']  # Use this token
-    data = make_google_api_request(url, token)
-    if data:
-        logger.info(f"API response data: {data}")
-    else:
-        logger.error("Failed to get data from API.")
-except Exception as e:
-    logger.error(f"Failed to refresh token: {e}")
-
-
 
 def get_google_credentials():
     google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
@@ -113,10 +55,23 @@ def refresh_google_token():
     response = requests.post(credentials['token_uri'], data=payload)
     if response.status_code == 200:
         new_token_info = response.json()
-        new_token_info['refresh_token'] = credentials['refresh_token']
+        new_token_info['refresh_token'] = credentials['refresh_token']  # Keep the original refresh token
         return new_token_info
     else:
         raise Exception(f"Failed to refresh token: {response.text}")
+
+def get_access_token():
+    # Retrieve or refresh access token
+    token_info = refresh_google_token()
+    return token_info['access_token']
+
+def get_token_info(token):
+    response = requests.get(f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={token}')
+    if response.status_code == 200:
+        return response.json()
+    else:
+        logger.error(f"Failed to get token info: {response.text}")
+        return None
 
 def make_google_api_request(url, token):
     headers = {
@@ -136,26 +91,28 @@ def make_google_api_request(url, token):
         logger.error(f"JSON decode error: {json_err}")
     return None
 
+# Example usage
 try:
-    new_token_info = refresh_google_token()
-    token = new_token_info['access_token']
-    url = 'https://www.googleapis.com/gmail/v1/users/me/messages'  # Correct endpoint for listing messages
+    token = get_access_token()
+    token_info = get_token_info(token)
+    if token_info:
+        logger.debug(f"Token info: {token_info}")
+    
+    url = 'https://www.googleapis.com/gmail/v1/users/me/messages'
     data = make_google_api_request(url, token)
     if data:
         logger.info(f"API response data: {data}")
     else:
         logger.error("Failed to get data from API.")
 except Exception as e:
-    logger.error(f"Failed to refresh token: {e}")
+    logger.error(f"An error occurred: {e}")
 
 def env_view(request):
     google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
     return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {google_credentials_json}")
 
+# Secret key and other settings
 SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')  # Replace with your actual secret key handling
-
-
-
 
 # Check if the app is running on Heroku
 HEROKU = 'DYNO' in os.environ
@@ -292,39 +249,4 @@ USE_TZ = True
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Function to refresh Google token
-def refresh_google_token():
-    credentials = get_google_credentials()
-    
-    payload = {
-        'client_id': credentials['client_id'],
-        'client_secret': credentials['client_secret'],
-        'refresh_token': credentials['refresh_token'],
-        'grant_type': 'refresh_token',
-    }
-
-    response = requests.post(credentials['token_uri'], data=payload)
-    
-    if response.status_code == 200:
-        new_token_info = response.json()
-        new_token_info['refresh_token'] = credentials['refresh_token']  # Keep the original refresh token
-        return new_token_info
-    else:
-        raise Exception(f"Failed to refresh token: {response.text}")
-
-# Example usage of refreshing the token
-# Ensure this code is executed in an appropriate context (e.g., management command or scheduled task)
-try:
-    new_token_info = refresh_google_token()
-    print(f"New token: {new_token_info['access_token']}, expires in: {new_token_info['expires_in']} seconds")
-except Exception as e:
-    logger.error(f"Failed to refresh token: {e}")
-
-def env_view(request):
-    google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
-    return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {google_credentials_json}")
-
-# Ensure that the secret key and other settings are properly loaded
-SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')  # Replace with your actual secret key handling
 
