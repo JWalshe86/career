@@ -164,6 +164,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Function to load Google credentials
+# Example view to display Google credentials JSON for debugging
 def load_google_credentials():
     if 'DYNO' in os.environ:  # Heroku environment
         google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
@@ -193,9 +194,7 @@ def load_google_credentials():
 
 # Load Google credentials
 GOOGLE_CREDENTIALS = load_google_credentials()
-
-
-# Example view to display Google credentials JSON for debugging
+print('google credentials', GOOGLE_CREDENTIALS)
 def env_view(request):
     google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
     return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {google_credentials_json}")
