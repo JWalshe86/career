@@ -30,7 +30,6 @@ GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'htt
 # Security settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
-# Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -42,13 +41,13 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DATABASE_URL = os.getenv('DATABASE_URL')
 GMAIL_TOKEN_JSON = os.getenv('GMAIL_TOKEN_JSON')
 
-# Ensure that environment variables are loaded
+# Log environment variable values (excluding sensitive information where necessary)
 logger.debug(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
-logger.debug(f"GOOGLE_CLIENT_SECRET: {GOOGLE_CLIENT_SECRET}")
-logger.debug(f"GOOGLE_API_KEY: {GOOGLE_API_KEY}")
-logger.debug(f"SECRET_KEY: {SECRET_KEY}")
-logger.debug(f"DATABASE_URL: {DATABASE_URL}")
-logger.debug(f"GMAIL_TOKEN_JSON: {GMAIL_TOKEN_JSON}")
+logger.debug(f"GOOGLE_CLIENT_SECRET: {'REDACTED' if GOOGLE_CLIENT_SECRET else 'Not set'}")
+logger.debug(f"GOOGLE_API_KEY: {'REDACTED' if GOOGLE_API_KEY else 'Not set'}")
+logger.debug(f"SECRET_KEY: {'REDACTED' if SECRET_KEY else 'Not set'}")
+logger.debug(f"DATABASE_URL: {'REDACTED' if DATABASE_URL else 'Not set'}")
+logger.debug(f"GMAIL_TOKEN_JSON: {'REDACTED' if GMAIL_TOKEN_JSON else 'Not set'}")
 
 def get_google_credentials():
     if not GMAIL_TOKEN_JSON:
@@ -61,7 +60,6 @@ def get_google_credentials():
     except json.JSONDecodeError as e:
         logger.error("Error decoding GMAIL_TOKEN_JSON: %s", e)
         raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
-
 # Save token to environment (or you can store it securely in a file or database)
 def save_token_to_file(token_info):
     with open(TOKEN_FILE_PATH, 'w') as f:
