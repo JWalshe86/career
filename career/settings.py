@@ -1,54 +1,47 @@
+import logging
 import os
 import json
-import dj_database_url
-from django.http import HttpResponse
 from pathlib import Path
-import logging
 from dotenv import load_dotenv
+from django.http import HttpResponse
+import dj_database_url
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-
-def env_view(request):
-    return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {os.getenv('GOOGLE_CREDENTIALS_JSON')}")
-
-# Load environment variables
+# Load environment variables from .env file (for local development)
 load_dotenv()
 
 # Define BASE_DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY=os.getenv('SECRET_KEY')
+# Retrieve DEBUG setting
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-def get_google_credentials():
-    # Check if the environment variable is set
-    google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
-    if not google_credentials_json:
-        logger.error("GOOGLE_CREDENTIALS_JSON environment variable not found.")
-        raise EnvironmentError("GOOGLE_CREDENTIALS_JSON environment variable not found.")
+# Define ALLOWED_HOSTS based on environment
+if DEBUG:
+    ALLOWED_HOSTS = ['127.0.0.1', '5b57-86-46-100-229.ngrok-free.app']
+else:
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'www.jwalshedev.ie').split(',')
 
-    # Try to parse the JSON
-    try:
-        credentials = json.loads(google_credentials_json)
-        logger.debug("Successfully parsed GOOGLE_CREDENTIALS_JSON.")
-        return credentials
-    except json.JSONDecodeError as e:
-        logger.error("Error decoding GOOGLE_CREDENTIALS_JSON: %s", e)
-        raise
-# Load Google credentials
-GOOGLE_CREDENTIALS = get_google_credentials()
+# Define Google Redirect URI based on environment
+GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/oauth2callback/'
 
-# Extract values
+# Security settings
+SECRET_KEY = os.environ.get("SECRET_KEY")
+SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
+
+# Google credentials
+if 'DYNO' in os.environ:  # Heroku environment
+    GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
+    GOOGLE_CREDENTIALS = json.loads(GOOGLE_CREDENTIALS_JSON)
+else:  # Local environment
+    GOOGLE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials.json')
+    with open(GOOGLE_CREDENTIALS_PATH) as f:
+        GOOGLE_CREDENTIALS = json.load(f)
+
 GOOGLE_CLIENT_ID = GOOGLE_CREDENTIALS.get('web', {}).get('client_id')
 GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('web', {}).get('client_secret')
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
-# Additional settings
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1').split(',')
-GOOGLE_REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT_URI', 'http://localhost:8000/oauth2callback')
-GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY', '')
-
+# Token file path
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
 
 # Database configuration
@@ -71,6 +64,7 @@ else:
             'PORT': os.environ.get('MYSQL_DB_PORT', '3306'),
         }
     }
+
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
     'https://www.jwalshedev.ie',
@@ -78,7 +72,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://5b57-86-46-100-229.ngrok-free.app',
 ]
 
-# Static files
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
@@ -102,6 +96,11 @@ LOGGING = {
     },
 }
 
+
+
+
+
+
 # URLs configuration
 ROOT_URLCONF = 'career.urls'
 
@@ -111,7 +110,6 @@ WSGI_APPLICATION = 'career.wsgi.application'
 # Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -129,9 +127,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'crispy_forms',
-    'crispy_bootstrap5',
-    'users',
     'tasks',
     'jobs',
     'map',
@@ -163,3 +158,47 @@ USE_TZ = True
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+def env_view(request):
+    return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {os.getenv('GOOGLE_CREDENTIALS_JSON')}")
+
+
+
+def get_google_credentials():
+    # Check if the environment variable is set
+    google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
+    if not google_credentials_json:
+        logger.error("GOOGLE_CREDENTIALS_JSON environment variable not found.")
+        raise EnvironmentError("GOOGLE_CREDENTIALS_JSON environment variable not found.")
+
+    # Try to parse the JSON
+    try:
+        credentials = json.loads(google_credentials_json)
+        logger.debug("Successfully parsed GOOGLE_CREDENTIALS_JSON.")
+        return credentials
+    except json.JSONDecodeError as e:
+        logger.error("Error decoding GOOGLE_CREDENTIALS_JSON: %s", e)
+        raise
+# Load Google credentials
+GOOGLE_CREDENTIALS = get_google_credentials()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
