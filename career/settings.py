@@ -52,6 +52,7 @@ def get_google_credentials():
 
 # Refresh Google token when it expires
 
+
 def refresh_google_token():
     credentials = get_google_credentials()
     payload = {
@@ -63,19 +64,48 @@ def refresh_google_token():
     response = requests.post(credentials['token_uri'], data=payload)
     if response.status_code == 200:
         new_token_info = response.json()
-
-        # Calculate the new expiry time (usually 3600 seconds or 1 hour from now)
-        expires_in = new_token_info.get('expires_in', 3600)  # Default to 1 hour
+        
+        # Extract expires_in from the response, default to 3600 seconds if not present
+        expires_in = new_token_info.get('expires_in', 3600)
+        
+        # Calculate the new expiry time
         new_expiry_time = datetime.utcnow() + timedelta(seconds=expires_in)
         new_token_info['expiry'] = new_expiry_time.isoformat() + 'Z'
-
-        # Include the original refresh token since the new response may not include it
-        new_token_info['refresh_token'] = credentials['refresh_token']
         
+        # Log and return the new token info
+        logger.debug(f"New token info with expiry: {new_token_info}")
         return new_token_info
     else:
+        logger.error(f"Failed to refresh token: {response.text}")
         raise Exception(f"Failed to refresh token: {response.text}")
 
+def get_google_credentials():
+    google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
+    if not google_credentials_json:
+        logger.error("GMAIL_TOKEN_JSON environment variable not found.")
+        raise EnvironmentError("GMAIL_TOKEN_JSON environment variable not found.")
+    
+    try:
+        credentials = json.loads(google_credentials_json)
+        logger.debug(f"GOOGLE_CREDENTIALS loaded: {credentials}")
+        return credentials
+    except json.JSONDecodeError as e:
+        logger.error("Error decoding GMAIL_TOKEN_JSON: %s", e)
+        raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
+
+def get_google_credentials():
+    google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
+    if not google_credentials_json:
+        logger.error("GMAIL_TOKEN_JSON environment variable not found.")
+        raise EnvironmentError("GMAIL_TOKEN_JSON environment variable not found.")
+    
+    try:
+        credentials = json.loads(google_credentials_json)
+        logger.debug(f"GOOGLE_CREDENTIALS loaded: {credentials}")
+        return credentials
+    except json.JSONDecodeError as e:
+        logger.error("Error decoding GMAIL_TOKEN_JSON: %s", e)
+        raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
 
 # Get information about the current token
 def get_token_info(token):
