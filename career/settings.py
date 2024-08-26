@@ -3,7 +3,7 @@ import json
 import requests
 import logging
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime
 from decouple import config, Csv
 from dotenv import load_dotenv
 from django.http import HttpResponse
@@ -52,7 +52,6 @@ TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
 
 # Function to get Google credentials from environment variable
 def get_google_credentials():
-    GMAIL_TOKEN_JSON = config('GMAIL_TOKEN_JSON', default='')
     if not GMAIL_TOKEN_JSON:
         logger.error("GMAIL_TOKEN_JSON environment variable not found.")
         raise EnvironmentError("GMAIL_TOKEN_JSON environment variable not found.")
@@ -88,7 +87,9 @@ def get_access_token():
                 return token_info['access_token']
     
     # Retrieve or refresh access token
-    token_info = refresh_google_token()
+    credentials = get_google_credentials()
+    refresh_token = credentials.get('refresh_token')
+    token_info = refresh_google_token(refresh_token)
     save_token_to_file(token_info)
     return token_info['access_token']
 
@@ -108,10 +109,21 @@ def refresh_google_token(refresh_token):
     if response.status_code == 200:
         return response.json()
     else:
+        logger.error(f"Failed to refresh token: {response.content}")
         raise Exception(f"Failed to refresh token: {response.content}")
 
 # Example usage
-new_token_data = refresh_google_token('your_refresh_token_here')
+try:
+    token = get_access_token()
+    url = 'https://www.googleapis.com/gmail/v1/users/me/messages'
+    data = make_google_api_request(url, token)
+    if data:
+        logger.info(f"API response data: {data}")
+    else:
+        logger.error("Failed to get data from API.")
+except Exception as e:
+    logger.error(f"An error occurred: {e}")
+
 # Get information about the current token
 def get_token_info(token):
     response = requests.get(f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={token}')
@@ -139,22 +151,10 @@ def make_google_api_request(url, token):
         logger.error(f"JSON decode error: {json_err}")
     return None
 
-# Example usage
-try:
-    token = get_access_token()
-    url = 'https://www.googleapis.com/gmail/v1/users/me/messages'
-    data = make_google_api_request(url, token)
-    if data:
-        logger.info(f"API response data: {data}")
-    else:
-        logger.error("Failed to get data from API.")
-except Exception as e:
-    logger.error(f"An error occurred: {e}")
-
 # Django view to display environment variable
 def env_view(request):
-    google_credentials_json = config('GOOGLE_CREDENTIALS_JSON', default='{}')
-    return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {google_credentials_json}")
+    google_credentials_json = config('GMAIL_TOKEN_JSON', default='{}')
+    return HttpResponse(f"GMAIL_TOKEN_JSON: {google_credentials_json}")
 
 # Other Django and environment configurations
 SECRET_KEY = config('SECRET_KEY', default='default-secret-key')
@@ -163,7 +163,7 @@ SECRET_KEY = config('SECRET_KEY', default='default-secret-key')
 HEROKU = 'DYNO' in os.environ
 
 if HEROKU:  # Heroku environment
-    logger.debug(f"GOOGLE_CREDENTIALS_JSON from environment: {config('GMAIL_TOKEN_JSON', default='')}")
+    logger.debug(f"GMAIL_TOKEN_JSON from environment: {config('GMAIL_TOKEN_JSON', default='')}")
 else:  # Local environment
     GOOGLE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials.json')
     if not os.path.isfile(GOOGLE_CREDENTIALS_PATH):
