@@ -61,7 +61,7 @@ google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.2.0
 googleapis-common-protos==1.63.2
 googlemaps==4.10.0
-greenlet
+greenlet==1.1.2
 gspread==6.1.2
 gunicorn==22.0.0
 h11==0.14.0
@@ -122,6 +122,7 @@ pyotp==2.9.0
 pyparsing==3.1.2
 pypng==0.20220715.0
 python-dateutil==2.9.0.post0
+python-decouple==3.8
 python-dotenv==1.0.1
 python-engineio==4.9.1
 python-socketio==5.11.3
