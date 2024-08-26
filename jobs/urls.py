@@ -4,13 +4,15 @@ from .views import (
     jobs_dashboard_with_emails, 
     jobs_dashboard_basic, 
     job_search_view, 
-    oauth2callback  # Import the OAuth2 callback view
+    oauth2callback,  # Import the OAuth2 callback view
+    show_env_var
 )
 
 from . import views
 
 urlpatterns = [
     path('dashboard/', jobs_dashboard_with_emails, name='jobs_dashboard_with_emails'),
+    path('show-env/', show_env_var),
     path("favs/", views.favs_display, name="favs_display"),
     path("map/", MapView.as_view(), name='my_map_view'),  # Use MapView from map app
     path("jobs_searched/", views.jobs_searched, name="jobs_searched"),

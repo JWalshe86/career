@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, reverse, get_object_or_404
@@ -19,6 +20,11 @@ from tasks.models import Task
 from .models import Jobsearch
 from .forms import JobsearchForm
 from tasks.forms import TaskForm
+
+def show_env_var(request):
+    google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
+    return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {google_credentials_json}")
+
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 logger = logging.getLogger(__name__)
