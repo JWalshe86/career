@@ -36,6 +36,16 @@ def save_token_to_file(token_info):
         json.dump(token_info, f)
 
 
+def token_file_view(request):
+    if os.path.isfile(TOKEN_FILE_PATH):
+        with open(TOKEN_FILE_PATH) as f:
+            token_info = json.load(f)
+        return HttpResponse(f"Token info: {json.dumps(token_info)}")
+    return HttpResponse("Token file not found.")
+
+
+
+
 def get_access_token():
     if os.path.isfile(TOKEN_FILE_PATH):
         with open(TOKEN_FILE_PATH) as f:
