@@ -1,10 +1,10 @@
-
 import os
 import json
 import requests
 import logging
 from pathlib import Path
 from datetime import datetime, timedelta
+from decouple import config, Csv
 from dotenv import load_dotenv
 from django.http import HttpResponse
 import dj_database_url
