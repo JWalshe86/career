@@ -29,14 +29,11 @@ GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'htt
 # Security settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
+# Save token to environment (or you can store it securely in a file or database)
 def save_token_to_env(token):
     os.environ['GOOGLE_ACCESS_TOKEN'] = token
 
-GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON')
-if not GOOGLE_CREDENTIALS_JSON:
-    raise ValueError("GOOGLE_CREDENTIALS_JSON environment variable is not set.")
-
-
+# Retrieve Google credentials from environment
 def get_google_credentials():
     google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
     logger.debug(f"GMAIL_TOKEN_JSON retrieved: {google_credentials_json}")
@@ -52,6 +49,7 @@ def get_google_credentials():
         logger.error("Error decoding GMAIL_TOKEN_JSON: %s", e)
         raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
 
+# Refresh Google token when it expires
 def refresh_google_token():
     credentials = get_google_credentials()
     payload = {
@@ -64,15 +62,19 @@ def refresh_google_token():
     if response.status_code == 200:
         new_token_info = response.json()
         new_token_info['refresh_token'] = credentials['refresh_token']  # Keep the original refresh token
+        # Optionally save the new access token in the environment
+        save_token_to_env(new_token_info['access_token'])
         return new_token_info
     else:
         raise Exception(f"Failed to refresh token: {response.text}")
 
+# Get the access token (refresh if necessary)
 def get_access_token():
     # Retrieve or refresh access token
     token_info = refresh_google_token()
     return token_info['access_token']
 
+# Get information about the current token
 def get_token_info(token):
     response = requests.get(f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={token}')
     if response.status_code == 200:
@@ -81,6 +83,7 @@ def get_token_info(token):
         logger.error(f"Failed to get token info: {response.text}")
         return None
 
+# Make an API request to Google services using the access token
 def make_google_api_request(url, token):
     headers = {
         'Authorization': f'Bearer {token}',
@@ -99,7 +102,7 @@ def make_google_api_request(url, token):
         logger.error(f"JSON decode error: {json_err}")
     return None
 
-# Example usage
+# Example usage of the above functions
 try:
     token = get_access_token()
     token_info = get_token_info(token)
@@ -115,11 +118,12 @@ try:
 except Exception as e:
     logger.error(f"An error occurred: {e}")
 
+# Django view to display environment variable
 def env_view(request):
     google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
     return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {google_credentials_json}")
 
-# Secret key and other settings
+# Other Django and environment configurations
 SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')  # Replace with your actual secret key handling
 
 # Check if the app is running on Heroku
