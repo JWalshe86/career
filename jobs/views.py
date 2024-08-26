@@ -234,10 +234,25 @@ def get_unread_emails():
 @login_required
 def jobs_dashboard_with_emails(request):
     logger.debug("Rendering jobs dashboard with emails.")
-    email_subjects, auth_url = get_unread_emails()
-    if auth_url:
-        logger.debug("Redirecting to authorization URL: %s", auth_url)
-        return redirect(auth_url)
+    
+    # Mock data for testing
+    email_subjects = [
+        {
+            'id': '1234567890abcdef',
+            'snippet': 'This is a test email snippet.',
+            'sender': 'test@example.com',
+            'subject': 'Test Email Subject',
+            'highlight': 'highlight'
+        },
+        {
+            'id': 'abcdef1234567890',
+            'snippet': 'Another test email snippet.',
+            'sender': 'another@example.com',
+            'subject': 'Another Test Email Subject',
+            'highlight': ''
+        }
+    ]
+    auth_url = None  # No authorization URL for mock data
 
     unread_email_count = len(email_subjects) if email_subjects else 0
 

@@ -1,30 +1,39 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<div class='container'>
-    <!-- Display unread email subjects and senders -->
-    <div class="row mb-2">
-        <div class="col">
-            <h2>Unread Emails</h2>
-            <ul class="list-group">
-{% for email in email_subjects %}
-    <div class="email">
-        <p><strong>From:</strong> {{ email.sender }}</p>
-        <p><strong>Subject:</strong> {{ email.subject }}</p>
-        <p><strong>Snippet:</strong> {{ email.snippet }}</p>
-        <p><strong>ID:</strong> {{ email.id }}</p> <!-- Display the email ID -->
-        <div class="{{ email.highlight }}"> <!-- Highlighting based on the snippet -->
-            <!-- Email content or link can go here -->
-        </div>
-    </div>
-{% endfor %}
-
-            </ul>
-        </div>
-    </div>
-</div>
-
+{{ email_subjects }}
+<title>Jobs Dashboard</title>
+    <style>
+        .highlight {
+            background-color: yellow;
+        }
+        .email {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Jobs Dashboard</h1>
+    
+    <h2>Unread Emails ({{ unread_email_count }})</h2>
+    
+    {% if email_subjects %}
+        {% for email in email_subjects %}
+            <div class="email">
+                <p><strong>From:</strong> {{ email.sender }}</p>
+                <p><strong>Subject:</strong> {{ email.subject }}</p>
+                <p><strong>Snippet:</strong> {{ email.snippet }}</p>
+                <p><strong>ID:</strong> {{ email.id }}</p>
+                <div class="{{ email.highlight }}">
+                    <!-- Highlighting based on the snippet -->
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No unread emails.</p>
+    {% endif %}
         <!-- Map container -->
         <div class="row mb-2">
             <div class="col">
