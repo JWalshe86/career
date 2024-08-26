@@ -231,28 +231,12 @@ def get_unread_emails():
         return [], None
 
 
-@login_required
 def jobs_dashboard_with_emails(request):
     logger.debug("Rendering jobs dashboard with emails.")
-    
-    # Mock data for testing
-    email_subjects = [
-        {
-            'id': '1234567890abcdef',
-            'snippet': 'This is a test email snippet.',
-            'sender': 'test@example.com',
-            'subject': 'Test Email Subject',
-            'highlight': 'highlight'
-        },
-        {
-            'id': 'abcdef1234567890',
-            'snippet': 'Another test email snippet.',
-            'sender': 'another@example.com',
-            'subject': 'Another Test Email Subject',
-            'highlight': ''
-        }
-    ]
-    auth_url = None  # No authorization URL for mock data
+    email_subjects, auth_url = get_unread_emails()
+    if auth_url:
+        logger.debug("Redirecting to authorization URL: %s", auth_url)
+        return redirect(auth_url)
 
     unread_email_count = len(email_subjects) if email_subjects else 0
 
@@ -267,7 +251,6 @@ def jobs_dashboard_with_emails(request):
 
 
 
-@login_required
 def jobs_dashboard_basic(request):
     logger.debug("Rendering basic jobs dashboard.")
     key = settings.GOOGLE_API_KEY
@@ -276,7 +259,6 @@ def jobs_dashboard_basic(request):
     
     return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations})
 
-@login_required
 def jobs_searched(request):
     logger.debug("Rendering jobs searched dashboard.")
     if request.user.is_superuser:
@@ -346,7 +328,6 @@ def jobs_searched(request):
         logger.debug("Context for jobs_searched rendering: %s", context)
         return render(request, "jobs/job_searches.html", context)
 
-@login_required
 def jobsearch_detail(request, jobsearch_id):
     logger.debug("Rendering job search detail for ID: %s", jobsearch_id)
     if request.user.is_superuser:
@@ -354,7 +335,6 @@ def jobsearch_detail(request, jobsearch_id):
         context = {"jobsearch": jobsearch}
         return render(request, "jobs/jobsearch_detail.html", context)
 
-@login_required
 def add_jobsearch(request):
     logger.debug("Handling add jobsearch.")
     if request.user.is_superuser:
@@ -384,7 +364,6 @@ def add_jobsearch(request):
             form = JobsearchForm()
         return render(request, "jobs/add_jobsearch.html", {'form': form})
 
-@login_required
 def edit_jobsearch(request, jobsearch_id):
     logger.debug("Handling edit jobsearch for ID: %s", jobsearch_id)
     jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
@@ -399,7 +378,6 @@ def edit_jobsearch(request, jobsearch_id):
         form = JobsearchForm(instance=jobsearch)
     return render(request, "jobs/edit_jobsearch.html", {'form': form, 'jobsearch': jobsearch})
 
-@login_required
 def delete_jobsearch(request, jobsearch_id):
     logger.debug("Handling delete jobsearch for ID: %s", jobsearch_id)
     jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
@@ -410,7 +388,6 @@ def delete_jobsearch(request, jobsearch_id):
         return redirect(reverse('jobs_searched'))
     return render(request, "jobs/delete_jobsearch.html", {'jobsearch': jobsearch})
 
-@login_required
 def job_search_view(request):
     logger.debug("Rendering job search view.")
     jobs_searched = Jobsearch.objects.all()
@@ -427,7 +404,6 @@ def job_search_view(request):
 
     return render(request, 'jobs/job_search_view.html', {'jobs_searched': jobs_searched})
 
-@login_required
 def favs_display(request):
     logger.debug("Rendering favorite jobs display.")
     if request.user.is_authenticated:
