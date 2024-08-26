@@ -3,6 +3,7 @@ import json
 import requests
 import logging
 from pathlib import Path
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from django.http import HttpResponse
 import dj_database_url
@@ -50,6 +51,7 @@ def get_google_credentials():
         raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
 
 # Refresh Google token when it expires
+
 def refresh_google_token():
     credentials = get_google_credentials()
     payload = {
@@ -61,18 +63,19 @@ def refresh_google_token():
     response = requests.post(credentials['token_uri'], data=payload)
     if response.status_code == 200:
         new_token_info = response.json()
-        new_token_info['refresh_token'] = credentials['refresh_token']  # Keep the original refresh token
-        # Optionally save the new access token in the environment
-        save_token_to_env(new_token_info['access_token'])
+
+        # Calculate the new expiry time (usually 3600 seconds or 1 hour from now)
+        expires_in = new_token_info.get('expires_in', 3600)  # Default to 1 hour
+        new_expiry_time = datetime.utcnow() + timedelta(seconds=expires_in)
+        new_token_info['expiry'] = new_expiry_time.isoformat() + 'Z'
+
+        # Include the original refresh token since the new response may not include it
+        new_token_info['refresh_token'] = credentials['refresh_token']
+        
         return new_token_info
     else:
         raise Exception(f"Failed to refresh token: {response.text}")
 
-# Get the access token (refresh if necessary)
-def get_access_token():
-    # Retrieve or refresh access token
-    token_info = refresh_google_token()
-    return token_info['access_token']
 
 # Get information about the current token
 def get_token_info(token):
