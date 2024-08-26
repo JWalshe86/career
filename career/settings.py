@@ -3,7 +3,7 @@ import json
 import requests
 import logging
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from decouple import config, Csv
 from dotenv import load_dotenv
 from django.http import HttpResponse
@@ -87,13 +87,15 @@ def get_access_token():
             token_info = json.load(f)
         if 'access_token' in token_info and 'expiry' in token_info:
             expiry = datetime.fromisoformat(token_info['expiry'].replace('Z', '+00:00'))
-            if datetime.utcnow() < expiry:
+            if datetime.now(timezone.utc) < expiry:
                 return token_info['access_token']
     
     # Retrieve or refresh access token
     credentials = get_google_credentials()
     refresh_token = credentials.get('refresh_token', REFRESH_TOKEN)
     token_info = refresh_google_token(refresh_token)
+    # Add expiry time to the token info
+    token_info['expiry'] = (datetime.now(timezone.utc) + timedelta(seconds=token_info['expires_in'])).isoformat()
     save_token_to_file(token_info)
     return token_info['access_token']
 
