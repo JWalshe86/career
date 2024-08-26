@@ -141,56 +141,52 @@ def oauth2callback(request):
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 
-
 def get_unread_emails():
     creds = None
 
     if 'DYNO' in os.environ:  # Heroku environment
-        # Load credentials from environment variables
         google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
-        google_credentials = json.loads(google_credentials_json)
-        if not google_credentials.get('web'):
-            logger.error("No credentials found in environment variables.")
-            return [], None
+        try:
+            google_credentials = json.loads(google_credentials_json)
+            if not google_credentials.get('web'):
+                logger.error("No credentials found in environment variables.")
+                return [], None
 
-        creds = Credentials.from_authorized_user_info(google_credentials, SCOPES)
-        logger.debug("Loaded credentials from environment variables")
+            creds = Credentials.from_authorized_user_info(google_credentials, SCOPES)
+            logger.debug("Loaded credentials from environment variables.")
+        except json.JSONDecodeError as e:
+            logger.error("Error decoding JSON for Google credentials: %s", e)
+            return [], None
     else:  # Local environment
-        # Check if token file exists and load credentials
         if os.path.exists('token.json'):
             creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-            logger.debug("Loaded credentials from token.json")
+            logger.debug("Loaded credentials from token.json.")
         else:
-            # If no token file, run the OAuth flow
             flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
-            logger.debug("Obtained credentials from OAuth flow")
+            logger.debug("Obtained credentials from OAuth flow.")
 
-            # Save the credentials for the next run
             with open('token.json', 'w') as token:
                 token.write(creds.to_json())
-            logger.info("Saved credentials to token.json")
+            logger.info("Saved credentials to token.json.")
 
-    # Refresh the token if necessary
     if creds and creds.expired and creds.refresh_token:
         try:
             creds.refresh(Request())
-            if not 'DYNO' in os.environ:  # Only save the token file locally
+            if not 'DYNO' in os.environ:
                 with open('token.json', 'w') as token:
                     token.write(creds.to_json())
-            logger.info("Credentials refreshed and saved")
+            logger.info("Credentials refreshed and saved.")
         except Exception as e:
             logger.error("Error refreshing credentials: %s", e)
             auth_url = get_oauth2_authorization_url()
             return [], auth_url
 
-    # If no valid credentials, return to auth
     if not creds or not creds.valid:
         logger.debug("No valid credentials found. Redirecting to authorization URL.")
         auth_url = get_oauth2_authorization_url()
         return [], auth_url
 
-    # Try to fetch unread emails
     try:
         service = build("gmail", "v1", credentials=creds)
         excluded_senders = [
@@ -208,6 +204,8 @@ def get_unread_emails():
             query += f" -from:{sender}"
         results = service.users().messages().list(userId="me", q=query).execute()
         messages = results.get('messages', [])
+
+        logger.debug("Fetched messages: %s", messages)
 
         unread_emails = []
         for message in messages:
@@ -231,10 +229,8 @@ def get_unread_emails():
     except Exception as e:
         logger.error("An unexpected error occurred: %s", e)
         return [], None
-
-
-
-
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -255,6 +251,8 @@ def jobs_dashboard_with_emails(request):
     }
     logger.debug("Context for rendering: %s", context)
     return render(request, "jobs/jobs_dashboard.html", context)
+
+
 
 @login_required
 def jobs_dashboard_basic(request):
