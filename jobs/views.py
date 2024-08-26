@@ -29,39 +29,6 @@ def show_env_var(request):
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 logger = logging.getLogger(__name__)
 
-def refresh_google_token():
-    refresh_token = os.getenv('GOOGLE_REFRESH_TOKEN')
-    client_id = os.getenv('GOOGLE_CLIENT_ID')
-    client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
-    token_uri = os.getenv('GOOGLE_TOKEN_URI', 'https://oauth2.googleapis.com/token')
-
-    if not all([refresh_token, client_id, client_secret]):
-        raise EnvironmentError("Missing required environment variables for token refresh.")
-
-    payload = {
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'refresh_token': refresh_token,
-        'grant_type': 'refresh_token',
-    }
-
-    response = requests.post(token_uri, data=payload)
-    if response.status_code == 200:
-        tokens = response.json()
-        access_token = tokens.get('access_token')
-        expiry = tokens.get('expires_in')
-
-        # Optionally, you could save the new access_token and expiry to a file or environment variable
-        # os.environ['GOOGLE_ACCESS_TOKEN'] = access_token
-        # os.environ['GOOGLE_TOKEN_EXPIRY'] = expiry
-
-        return access_token, expiry
-    else:
-        raise Exception(f"Failed to refresh token: {response.text}")
-
-# Example usage
-new_token, expires_in = refresh_google_token()
-print(f"New token: {new_token}, expires in: {expires_in} seconds")
 
 
 def make_google_api_request():

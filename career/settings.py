@@ -1,6 +1,7 @@
-import logging
 import os
 import json
+import requests
+import logging
 from pathlib import Path
 from dotenv import load_dotenv
 from django.http import HttpResponse
@@ -8,10 +9,10 @@ import dj_database_url
 
 # Load environment variables from .env file (for local development)
 load_dotenv()
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
 
 # Define BASE_DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,17 +32,22 @@ GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'htt
 # Security settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
-# Google credentials
-HEROKU = 'DYNO' in os.environ
-if HEROKU:  # Heroku environment
-    GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
-    logger.debug(f"GOOGLE_CREDENTIALS_JSON from environment: {GOOGLE_CREDENTIALS_JSON}")
-    if not GOOGLE_CREDENTIALS_JSON:
-        raise EnvironmentError("GOOGLE_CREDENTIALS_JSON environment variable not found or is empty.")
+# Function to load Google credentials
+def get_google_credentials():
+    google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
+    if not google_credentials_json:
+        raise EnvironmentError("GMAIL_TOKEN_JSON environment variable not found.")
     try:
-        GOOGLE_CREDENTIALS = json.loads(GOOGLE_CREDENTIALS_JSON)
+        credentials = json.loads(google_credentials_json)
+        return credentials
     except json.JSONDecodeError as e:
-        raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON") from e
+        raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
+
+# Check if the app is running on Heroku
+HEROKU = 'DYNO' in os.environ
+
+if HEROKU:  # Heroku environment
+    logger.debug(f"GOOGLE_CREDENTIALS_JSON from environment: {os.getenv('GMAIL_TOKEN_JSON')}")
 else:  # Local environment
     GOOGLE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials.json')
     if not os.path.isfile(GOOGLE_CREDENTIALS_PATH):
@@ -53,12 +59,13 @@ else:  # Local environment
         raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON from file") from e
 
 # Extract values
+GOOGLE_CREDENTIALS = get_google_credentials()
 GOOGLE_CLIENT_ID = GOOGLE_CREDENTIALS.get('client_id')
 GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('client_secret')
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 logger.debug(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
 logger.debug(f"GOOGLE_CLIENT_SECRET: {GOOGLE_CLIENT_SECRET}")
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 # Token file path
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
@@ -113,11 +120,6 @@ LOGGING = {
         'level': 'DEBUG',
     },
 }
-
-
-
-
-
 
 # URLs configuration
 ROOT_URLCONF = 'career.urls'
@@ -177,61 +179,38 @@ USE_TZ = True
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Function to refresh Google token
+def refresh_google_token():
+    credentials = get_google_credentials()
+    
+    payload = {
+        'client_id': credentials['client_id'],
+        'client_secret': credentials['client_secret'],
+        'refresh_token': credentials['refresh_token'],
+        'grant_type': 'refresh_token',
+    }
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+    response = requests.post(credentials['token_uri'], data=payload)
+    
+    if response.status_code == 200:
+        new_token_info = response.json()
+        new_token_info['refresh_token'] = credentials['refresh_token']  # Keep the original refresh token
+        return new_token_info
+    else:
+        raise Exception(f"Failed to refresh token: {response.text}")
 
-# Function to load Google credentials
-# Example view to display Google credentials JSON for debugging
-def load_google_credentials():
-    if 'DYNO' in os.environ:  # Heroku environment
-        google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
-        if not google_credentials_json:
-            logger.error("GOOGLE_CREDENTIALS_JSON environment variable not found.")
-            raise EnvironmentError("GOOGLE_CREDENTIALS_JSON environment variable not found.")
-        try:
-            credentials = json.loads(google_credentials_json)
-            logger.debug("Successfully parsed GOOGLE_CREDENTIALS_JSON from environment.")
-            return credentials
-        except json.JSONDecodeError as e:
-            logger.error("Error decoding GOOGLE_CREDENTIALS_JSON: %s", e)
-            raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON") from e
-    else:  # Local environment
-        google_credentials_path = os.path.join(BASE_DIR, 'credentials.json')
-        if not os.path.isfile(google_credentials_path):
-            logger.error("File not found: %s", google_credentials_path)
-            raise FileNotFoundError(f"File not found: {google_credentials_path}")
-        try:
-            with open(google_credentials_path) as f:
-                credentials = json.load(f)
-                logger.debug("Successfully loaded GOOGLE_CREDENTIALS_JSON from file.")
-                return credentials
-        except json.JSONDecodeError as e:
-            logger.error("Error decoding GOOGLE_CREDENTIALS_JSON from file: %s", e)
-            raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON from file") from e
+# Example usage of refreshing the token
+# Ensure this code is executed in an appropriate context (e.g., management command or scheduled task)
+try:
+    new_token_info = refresh_google_token()
+    print(f"New token: {new_token_info['access_token']}, expires in: {new_token_info['expires_in']} seconds")
+except Exception as e:
+    logger.error(f"Failed to refresh token: {e}")
 
-# Load Google credentials
-GOOGLE_CREDENTIALS = load_google_credentials()
-print('google credentials', GOOGLE_CREDENTIALS)
 def env_view(request):
     google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
     return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {google_credentials_json}")
 
 # Ensure that the secret key and other settings are properly loaded
 SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')  # Replace with your actual secret key handling
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
