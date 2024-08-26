@@ -273,6 +273,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'decouple',
     'tasks',
     'jobs',
     'map',
