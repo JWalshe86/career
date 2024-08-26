@@ -51,17 +51,25 @@ GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY', '')
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
 
 # Database configuration
-DATABASES = {
-    'default': {
-        'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.mysql'),
-        'NAME': os.environ.get('DB_NAME', 'test_db'),
-        'USER': os.environ.get('DB_USER', 'root'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'Sunshine7!'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '3306'),
+HEROKU = 'DYNO' in os.environ
+if HEROKU:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600
+        )
     }
-}
-
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQL_DB_NAME', 'test_db'),
+            'USER': os.environ.get('MYSQL_DB_USER', 'root'),
+            'PASSWORD': os.environ.get('MYSQL_DB_PASSWORD', 'Sunshine7!'),
+            'HOST': os.environ.get('MYSQL_DB_HOST', 'localhost'),
+            'PORT': os.environ.get('MYSQL_DB_PORT', '3306'),
+        }
+    }
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
     'https://www.jwalshedev.ie',
