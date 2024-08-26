@@ -31,6 +31,7 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 HEROKU = 'DYNO' in os.environ
 if HEROKU:  # Heroku environment
     GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
+    logger.debug(f"GOOGLE_CREDENTIALS_JSON from environment: {GOOGLE_CREDENTIALS_JSON}")
     if not GOOGLE_CREDENTIALS_JSON:
         raise EnvironmentError("GOOGLE_CREDENTIALS_JSON environment variable not found or is empty.")
     try:
@@ -47,8 +48,12 @@ else:  # Local environment
     except json.JSONDecodeError as e:
         raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON from file") from e
 
-GOOGLE_CLIENT_ID = GOOGLE_CREDENTIALS.get('web', {}).get('client_id')
-GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('web', {}).get('client_secret')
+# Extract values
+GOOGLE_CLIENT_ID = GOOGLE_CREDENTIALS.get('client_id')
+GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('client_secret')
+
+logger.debug(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
+logger.debug(f"GOOGLE_CLIENT_SECRET: {GOOGLE_CLIENT_SECRET}")
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 # Token file path
