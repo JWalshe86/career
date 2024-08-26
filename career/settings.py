@@ -8,6 +8,10 @@ import dj_database_url
 
 # Load environment variables from .env file (for local development)
 load_dotenv()
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 # Define BASE_DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
