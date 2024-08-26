@@ -31,12 +31,17 @@ GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'htt
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 # Save token to environment (or you can store it securely in a file or database)
-def save_token_to_env(token):
-    os.environ['GOOGLE_ACCESS_TOKEN'] = token
+def save_token_to_env(token_info):
+    os.environ['GOOGLE_ACCESS_TOKEN'] = token_info['access_token']
+    os.environ['GOOGLE_REFRESH_TOKEN'] = token_info['refresh_token']
+    # Optionally save to a file or other secure storage
+    with open(TOKEN_FILE_PATH, 'w') as f:
+        json.dump(token_info, f)
 
 def get_access_token():
     # Retrieve or refresh access token
     token_info = refresh_google_token()
+    save_token_to_env(token_info)
     return token_info['access_token']
 
 # Retrieve Google credentials from environment
@@ -56,7 +61,6 @@ def get_google_credentials():
         raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
 
 # Refresh Google token when it expires
-
 def refresh_google_token():
     credentials = get_google_credentials()
     payload = {
@@ -76,22 +80,8 @@ def refresh_google_token():
         
         return new_token_info
     else:
-        logger.error(f"Faitled to refresh token: {response.text}")
+        logger.error(f"Failed to refresh token: {response.text}")
         raise Exception(f"Failed to refresh token: {response.text}")
-
-def get_google_credentials():
-    google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
-    if not google_credentials_json:
-        logger.error("GMAIL_TOKEN_JSON environment variable not found.")
-        raise EnvironmentError("GMAIL_TOKEN_JSON environment variable not found.")
-    
-    try:
-        credentials = json.loads(google_credentials_json)
-        logger.debug(f"GOOGLE_CREDENTIALS loaded: {credentials}")
-        return credentials
-    except json.JSONDecodeError as e:
-        logger.error("Error decoding GMAIL_TOKEN_JSON: %s", e)
-        raise ValueError("Error decoding GMAIL_TOKEN_JSON") from e
 
 # Get information about the current token
 def get_token_info(token):
@@ -131,6 +121,7 @@ try:
         logger.error("Failed to get data from API.")
 except Exception as e:
     logger.error(f"An error occurred: {e}")
+
 # Django view to display environment variable
 def env_view(request):
     google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
