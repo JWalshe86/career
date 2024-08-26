@@ -34,14 +34,14 @@ logger = logging.getLogger(__name__)
 def make_google_api_request():
     try:
         # Attempt the request with the current token
-        response = requests.get("https://www.googleapis.com/some_endpoint", headers={
+        response = requests.get("https://www.googleapis.com/", headers={
             'Authorization': f'Bearer {os.getenv("GOOGLE_ACCESS_TOKEN")}'
         })
         if response.status_code == 401:
             # Token expired, refresh it
             new_token, _ = refresh_google_token()
             # Retry the request with the new token
-            response = requests.get("https://www.googleapis.com/some_endpoint", headers={
+            response = requests.get("https://www.googleapis.com/users/me/messages", headers={
                 'Authorization': f'Bearer {new_token}'
             })
         return response.json()
