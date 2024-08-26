@@ -18,6 +18,8 @@ load_dotenv()
 # Define BASE_DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY=os.getenv('SECRET_KEY')
+
 def get_google_credentials():
     # Check if the environment variable is set
     google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
