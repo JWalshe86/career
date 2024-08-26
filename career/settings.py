@@ -39,7 +39,7 @@ SECRET_KEY = config('SECRET_KEY', default='default-secret-key')
 DATABASE_URL = config('DATABASE_URL', default='')
 GMAIL_TOKEN_JSON = config('GMAIL_TOKEN_JSON', default='')
 
-# Define Token URI and Client ID for token refresh
+# Define Token URI
 TOKEN_URI = 'https://oauth2.googleapis.com/token'
 REFRESH_TOKEN = config('REFRESH_TOKEN', default='')
 
@@ -53,6 +53,15 @@ logger.debug(f"GMAIL_TOKEN_JSON: {'REDACTED' if GMAIL_TOKEN_JSON else 'Not set'}
 
 # Define Token File Path
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
+
+
+# Define your redirect URIs based on the environment
+if os.environ.get('DJANGO_ENV') == 'production':
+    GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/jobs/oauth2callback/'
+else:
+    GOOGLE_REDIRECT_URI = 'http://localhost:8000/jobs/oauth2callback/'
+
+# Ensure your OAuth2 flow uses this setting
 
 # Function to get Google credentials from environment variable
 def get_google_credentials():
@@ -77,7 +86,7 @@ def token_file_view(request):
     if os.path.isfile(TOKEN_FILE_PATH):
         with open(TOKEN_FILE_PATH) as f:
             token_info = json.load(f)
-        return HttpResponse(f"Token info: {json.dumps(token_info)}")
+        return HttpResponse(f"Token info: {json.dumps(token_info, indent=2)}")
     return HttpResponse("Token file not found.")
 
 # Retrieve or refresh access token
@@ -93,6 +102,10 @@ def get_access_token():
     # Retrieve or refresh access token
     credentials = get_google_credentials()
     refresh_token = credentials.get('refresh_token', REFRESH_TOKEN)
+    if not refresh_token:
+        logger.error("Refresh token is missing.")
+        raise ValueError("Refresh token is missing.")
+
     token_info = refresh_google_token(refresh_token)
     # Add expiry time to the token info
     token_info['expiry'] = (datetime.now(timezone.utc) + timedelta(seconds=token_info['expires_in'])).isoformat()
@@ -111,29 +124,8 @@ def refresh_google_token(refresh_token):
     if response.status_code == 200:
         return response.json()
     else:
-        logger.error(f"Failed to refresh token: {response.content}")
-        raise Exception(f"Failed to refresh token: {response.content}")
-
-# Example usage
-try:
-    token = get_access_token()
-    url = 'https://www.googleapis.com/gmail/v1/users/me/messages'
-    data = make_google_api_request(url, token)
-    if data:
-        logger.info(f"API response data: {data}")
-    else:
-        logger.error("Failed to get data from API.")
-except Exception as e:
-    logger.error(f"An error occurred: {e}")
-
-# Get information about the current token
-def get_token_info(token):
-    response = requests.get(f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={token}')
-    if response.status_code == 200:
-        return response.json()
-    else:
-        logger.error(f"Failed to get token info: {response.text}")
-        return None
+        logger.error(f"Failed to refresh token: {response.content.decode('utf-8')}")
+        response.raise_for_status()  # Raises HTTPError for bad responses
 
 # Make an API request to Google services using the access token
 def make_google_api_request(url, token):
@@ -146,6 +138,14 @@ def make_google_api_request(url, token):
         response.raise_for_status()
         return response.json()
     except requests.HTTPError as http_err:
+        if http_err.response.status_code == 401:
+            # Token might be expired, attempt to refresh and retry
+            logger.info("Access token expired, refreshing token...")
+            token = get_access_token()
+            headers['Authorization'] = f'Bearer {token}'
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            return response.json()
         logger.error(f"HTTP error occurred: {http_err}")
     except requests.RequestException as req_err:
         logger.error(f"Request error occurred: {req_err}")
@@ -153,13 +153,19 @@ def make_google_api_request(url, token):
         logger.error(f"JSON decode error: {json_err}")
     return None
 
+# Get information about the current token
+def get_token_info(token):
+    response = requests.get(f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={token}')
+    if response.status_code == 200:
+        return response.json()
+    else:
+        logger.error(f"Failed to get token info: {response.text}")
+        return None
+
 # Django view to display environment variable
 def env_view(request):
     google_credentials_json = config('GMAIL_TOKEN_JSON', default='{}')
     return HttpResponse(f"GMAIL_TOKEN_JSON: {google_credentials_json}")
-
-# Other Django and environment configurations
-SECRET_KEY = config('SECRET_KEY', default='default-secret-key')
 
 # Check if the app is running on Heroku
 HEROKU = 'DYNO' in os.environ
