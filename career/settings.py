@@ -34,6 +34,11 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 def save_token_to_env(token):
     os.environ['GOOGLE_ACCESS_TOKEN'] = token
 
+def get_access_token():
+    # Retrieve or refresh access token
+    token_info = refresh_google_token()
+    return token_info['access_token']
+
 # Retrieve Google credentials from environment
 def get_google_credentials():
     google_credentials_json = os.getenv('GMAIL_TOKEN_JSON')
@@ -64,15 +69,11 @@ def refresh_google_token():
     if response.status_code == 200:
         new_token_info = response.json()
         
-        # Extract expires_in from the response, default to 3600 seconds if not present
+        # Extract expires_in and calculate the new expiry
         expires_in = new_token_info.get('expires_in', 3600)
-        
-        # Calculate the new expiry time
         new_expiry_time = datetime.utcnow() + timedelta(seconds=expires_in)
         new_token_info['expiry'] = new_expiry_time.isoformat() + 'Z'
         
-        # Log and return the new token info
-        logger.debug(f"New token info with expiry: {new_token_info}")
         return new_token_info
     else:
         logger.error(f"Failed to refresh token: {response.text}")
@@ -110,8 +111,7 @@ def make_google_api_request(url, token):
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
-        data = response.json()
-        return data
+        return response.json()
     except requests.HTTPError as http_err:
         logger.error(f"HTTP error occurred: {http_err}")
     except requests.RequestException as req_err:
@@ -120,13 +120,9 @@ def make_google_api_request(url, token):
         logger.error(f"JSON decode error: {json_err}")
     return None
 
-# Example usage of the above functions
+# Example usage
 try:
     token = get_access_token()
-    token_info = get_token_info(token)
-    if token_info:
-        logger.debug(f"Token info: {token_info}")
-    
     url = 'https://www.googleapis.com/gmail/v1/users/me/messages'
     data = make_google_api_request(url, token)
     if data:
@@ -135,7 +131,6 @@ try:
         logger.error("Failed to get data from API.")
 except Exception as e:
     logger.error(f"An error occurred: {e}")
-
 # Django view to display environment variable
 def env_view(request):
     google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
