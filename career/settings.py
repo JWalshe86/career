@@ -94,7 +94,7 @@ def refresh_google_token():
 try:
     new_token_info = refresh_google_token()
     token = new_token_info['access_token']  # Use this token
-    data = make_google_api_request('https://www.googleapis.com/some_endpoint', token)
+    data = make_google_api_request('https://www.googleapis.com/gmail/v1/users/me/messages', token)
     if data:
         logger.info(f"API response data: {data}")
     else:
