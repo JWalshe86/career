@@ -29,13 +29,23 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 # Google credentials
 HEROKU = 'DYNO' in os.environ
-if 'DYNO' in os.environ:  # Heroku environment
+if HEROKU:  # Heroku environment
     GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
-    GOOGLE_CREDENTIALS = json.loads(GOOGLE_CREDENTIALS_JSON)
+    if not GOOGLE_CREDENTIALS_JSON:
+        raise EnvironmentError("GOOGLE_CREDENTIALS_JSON environment variable not found or is empty.")
+    try:
+        GOOGLE_CREDENTIALS = json.loads(GOOGLE_CREDENTIALS_JSON)
+    except json.JSONDecodeError as e:
+        raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON") from e
 else:  # Local environment
     GOOGLE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials.json')
-    with open(GOOGLE_CREDENTIALS_PATH) as f:
-        GOOGLE_CREDENTIALS = json.load(f)
+    if not os.path.isfile(GOOGLE_CREDENTIALS_PATH):
+        raise FileNotFoundError(f"File not found: {GOOGLE_CREDENTIALS_PATH}")
+    try:
+        with open(GOOGLE_CREDENTIALS_PATH) as f:
+            GOOGLE_CREDENTIALS = json.load(f)
+    except json.JSONDecodeError as e:
+        raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON from file") from e
 
 GOOGLE_CLIENT_ID = GOOGLE_CREDENTIALS.get('web', {}).get('client_id')
 GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('web', {}).get('client_secret')
