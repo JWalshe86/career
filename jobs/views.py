@@ -34,14 +34,14 @@ logger = logging.getLogger(__name__)
 def make_google_api_request():
     try:
         # Attempt the request with the current token
-        response = requests.get("https://www.googleapis.com/", headers={
+        response = requests.get("https://www.googleapis.com/gmail/v1/users/me/messages", headers={
             'Authorization': f'Bearer {os.getenv("GOOGLE_ACCESS_TOKEN")}'
         })
         if response.status_code == 401:
             # Token expired, refresh it
             new_token, _ = refresh_google_token()
             # Retry the request with the new token
-            response = requests.get("https://www.googleapis.com/users/me/messages", headers={
+            response = requests.get("https://www.googleapis.com/gmail/v1/users/me/messages", headers={
                 'Authorization': f'Bearer {new_token}'
             })
         return response.json()
@@ -232,7 +232,9 @@ def get_unread_emails():
 
 
 def jobs_dashboard_with_emails(request):
-    logger.debug("Rendering jobs dashboard with emails.", request)
+    logger.debug("Rendering jobs dashboard with emails.")
+    logger.debug("Request: %s", request)
+  
     email_subjects, auth_url = get_unread_emails()
     if auth_url:
         logger.debug("Redirecting to authorization URL: %s", auth_url)
