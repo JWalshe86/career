@@ -29,21 +29,60 @@ def show_env_var(request):
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 logger = logging.getLogger(__name__)
 
-def refresh_access_token(refresh_token):
-    logger.debug("Starting token refresh process.")
-    token_url = "https://oauth2.googleapis.com/token"
+def refresh_google_token():
+    refresh_token = os.getenv('GOOGLE_REFRESH_TOKEN')
+    client_id = os.getenv('GOOGLE_CLIENT_ID')
+    client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+    token_uri = os.getenv('GOOGLE_TOKEN_URI', 'https://oauth2.googleapis.com/token')
+
+    if not all([refresh_token, client_id, client_secret]):
+        raise EnvironmentError("Missing required environment variables for token refresh.")
+
     payload = {
-        'grant_type': 'refresh_token',
+        'client_id': client_id,
+        'client_secret': client_secret,
         'refresh_token': refresh_token,
-        'client_id': settings.GOOGLE_CLIENT_ID,
-        'client_secret': settings.GOOGLE_CLIENT_SECRET
+        'grant_type': 'refresh_token',
     }
+
+    response = requests.post(token_uri, data=payload)
+    if response.status_code == 200:
+        tokens = response.json()
+        access_token = tokens.get('access_token')
+        expiry = tokens.get('expires_in')
+
+        # Optionally, you could save the new access_token and expiry to a file or environment variable
+        # os.environ['GOOGLE_ACCESS_TOKEN'] = access_token
+        # os.environ['GOOGLE_TOKEN_EXPIRY'] = expiry
+
+        return access_token, expiry
+    else:
+        raise Exception(f"Failed to refresh token: {response.text}")
+
+# Example usage
+new_token, expires_in = refresh_google_token()
+print(f"New token: {new_token}, expires in: {expires_in} seconds")
+
+
+def make_google_api_request():
     try:
-        response = requests.post(token_url, data=payload)
-        response.raise_for_status()
+        # Attempt the request with the current token
+        response = requests.get("https://www.googleapis.com/some_endpoint", headers={
+            'Authorization': f'Bearer {os.getenv("GOOGLE_ACCESS_TOKEN")}'
+        })
+        if response.status_code == 401:
+            # Token expired, refresh it
+            new_token, _ = refresh_google_token()
+            # Retry the request with the new token
+            response = requests.get("https://www.googleapis.com/some_endpoint", headers={
+                'Authorization': f'Bearer {new_token}'
+            })
         return response.json()
-    except requests.RequestException as e:
-        return None
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+# Example usage
+data = make_google_api_request()
 
 
 def get_oauth2_authorization_url():
