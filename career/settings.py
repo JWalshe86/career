@@ -1,5 +1,6 @@
 import os
 import json
+from django.http import HttpResponse
 from pathlib import Path
 import logging
 from dotenv import load_dotenv
@@ -8,6 +9,9 @@ from dotenv import load_dotenv
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+def env_view(request):
+    return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {os.getenv('GOOGLE_CREDENTIALS_JSON')}")
+
 # Load environment variables
 load_dotenv()
 
@@ -15,20 +19,20 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 def get_google_credentials():
-    if 'DYNO' in os.environ:
-        google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
-        logger.debug("GOOGLE_CREDENTIALS_JSON from env: %s", google_credentials_json)
-        return json.loads(google_credentials_json)
-    else:
-        google_credentials_path = os.path.join(BASE_DIR, 'credentials.json')
-        logger.debug("Loading credentials from file: %s", google_credentials_path)
-        if os.path.isfile(google_credentials_path):
-            with open(google_credentials_path) as f:
-                return json.load(f)
-        else:
-            logger.error("Local credentials file not found at: %s", google_credentials_path)
-            raise FileNotFoundError(f"Local credentials file not found at: {google_credentials_path}")
+    # Check if the environment variable is set
+    google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
+    if not google_credentials_json:
+        logger.error("GOOGLE_CREDENTIALS_JSON environment variable not found.")
+        raise EnvironmentError("GOOGLE_CREDENTIALS_JSON environment variable not found.")
 
+    # Try to parse the JSON
+    try:
+        credentials = json.loads(google_credentials_json)
+        logger.debug("Successfully parsed GOOGLE_CREDENTIALS_JSON.")
+        return credentials
+    except json.JSONDecodeError as e:
+        logger.error("Error decoding GOOGLE_CREDENTIALS_JSON: %s", e)
+        raise
 # Load Google credentials
 GOOGLE_CREDENTIALS = get_google_credentials()
 
