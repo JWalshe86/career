@@ -3,7 +3,7 @@ import json
 import requests
 import logging
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from decouple import config, Csv
 from dotenv import load_dotenv
 from django.http import HttpResponse
@@ -38,6 +38,10 @@ GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='')
 SECRET_KEY = config('SECRET_KEY', default='default-secret-key')
 DATABASE_URL = config('DATABASE_URL', default='')
 GMAIL_TOKEN_JSON = config('GMAIL_TOKEN_JSON', default='')
+
+# Define Token URI and Client ID for token refresh
+TOKEN_URI = 'https://oauth2.googleapis.com/token'
+REFRESH_TOKEN = config('REFRESH_TOKEN', default='')
 
 # Log environment variable values (excluding sensitive information where necessary)
 logger.debug(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
@@ -88,20 +92,16 @@ def get_access_token():
     
     # Retrieve or refresh access token
     credentials = get_google_credentials()
-    refresh_token = credentials.get('refresh_token')
+    refresh_token = credentials.get('refresh_token', REFRESH_TOKEN)
     token_info = refresh_google_token(refresh_token)
     save_token_to_file(token_info)
     return token_info['access_token']
 
 # Refresh Google token when it expires
 def refresh_google_token(refresh_token):
-    client_id = config('GOOGLE_CLIENT_ID')
-    client_secret = config('GOOGLE_CLIENT_SECRET')
-    token_url = "https://oauth2.googleapis.com/token"
-    
-    response = requests.post(token_url, data={
-        'client_id': client_id,
-        'client_secret': client_secret,
+    response = requests.post(TOKEN_URI, data={
+        'client_id': GOOGLE_CLIENT_ID,
+        'client_secret': GOOGLE_CLIENT_SECRET,
         'refresh_token': refresh_token,
         'grant_type': 'refresh_token',
     })
