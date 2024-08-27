@@ -23,8 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Define ALLOWED_HOSTS based on environment using python-decouple
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,5b57-86-46-100-229.ngrok-free.app' if DEBUG else 'www.jwalshedev.ie', cast=Csv())
-
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    default='localhost,5b57-86-46-100-229.ngrok-free.app,johnsite-d251709cf12b.herokuapp.com' if DEBUG else 'www.jwalshedev.ie,johnsite-d251709cf12b.herokuapp.com',
+    cast=Csv()
+)
 # Define Google Redirect URI based on environment using python-decouple
 GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/jobs/oauth2callback/'
 
