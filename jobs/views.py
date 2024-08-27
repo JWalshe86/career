@@ -144,44 +144,35 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 def get_unread_emails():
     creds = None
+    google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
 
-    if 'DYNO' in os.environ:  # Heroku environment
-        google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
-        try:
-            google_credentials = json.loads(google_credentials_json)
-            if not google_credentials.get('web'):
-                logger.error("No credentials found in environment variables.")
-                return [], None
+    logger.debug("GOOGLE_CREDENTIALS_JSON: %s", google_credentials_json)  # Ensure JSON is logged
 
-            creds = Credentials.from_authorized_user_info(google_credentials, SCOPES)
-            logger.debug("Loaded credentials from environment variables.")
-        except json.JSONDecodeError as e:
-            logger.error("Error decoding JSON for Google credentials: %s", e)
+    try:
+        google_credentials = json.loads(google_credentials_json)
+        if not all(key in google_credentials for key in ('client_id', 'client_secret', 'refresh_token')):
+            logger.error("Credentials JSON missing required fields.")
             return [], None
-    else:  # Local environment
-        if os.path.exists('token.json'):
-            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-            logger.debug("Loaded credentials from token.json.")
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-            logger.debug("Obtained credentials from OAuth flow.")
 
-            with open('token.json', 'w') as token:
-                token.write(creds.to_json())
-            logger.info("Saved credentials to token.json.")
+        creds = Credentials.from_authorized_user_info(google_credentials, SCOPES)
+        logger.debug("Loaded credentials from environment variables.")
+    except json.JSONDecodeError as e:
+        logger.error("Error decoding JSON for Google credentials: %s", e)
+        return [], None
+    except ValueError as e:
+        logger.error("Error loading credentials: %s", e)
+        return [], None
+    except Exception as e:
+        logger.error("Unexpected error: %s", e)
+        return [], None
 
     if creds and creds.expired and creds.refresh_token:
         try:
             creds.refresh(Request())
-            if not 'DYNO' in os.environ:
-                with open('token.json', 'w') as token:
-                    token.write(creds.to_json())
-            logger.info("Credentials refreshed and saved.")
+            logger.info("Credentials refreshed.")
         except Exception as e:
             logger.error("Error refreshing credentials: %s", e)
-            auth_url = get_oauth2_authorization_url()
-            return [], auth_url
+            return [], None
 
     if not creds or not creds.valid:
         logger.debug("No valid credentials found. Redirecting to authorization URL.")
