@@ -148,29 +148,23 @@ def get_unread_emails():
     if 'DYNO' in os.environ:  # Heroku environment
         google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
         try:
-            google_credentials = json.loads(google_credentials_json)
-            if not google_credentials.get('web'):
-                logger.error("No credentials found in environment variables.")
-                return [], None
-
-            creds = Credentials.from_authorized_user_info(google_credentials, SCOPES)
-            logger.debug("Loaded credentials from environment variables.")
-        except json.JSONDecodeError as e:
-            logger.error("Error decoding JSON for Google credentials: %s", e)
-            return [], None
-    else:  # Local environment
-        if os.path.exists('token.json'):
-            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-            logger.debug("Loaded credentials from token.json.")
-        else:
+            # Save the JSON to a file to use with InstalledAppFlow
+            with open('credentials.json', 'w') as f:
+                f.write(google_credentials_json)
+            
             flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
             logger.debug("Obtained credentials from OAuth flow.")
-
+            
             with open('token.json', 'w') as token:
                 token.write(creds.to_json())
             logger.info("Saved credentials to token.json.")
-
+        except json.JSONDecodeError as e:
+            logger.error("Error decoding JSON for Google credentials: %s", e)
+            return [], None
+        except Exception as e:
+            logger.error("Unexpected error loading Google credentials: %s", e)
+            return [], None
     if creds and creds.expired and creds.refresh_token:
         try:
             creds.refresh(Request())
