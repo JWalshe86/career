@@ -28,6 +28,7 @@ ALLOWED_HOSTS = config(
     default='localhost,5b57-86-46-100-229.ngrok-free.app,johnsite-d251709cf12b.herokuapp.com' if DEBUG else 'www.jwalshedev.ie,johnsite-d251709cf12b.herokuapp.com',
     cast=Csv()
 )
+
 # Define Google Redirect URI based on environment using python-decouple
 GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/jobs/oauth2callback/'
 
@@ -57,7 +58,6 @@ logger.debug(f"GMAIL_TOKEN_JSON: {'REDACTED' if GMAIL_TOKEN_JSON else 'Not set'}
 # Define Token File Path
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
 
-
 # Define your redirect URIs based on the environment
 if os.environ.get('DJANGO_ENV') == 'production':
     GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/jobs/oauth2callback/'
@@ -72,8 +72,6 @@ credentials = os.getenv('GMAIL_TOKEN_JSON')
 if not credentials:
     print("DEBUG: No credentials found in environment variables.")
     # Your existing logging or error handling logic
-
-
 
 def get_google_credentials():
     if not GMAIL_TOKEN_JSON:
@@ -199,8 +197,13 @@ GOOGLE_CLIENT_ID = GOOGLE_CREDENTIALS.get('client_id')
 GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('client_secret')
 GOOGLE_API_KEY = config('GOOGLE_API_KEY', default="")
 
-logger.debug(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
-logger.debug(f"GOOGLE_CLIENT_SECRET: {'REDACTED' if GOOGLE_CLIENT_SECRET else 'Not set'}")
+# Debugging statements for diagnosing client_id issues
+logger.debug(f"GOOGLE_CLIENT_ID (from credentials): {GOOGLE_CLIENT_ID}")
+logger.debug(f"GOOGLE_CLIENT_SECRET (from credentials): {'REDACTED' if GOOGLE_CLIENT_SECRET else 'Not set'}")
+
+if not GOOGLE_CLIENT_ID:
+    logger.error("GOOGLE_CLIENT_ID is missing or not properly set.")
+    # Add more debugging information or raise an error if needed
 
 # Database configuration
 if HEROKU:
