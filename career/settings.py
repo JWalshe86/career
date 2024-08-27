@@ -1,16 +1,11 @@
-import os
 import json
 import requests
 import logging
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 from decouple import config, Csv
-from dotenv import load_dotenv
 from django.http import HttpResponse
 import dj_database_url
-
-# Load environment variables from .env file (for local development)
-load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -19,32 +14,31 @@ logger = logging.getLogger(__name__)
 # Define BASE_DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Retrieve DEBUG setting using python-decouple
+# Retrieve settings using python-decouple
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# Define ALLOWED_HOSTS based on environment using python-decouple
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
     default='localhost,5b57-86-46-100-229.ngrok-free.app,johnsite-d251709cf12b.herokuapp.com' if DEBUG else 'www.jwalshedev.ie,johnsite-d251709cf12b.herokuapp.com',
     cast=Csv()
 )
-# Define Google Redirect URI based on environment using python-decouple
-GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/jobs/oauth2callback/'
 
-# Security settings
+GOOGLE_REDIRECT_URI = config(
+    'GOOGLE_REDIRECT_URI',
+    default='http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/jobs/oauth2callback/'
+)
+
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
-# Retrieve environment variables using python-decouple
 GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
 GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
 GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='')
 SECRET_KEY = config('SECRET_KEY', default='default-secret-key')
 DATABASE_URL = config('DATABASE_URL', default='')
 GMAIL_TOKEN_JSON = config('GMAIL_TOKEN_JSON', default='')
-
-# Define Token URI
-TOKEN_URI = 'https://oauth2.googleapis.com/token'
 REFRESH_TOKEN = config('REFRESH_TOKEN', default='')
+
+TOKEN_URI = 'https://oauth2.googleapis.com/token'
 
 # Log environment variable values (excluding sensitive information where necessary)
 logger.debug(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
@@ -55,24 +49,7 @@ logger.debug(f"DATABASE_URL: {'REDACTED' if DATABASE_URL else 'Not set'}")
 logger.debug(f"GMAIL_TOKEN_JSON: {'REDACTED' if GMAIL_TOKEN_JSON else 'Not set'}")
 
 # Define Token File Path
-TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
-
-
-# Define your redirect URIs based on the environment
-if os.environ.get('DJANGO_ENV') == 'production':
-    GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/jobs/oauth2callback/'
-else:
-    GOOGLE_REDIRECT_URI = 'http://localhost:8000/jobs/oauth2callback/'
-
-# Ensure your OAuth2 flow uses this setting
-
-# Function to get Google credentials from environment variable
-print("DEBUG: All environment variables:", os.environ)
-credentials = os.getenv('GMAIL_TOKEN_JSON')
-if not credentials:
-    print("DEBUG: No credentials found in environment variables.")
-    # Your existing logging or error handling logic
-
+TOKEN_FILE_PATH = BASE_DIR / 'token.json'
 
 def get_google_credentials():
     if not GMAIL_TOKEN_JSON:
@@ -93,7 +70,7 @@ def save_token_to_file(token_info):
 
 # View to display token information
 def token_file_view(request):
-    if os.path.isfile(TOKEN_FILE_PATH):
+    if TOKEN_FILE_PATH.exists():
         with open(TOKEN_FILE_PATH) as f:
             token_info = json.load(f)
         return HttpResponse(f"Token info: {json.dumps(token_info, indent=2)}")
@@ -101,7 +78,7 @@ def token_file_view(request):
 
 # Retrieve or refresh access token
 def get_access_token():
-    if os.path.isfile(TOKEN_FILE_PATH):
+    if TOKEN_FILE_PATH.exists():
         with open(TOKEN_FILE_PATH) as f:
             token_info = json.load(f)
         if 'access_token' in token_info and 'expiry' in token_info:
@@ -178,56 +155,30 @@ def env_view(request):
     return HttpResponse(f"GMAIL_TOKEN_JSON: {google_credentials_json}")
 
 # Check if the app is running on Heroku
-HEROKU = 'DYNO' in os.environ
-
-if HEROKU:  # Heroku environment
-    logger.debug(f"GMAIL_TOKEN_JSON from environment: {config('GMAIL_TOKEN_JSON', default='')}")
-else:  # Local environment
-    GOOGLE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials.json')
-    if not os.path.isfile(GOOGLE_CREDENTIALS_PATH):
-        raise FileNotFoundError(f"File not found: {GOOGLE_CREDENTIALS_PATH}")
-    try:
-        with open(GOOGLE_CREDENTIALS_PATH) as f:
-            GOOGLE_CREDENTIALS = json.load(f)
-    except json.JSONDecodeError as e:
-        raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON from file") from e
-
-# Extract values
-GOOGLE_CREDENTIALS = get_google_credentials()
-GOOGLE_CLIENT_ID = GOOGLE_CREDENTIALS.get('client_id')
-GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('client_secret')
-GOOGLE_API_KEY = config('GOOGLE_API_KEY', default="")
-
-logger.debug(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
-logger.debug(f"GOOGLE_CLIENT_SECRET: {'REDACTED' if GOOGLE_CLIENT_SECRET else 'Not set'}")
+HEROKU = 'DYNO' in config('HEROKU', default='')
 
 # Database configuration
-if HEROKU:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=config('DATABASE_URL', default=''),
-            conn_max_age=600
-        )
+DATABASES = {
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL', default=''),
+        conn_max_age=600
+    ) if HEROKU else {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('MYSQL_DB_NAME', default='test_db'),
+        'USER': config('MYSQL_DB_USER', default='root'),
+        'PASSWORD': config('MYSQL_DB_PASSWORD', default='Sunshine7!'),
+        'HOST': config('MYSQL_DB_HOST', default='localhost'),
+        'PORT': config('MYSQL_DB_PORT', default='3306'),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': config('MYSQL_DB_NAME', default='test_db'),
-            'USER': config('MYSQL_DB_USER', default='root'),
-            'PASSWORD': config('MYSQL_DB_PASSWORD', default='Sunshine7!'),
-            'HOST': config('MYSQL_DB_HOST', default='localhost'),
-            'PORT': config('MYSQL_DB_PORT', default='3306'),
-        }
-    }
+}
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='https://www.jwalshedev.ie,https://johnsite.herokuapp.com,https://5b57-86-46-100-229.ngrok-free.app', cast=Csv())
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -287,7 +238,7 @@ INSTALLED_APPS = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
