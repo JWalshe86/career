@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 from decouple import config, Csv
 from django.http import HttpResponse
 import dj_database_url
+import os  # Required for checking environment variables
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -155,7 +156,7 @@ def env_view(request):
     return HttpResponse(f"GMAIL_TOKEN_JSON: {google_credentials_json}")
 
 # Check if the app is running on Heroku
-HEROKU = 'DYNO' in config('HEROKU', default='')
+HEROKU = 'DYNO' in os.environ
 
 # Database configuration
 DATABASES = {
