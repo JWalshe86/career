@@ -67,6 +67,14 @@ else:
 # Ensure your OAuth2 flow uses this setting
 
 # Function to get Google credentials from environment variable
+print("DEBUG: All environment variables:", os.environ)
+credentials = os.getenv('GMAIL_TOKEN_JSON')
+if not credentials:
+    print("DEBUG: No credentials found in environment variables.")
+    # Your existing logging or error handling logic
+
+
+
 def get_google_credentials():
     if not GMAIL_TOKEN_JSON:
         logger.error("GMAIL_TOKEN_JSON environment variable not found.")
