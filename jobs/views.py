@@ -367,8 +367,8 @@ def add_jobsearch(request):
                     logger.warning("User has already applied for this job on %s.", i.created_at.date())
                     return redirect(reverse('add_jobsearch'))
 
-                if len(count) >= 10:
-                    messages.warning(request, "You've reached the limit of 10 applications per day.")
+                if len(count) >= 4:
+                    messages.warning(request, "You've  5 applications today.")
                     logger.warning("User has reached the limit of 10 applications per day.")
                     return redirect(reverse('add_jobsearch'))
 
@@ -407,15 +407,31 @@ def edit_jobsearch(request, jobsearch_id):
         form = JobsearchForm(instance=jobsearch)
     return render(request, "jobs/edit_jobsearch.html", {'form': form, 'jobsearch': jobsearch})
 
+
+
+logger = logging.getLogger(__name__)
+
+@login_required
 def delete_jobsearch(request, jobsearch_id):
-    logger.debug("Handling delete jobsearch for ID: %s", jobsearch_id)
+    logger.debug("Handling delete jobsearch for ID: %s with method: %s", jobsearch_id, request.method)
+    
     jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
+    
     if request.method == "POST":
         jobsearch.delete()
         messages.success(request, "Job search deleted successfully!")
         logger.info("Job search deleted successfully for ID: %s", jobsearch_id)
         return redirect(reverse('jobs_searched'))
-    return render(request, "jobs/delete_jobsearch.html", {'jobsearch': jobsearch})
+    
+    # Optionally handle GET requests here if you want to display a confirmation page
+    # return render(request, "confirm_delete.html", {'jobsearch': jobsearch})
+
+    # For now, redirect on non-POST requests
+    messages.error(request, "Invalid request method.")
+    return redirect(reverse('jobs_searched'))
+
+
+
 
 def job_search_view(request):
     logger.debug("Rendering job search view.")
