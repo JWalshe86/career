@@ -339,6 +339,19 @@ def jobsearch_detail(request, jobsearch_id):
         context = {"jobsearch": jobsearch}
         return render(request, "jobs/jobsearch_detail.html", context)
 
+
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.utils import timezone
+import logging
+
+from .forms import JobsearchForm
+from .models import Jobsearch
+
+# Setup logger
+logger = logging.getLogger(__name__)
+
 @login_required
 def add_jobsearch(request):
     logger.debug("Handling add jobsearch.")
@@ -352,29 +365,27 @@ def add_jobsearch(request):
         form = JobsearchForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                jobs = Jobsearch.objects.all()
-                x = request.POST
-                today = date.today()
+                today = timezone.now().date()
+                jobsearch_data = form.cleaned_data
 
-                # Check if the user has already applied for this job today
-                count = [
-                    1 for i in jobs
-                    if i.city == x['city'] and i.name == x['name'] and i.role == x['role'] and i.created_at.date() == today
-                ]
-
-                if count:
-                    messages.warning(request, f"You've already applied for this job on {i.created_at.date()}!")
-                    logger.warning("User has already applied for this job on %s.", i.created_at.date())
-                    return redirect(reverse('add_jobsearch'))
-
-                if len(count) >= 4:
-                    messages.warning(request, "You've  5 applications today.")
-                    logger.warning("User has reached the limit of 10 applications per day.")
-                    return redirect(reverse('add_jobsearch'))
+                # Log form data for debugging
+                logger.debug(f"Form data: {jobsearch_data}")
 
                 # Save the job search form
                 form.save()
-                messages.success(request, "Job search added successfully!")
+
+                # Count the number of jobs applied for today
+                today_job_count = Jobsearch.objects.filter(created_at__date=today).count()
+
+                # Prepare the success message
+                success_message = f"Job search added successfully! You've applied for {today_job_count} jobs today."
+
+                # Check if the user has applied for 5 jobs today
+                if today_job_count == 5:
+                    success_message += " Congratulations! You've reached 5 job applications today."
+
+                # Display the success message
+                messages.success(request, success_message)
                 logger.info("Job search added successfully.")
                 return redirect(reverse('jobs_searched'))
 
@@ -384,6 +395,8 @@ def add_jobsearch(request):
                 return redirect(reverse('add_jobsearch'))
         else:
             logger.debug("Form is not valid.")
+            # Log form errors for debugging
+            logger.debug(f"Form errors: {form.errors}")
             # If the form is not valid, return to the same page with form errors
             return render(request, "jobs/add_jobsearch.html", {'form': form})
     else:
@@ -392,6 +405,7 @@ def add_jobsearch(request):
 
     # Render the form in case of non-POST requests
     return render(request, "jobs/add_jobsearch.html", {'form': form})
+
 
 def edit_jobsearch(request, jobsearch_id):
     logger.debug("Handling edit jobsearch for ID: %s", jobsearch_id)
