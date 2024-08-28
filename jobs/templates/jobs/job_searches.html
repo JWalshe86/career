@@ -13,7 +13,6 @@
     <div class="overlay"></div>
     <div class="container-fluid">
         <div class="row">
-
             <!-- Jobs Applied Today Section -->
             <div class="col-md-6">
                 <h2>Jobs Applied Today</h2>
@@ -88,63 +87,11 @@
                 {% endfor %}
             </div>
         </div>
-
-=======
-            <div class="col text-center mt-3">
-                <!-- Section for jobs applied today -->
-                <div class="container mt-3">
-                    <h2>Jobs Applied Today</h2>
-		{% if jobs_applied_today %}
-		    {% for job in jobs_applied_today %}
-			<div>{{ job.name }} - {{ job.status }}</div>
-		    {% endfor %}
-		{% else %}
-		    <div>No jobs applied for today.</div>
-		{% endif %}
-
-
-                <!-- Section for all job searches -->
-                <div class="container mt-3">
-                    <h2>All Job Searches</h2>
-<div class="row">
-    {% for data in jobs_searched %}
-        <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-3">
-            <div class="card h-100 border-dark d-flex flex-column" style="background-color: {{ data.background_color }};">
-                <div class="card-body d-flex flex-column p-4">
-                    <a href="{% url 'jobsearch_detail' data.id %}" class="text-decoration-none text-dark">
-                        <div class="card-title-container mb-3">
-                            <h5 class="card-title text-dark mb-0">{{ data.name }}</h5>
-                            {% if data.favourite %}
-                            <span class="ms-2" style="font-size: 2rem; color: black;">
-                                &#9733;  <!-- Unicode character for a filled star (★) -->
-                            </span>
-                            {% endif %}
-                        </div>
-                        <p class="card-text mb-2 text-dark"><strong>Role:</strong> {{ data.role }}</p>
-                        <p class="card-text mb-2 text-dark"><strong>Date Applied:</strong> {{ data.created_at|date:'Y-m-d' }}</p>
-                        <p class="card-text mb-2 text-dark"><strong>Status:</strong> {{ data.status }}</p>
-                        <p class="card-text mb-2 text-dark"><strong>Color:</strong> {{ data.background_color }}</p>
-                    </a>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
-</div>
-
-                </div>
-            </div>
-        </div>
-        <ul>
-            {% for job in jobs_searched %}
-            <li class='d-none' data-dateapplied="{{ job.created_at|date:'Y-m-d' }}">{{ job }}</li>
-            {% endfor %}
-        </ul>
     </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-
     /* Ensure task items are aligned horizontally */
     .task-item {
         display: flex;
@@ -195,6 +142,7 @@
             flex-direction: column;
             text-align: center;
         }
+    }
 
     /* Title container for consistency across both sections */
     .card-title-container {
@@ -216,7 +164,6 @@
     /* Ensure card content has consistent spacing */
     .card-body {
         flex-grow: 1;
-
     }
 </style>
 {% endblock %}
