@@ -262,6 +262,7 @@ def jobs_dashboard_basic(request):
     
     return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations})
 
+@login_required
 def jobs_searched(request):
     logger.debug("Rendering jobs searched dashboard.")
     if request.user.is_superuser:
@@ -338,16 +339,28 @@ def jobsearch_detail(request, jobsearch_id):
         context = {"jobsearch": jobsearch}
         return render(request, "jobs/jobsearch_detail.html", context)
 
+@login_required
 def add_jobsearch(request):
     logger.debug("Handling add jobsearch.")
-    if request.user.is_superuser:
-        if request.method == "POST":
-            form = JobsearchForm(request.POST, request.FILES)
-            if form.is_valid():
+
+    # Ensure the user is a superuser, otherwise, redirect them
+    if not request.user.is_superuser:
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect(reverse('jobs_searched'))
+
+    if request.method == "POST":
+        form = JobsearchForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
                 jobs = Jobsearch.objects.all()
                 x = request.POST
                 today = date.today()
-                count = [1 for i in jobs if i.city == x['city'] and i.name == x['name'] and i.role == x['role'] and i.created_at.date() == today]
+
+                # Check if the user has already applied for this job today
+                count = [
+                    1 for i in jobs
+                    if i.city == x['city'] and i.name == x['name'] and i.role == x['role'] and i.created_at.date() == today
+                ]
 
                 if count:
                     messages.warning(request, f"You've already applied for this job on {i.created_at.date()}!")
@@ -359,13 +372,26 @@ def add_jobsearch(request):
                     logger.warning("User has reached the limit of 10 applications per day.")
                     return redirect(reverse('add_jobsearch'))
 
+                # Save the job search form
                 form.save()
                 messages.success(request, "Job search added successfully!")
                 logger.info("Job search added successfully.")
                 return redirect(reverse('jobs_searched'))
+
+            except Exception as e:
+                logger.error(f"An error occurred while adding job search: {str(e)}")
+                messages.error(request, "An error occurred while processing your request.")
+                return redirect(reverse('add_jobsearch'))
         else:
-            form = JobsearchForm()
-        return render(request, "jobs/add_jobsearch.html", {'form': form})
+            logger.debug("Form is not valid.")
+            # If the form is not valid, return to the same page with form errors
+            return render(request, "jobs/add_jobsearch.html", {'form': form})
+    else:
+        # If not a POST request, just render the empty form
+        form = JobsearchForm()
+
+    # Render the form in case of non-POST requests
+    return render(request, "jobs/add_jobsearch.html", {'form': form})
 
 def edit_jobsearch(request, jobsearch_id):
     logger.debug("Handling edit jobsearch for ID: %s", jobsearch_id)
