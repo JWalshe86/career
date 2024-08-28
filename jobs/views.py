@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.conf import settings
 from datetime import date, timedelta
 import requests
@@ -20,6 +21,7 @@ from tasks.models import Task
 from .models import Jobsearch
 from .forms import JobsearchForm
 from tasks.forms import TaskForm
+
 
 
 def show_env_var(request):
@@ -262,9 +264,23 @@ def jobs_dashboard_basic(request):
     
     return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations})
 
+
+def jobsearch_detail(request, jobsearch_id):
+    logger.debug("Rendering job search detail for ID: %s", jobsearch_id)
+    if request.user.is_superuser:
+        jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
+        context = {"jobsearch": jobsearch}
+        return render(request, "jobs/jobsearch_detail.html", context)
+
+
+# Setup logger
+logger = logging.getLogger(__name__)
+
+
 @login_required
 def jobs_searched(request):
     logger.debug("Rendering jobs searched dashboard.")
+
     if request.user.is_superuser:
         today = timezone.now().date()
         tasks = Task.objects.all()
@@ -312,6 +328,7 @@ def jobs_searched(request):
 
         jobs = jobs.order_by(*priority_mapping.values())
 
+        # Set background color based on status
         for job in jobs:
             job.background_color = {
                 "pending<wk": 'yellow',
@@ -331,26 +348,12 @@ def jobs_searched(request):
         }
         logger.debug("Context for jobs_searched rendering: %s", context)
         return render(request, "jobs/job_searches.html", context)
-
-def jobsearch_detail(request, jobsearch_id):
-    logger.debug("Rendering job search detail for ID: %s", jobsearch_id)
-    if request.user.is_superuser:
-        jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
-        context = {"jobsearch": jobsearch}
-        return render(request, "jobs/jobsearch_detail.html", context)
+    else:
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect(reverse('jobs_dashboard_basic'))
 
 
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.utils import timezone
-import logging
 
-from .forms import JobsearchForm
-from .models import Jobsearch
-
-# Setup logger
-logger = logging.getLogger(__name__)
 
 @login_required
 def add_jobsearch(request):
