@@ -46,6 +46,10 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#contact">Contact</a>
                 </li>
+	        <li class="nav-item">
+                    <a class="nav-link" href="{% url 'jobs_dashboard_with_emails' %}">JobDashboard</a>
+                </li>
+	
                 <li class="nav-item">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
@@ -75,22 +79,6 @@
 
         <!-- HOME -->
         <section id="home" class="full-height px-lg-5">
-        
-         <!-- Login prompt -->
-{% block content %}
-    {% if user.is_authenticated %}
-        Hi {{ user.username }}!
-        <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit">Log Out</button>
-        </form>
-    {% else %}
-        <p>You are not logged in</p>
-        <a href="{% url 'login' %}">Log In</a>
-    {% endif %}
-{% endblock %}
-<!-- End login prompt -->
-
  
          <div class="container">	
                 <div class="row">
