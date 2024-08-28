@@ -19,42 +19,55 @@
 <body data-bs-spy="scroll" data-bs-target=".navbar">
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container flex-lg-column">
-            <a class="navbar-brand mx-lg-auto mb-lg-4" href="#">
-                <span class="h3 fw-bold d-block d-lg-none">John Walshe</span>
-		<img src="{% static 'images/johnwalshesmall-modified.jpg' %}" class="d-none d-lg-block rounded-circle" alt="">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto flex-lg-column text-lg-center">
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#home">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#work">Work</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#about">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#blog">Activity</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#contact">Contact</a>
-                    </li>
-                    <li class="nav-item">
-			    <a class="nav-link" href="{% url 'jobs_dashboard_with_emails' %}">JobDashboard</a>
-                    </li>
-
-                </ul>
-            </div>
+     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container flex-lg-column">
+        <a class="navbar-brand mx-lg-auto mb-lg-4" href="#">
+            <span class="h3 fw-bold d-block d-lg-none">John Walshe</span>
+            <img src="{% static 'images/johnwalshesmall-modified.jpg' %}" class="d-none d-lg-block rounded-circle" alt="">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto flex-lg-column text-lg-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="#home">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#work">Work</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#about">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#blog">Activity</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact">Contact</a>
+                </li>
+                <li class="nav-item">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <span class="navbar-text">Hi {{ user.username }}!</span>
+                        </li>
+                        <li class="nav-item">
+                            <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Log Out</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                        </li>
+                    {% endif %}
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
+
     <!-- //NAVBAR -->
 
     <!-- CONTENT WRAPPER -->
@@ -62,22 +75,23 @@
 
         <!-- HOME -->
         <section id="home" class="full-height px-lg-5">
-        <!-- Login prompt -->
-            {% block content %}
-	{# if user.is_authenticated #}
-	Hi {# user.username #}!
-	<form action="{% url 'logout' %}" method="post">
-	  {% csrf_token %}
-	  <button type="submit">Log Out</button>
-	</form>
-	{# else #}
-	<p>You are not logged in</p>
-	<a href="{% url 'login' %}">Log In</a>
-	{# endif #}
-	{% endblock %}
-		<!-- End login prompt -->
+        
+         <!-- Login prompt -->
+{% block content %}
+    {% if user.is_authenticated %}
+        Hi {{ user.username }}!
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Log Out</button>
+        </form>
+    {% else %}
+        <p>You are not logged in</p>
+        <a href="{% url 'login' %}">Log In</a>
+    {% endif %}
+{% endblock %}
+<!-- End login prompt -->
 
-
+ 
          <div class="container">	
                 <div class="row">
                     <div class="col-lg-10">
