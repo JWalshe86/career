@@ -12,6 +12,10 @@ import dj_database_url
 # Load environment variables from .env file (for local development)
 load_dotenv()
 
+# In settings.py
+import os
+print("DJANGO_SETTINGS_MODULE:", os.getenv('DJANGO_SETTINGS_MODULE'))
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -234,6 +238,4 @@ LOGGING = {
 # URLs configuration
 ROOT_URLCONF = 'career.urls'
 
-# WSGI configuration
-WSGI_APPLICATION
 
