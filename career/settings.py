@@ -1,12 +1,10 @@
 import os
 import json
-import requests
 import logging
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 from decouple import config, Csv
 from dotenv import load_dotenv
-from django.http import HttpResponse
 import dj_database_url
 
 # Load environment variables from .env file (for local development)
@@ -22,16 +20,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Retrieve DEBUG setting using python-decouple
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# Define ALLOWED_HOSTS based on environment using python-decouple
+# Define ALLOWED_HOSTS based on environment
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,5b57-86-46-100-229.ngrok-free.app' if DEBUG else 'www.jwalshedev.ie', cast=Csv())
 
-# Define Google Redirect URI based on environment using python-decouple
+# Define Google Redirect URI based on environment
 GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/jobs/oauth2callback/'
 
 # Security settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
-# Retrieve environment variables using python-decouple
+# Retrieve environment variables
 GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
 GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
 GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='')
@@ -51,10 +49,7 @@ logger.debug(f"GMAIL_TOKEN_JSON: {'REDACTED' if GMAIL_TOKEN_JSON else 'Not set'}
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
 
 # Define your redirect URIs based on the environment
-if os.environ.get('DJANGO_ENV') == 'production':
-    GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/jobs/oauth2callback/'
-else:
-    GOOGLE_REDIRECT_URI = 'http://localhost:8000/jobs/oauth2callback/'
+GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/jobs/oauth2callback/' if os.environ.get('DJANGO_ENV') == 'production' else 'http://localhost:8000/jobs/oauth2callback/'
 
 # Function to get Google credentials from environment variable
 def get_google_credentials():
@@ -92,15 +87,13 @@ def get_access_token():
             if datetime.now(timezone.utc) < expiry:
                 return token_info['access_token']
     
-    # Retrieve or refresh access token
     credentials = get_google_credentials()
-    refresh_token = credentials.get('refresh_token', REFRESH_TOKEN)
+    refresh_token = credentials.get('refresh_token')
     if not refresh_token:
         logger.error("Refresh token is missing.")
         raise ValueError("Refresh token is missing.")
 
     token_info = refresh_google_token(refresh_token)
-    # Add expiry time to the token info
     token_info['expiry'] = (datetime.now(timezone.utc) + timedelta(seconds=token_info['expires_in'])).isoformat()
     save_token_to_file(token_info)
     return token_info['access_token']
@@ -118,7 +111,7 @@ def refresh_google_token(refresh_token):
         return response.json()
     else:
         logger.error(f"Failed to refresh token: {response.content.decode('utf-8')}")
-        response.raise_for_status()  # Raises HTTPError for bad responses
+        response.raise_for_status()
 
 # Make an API request to Google services using the access token
 def make_google_api_request(url, token):
@@ -132,7 +125,6 @@ def make_google_api_request(url, token):
         return response.json()
     except requests.HTTPError as http_err:
         if http_err.response.status_code == 401:
-            # Token might be expired, attempt to refresh and retry
             logger.info("Access token expired, refreshing token...")
             token = get_access_token()
             headers['Authorization'] = f'Bearer {token}'
