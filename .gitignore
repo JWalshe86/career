@@ -15,7 +15,5 @@ credentials.json
 token.json
 *migrations
 None
-static/images/
-staticfiles
 token.json
 .env
