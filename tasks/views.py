@@ -1,59 +1,68 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseBadRequest
+from django.http import JsonResponse
+from .models import Task
+from .forms import TaskForm
 
-from .models import *
-from .forms import *
-
-def index(request):
-
+def task_list(request):
     tasks = Task.objects.all()
-    
     form = TaskForm()
 
     if request.method == 'POST':
         form = TaskForm(request.POST)
         if form.is_valid():
             form.save()
-        return redirect('/tasks/')
+            return redirect('/tasks/')
+    
     context = {'tasks': tasks, 'form': form}
     return render(request, 'tasks/list.html', context)
 
 
-def updateTask(request, pk):
-    task = get_object_or_404(Task, id=pk)
-
+def create_task(request):
     if request.method == 'POST':
-        # Updating the task based on the POST data
-        task.complete = 'complete' in request.POST  # Update based on checkbox
-        task.title = request.POST.get('title', task.title)  # Preserve the title if unchanged
-        task.save()
-        return redirect('/tasks')  # Redirect to the task list or any other desired page
+        title = request.POST.get('title')
+        complete = request.POST.get('complete') == 'True'
+        task = Task.objects.create(title=title, complete=complete)
+        
+        response_data = {
+            'success': True,
+            'task': {
+                'id': task.id,
+                'title': task.title,
+                'complete': task.complete
+            }
+        }
+        print(f"Task ID: {task.id}")        
+        return JsonResponse(response_data)
+    
+    return JsonResponse({'success': False, 'errors': 'Invalid request'}, status=400)
 
+
+def update_task(request, pk):
+    task = get_object_or_404(Task, pk=pk)  # Fetch the task by primary key
+    if request.method == 'POST':
+        form = TaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            return redirect('tasks:list')  # Redirect to a page after saving
     else:
-        # Pre-fill the form with the existing task data for GET requests
         form = TaskForm(instance=task)
+    
+    return render(request, 'tasks/update_task.html', {'form': form, 'task': task})
 
-    context = {'form': form, 'task': task}
-    return render(request, 'tasks/update_task.html', context)
 
-def deleteTask(request, pk):
+def delete_task(request, pk):
     item = get_object_or_404(Task, id=pk)
     
     if request.method == 'POST':
         item.delete()
         return redirect('/tasks')  # Redirect to home or any other page you want after deletion
     
-    # Handle GET request or other methods
     context = {'item': item}
     return render(request, 'tasks/delete.html', context)    
 
-
-
-
-
-
-
-
-
-
+def toggle_task_complete(request, task_id):
+    task = get_object_or_404(Task, id=task_id)
+    task.complete = not task.complete
+    task.save()
+    return redirect('tasks:list')  # Redirect to the tasks dashboard or another appropriate page
 

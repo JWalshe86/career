@@ -236,8 +236,7 @@ def get_unread_emails():
 
 def jobs_dashboard_with_emails(request):
     logger.debug("Rendering jobs dashboard with emails.")
-    logger.debug("Request: %s", request)
-  
+    
     email_subjects, auth_url = get_unread_emails()
     if auth_url:
         logger.debug("Redirecting to authorization URL: %s", auth_url)
@@ -245,11 +244,20 @@ def jobs_dashboard_with_emails(request):
 
     unread_email_count = len(email_subjects) if email_subjects else 0
 
+    # Fetch tasks and add them to the context
+    tasks = Task.objects.all()
+
+    # Debugging output
+    for task in tasks:
+        logger.debug(f"Task ID: {task.id}, Title: {task.title}")
+
+    locations = [{'lat': float(a.lat), 'lng': float(a.lng), 'name': a.name} for a in Jobsearch.objects.filter(place_id__isnull=False)]
     context = {
         'key': settings.GOOGLE_API_KEY,
-        'locations': [{'lat': float(a.lat), 'lng': float(a.lng), 'name': a.name} for a in Jobsearch.objects.filter(place_id__isnull=False)],
+        'locations': locations,
         'email_subjects': email_subjects,
         'unread_email_count': unread_email_count,
+        'tasks': tasks,  # Add tasks to the context
     }
     logger.debug("Context for rendering: %s", context)
     return render(request, "jobs/jobs_dashboard.html", context)
