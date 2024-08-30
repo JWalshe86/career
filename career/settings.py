@@ -23,7 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Define ALLOWED_HOSTS based on environment using python-decouple
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,5b57-86-46-100-229.ngrok-free.app' if DEBUG else 'www.jwalshedev.ie', cast=Csv())
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS', 
+    default='localhost,5b57-86-46-100-229.ngrok-free.app' if DEBUG else 'www.jwalshedev.ie', 
+    cast=Csv()
+)
 
 # Define Google Redirect URI based on environment using python-decouple
 GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/jobs/oauth2callback/'
@@ -48,13 +52,7 @@ logger.debug(f"DATABASE_URL: {'REDACTED' if DATABASE_URL else 'Not set'}")
 logger.debug(f"GMAIL_TOKEN_JSON: {'REDACTED' if GMAIL_TOKEN_JSON else 'Not set'}")
 
 # Define Token File Path
-TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
-
-# Define your redirect URIs based on the environment
-if os.environ.get('DJANGO_ENV') == 'production':
-    GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/jobs/oauth2callback/'
-else:
-    GOOGLE_REDIRECT_URI = 'http://localhost:8000/jobs/oauth2callback/'
+TOKEN_FILE_PATH = BASE_DIR / 'token.json'
 
 # Function to get Google credentials from environment variable
 def get_google_credentials():
@@ -76,7 +74,7 @@ def save_token_to_file(token_info):
 
 # View to display token information
 def token_file_view(request):
-    if os.path.isfile(TOKEN_FILE_PATH):
+    if TOKEN_FILE_PATH.is_file():
         with open(TOKEN_FILE_PATH) as f:
             token_info = json.load(f)
         return HttpResponse(f"Token info: {json.dumps(token_info, indent=2)}")
@@ -84,7 +82,7 @@ def token_file_view(request):
 
 # Retrieve or refresh access token
 def get_access_token():
-    if os.path.isfile(TOKEN_FILE_PATH):
+    if TOKEN_FILE_PATH.is_file():
         with open(TOKEN_FILE_PATH) as f:
             token_info = json.load(f)
         if 'access_token' in token_info and 'expiry' in token_info:
@@ -92,33 +90,34 @@ def get_access_token():
             if datetime.now(timezone.utc) < expiry:
                 return token_info['access_token']
     
-    # Retrieve or refresh access token
     credentials = get_google_credentials()
-    refresh_token = credentials.get('refresh_token', REFRESH_TOKEN)
+    refresh_token = credentials.get('refresh_token')
     if not refresh_token:
         logger.error("Refresh token is missing.")
         raise ValueError("Refresh token is missing.")
 
     token_info = refresh_google_token(refresh_token)
-    # Add expiry time to the token info
     token_info['expiry'] = (datetime.now(timezone.utc) + timedelta(seconds=token_info['expires_in'])).isoformat()
     save_token_to_file(token_info)
     return token_info['access_token']
 
 # Refresh Google token when it expires
 def refresh_google_token(refresh_token):
-    response = requests.post(TOKEN_URI, data={
-        'client_id': GOOGLE_CLIENT_ID,
-        'client_secret': GOOGLE_CLIENT_SECRET,
-        'refresh_token': refresh_token,
-        'grant_type': 'refresh_token',
-    })
+    response = requests.post(
+        'https://oauth2.googleapis.com/token',  # TOKEN_URI should be defined or hardcoded
+        data={
+            'client_id': GOOGLE_CLIENT_ID,
+            'client_secret': GOOGLE_CLIENT_SECRET,
+            'refresh_token': refresh_token,
+            'grant_type': 'refresh_token',
+        }
+    )
     
     if response.status_code == 200:
         return response.json()
     else:
         logger.error(f"Failed to refresh token: {response.content.decode('utf-8')}")
-        response.raise_for_status()  # Raises HTTPError for bad responses
+        response.raise_for_status()
 
 # Make an API request to Google services using the access token
 def make_google_api_request(url, token):
@@ -132,7 +131,6 @@ def make_google_api_request(url, token):
         return response.json()
     except requests.HTTPError as http_err:
         if http_err.response.status_code == 401:
-            # Token might be expired, attempt to refresh and retry
             logger.info("Access token expired, refreshing token...")
             token = get_access_token()
             headers['Authorization'] = f'Bearer {token}'
@@ -166,8 +164,8 @@ HEROKU = 'DYNO' in os.environ
 if HEROKU:  # Heroku environment
     logger.debug(f"GMAIL_TOKEN_JSON from environment: {config('GMAIL_TOKEN_JSON', default='')}")
 else:  # Local environment
-    GOOGLE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials.json')
-    if not os.path.isfile(GOOGLE_CREDENTIALS_PATH):
+    GOOGLE_CREDENTIALS_PATH = BASE_DIR / 'credentials.json'
+    if not GOOGLE_CREDENTIALS_PATH.is_file():
         raise FileNotFoundError(f"File not found: {GOOGLE_CREDENTIALS_PATH}")
     try:
         with open(GOOGLE_CREDENTIALS_PATH) as f:
@@ -175,7 +173,7 @@ else:  # Local environment
     except json.JSONDecodeError as e:
         raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON from file") from e
 
-# Extract values
+# Extract values from credentials or environment
 GOOGLE_CREDENTIALS = get_google_credentials()
 GOOGLE_CLIENT_ID = GOOGLE_CREDENTIALS.get('client_id')
 GOOGLE_CLIENT_SECRET = GOOGLE_CREDENTIALS.get('client_secret')
@@ -205,12 +203,16 @@ else:
     }
 
 # CSRF trusted origins
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='https://www.jwalshedev.ie,https://johnsite.herokuapp.com,https://5b57-86-46-100-229.ngrok-free.app', cast=Csv())
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS', 
+    default='https://www.jwalshedev.ie,https://johnsite.herokuapp.com,https://5b57-86-46-100-229.ngrok-free.app', 
+    cast=Csv()
+)
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Logging configuration
@@ -233,63 +235,5 @@ LOGGING = {
 ROOT_URLCONF = 'career.urls'
 
 # WSGI configuration
-WSGI_APPLICATION = 'career.wsgi.application'
-
-# Middleware
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-# Installed apps
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_extensions',
-    'crispy_forms',
-    'crispy_bootstrap5',
-    'decouple',
-    'tasks',
-    'jobs',
-    'map',
-    'users',
-]
-
-# Templates
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'jobs.context_processors.unread_email_count',  # Ensure this path is correct
-            ],
-        },
-    },
-]
-
-# Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_L10N = True
-USE_TZ = True
-
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+WSGI_APPLICATION
 
