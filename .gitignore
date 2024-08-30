@@ -1,4 +1,9 @@
 core.Microsoft*
+.venv/
+credentials.json
+codewars/
+token.json
+.env
 core.mongo*
 core.python*
 env.py
