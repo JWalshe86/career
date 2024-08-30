@@ -39,10 +39,6 @@ SECRET_KEY = config('SECRET_KEY', default='default-secret-key')
 DATABASE_URL = config('DATABASE_URL', default='')
 GMAIL_TOKEN_JSON = config('GMAIL_TOKEN_JSON', default='')
 
-# Define Token URI
-TOKEN_URI = 'https://oauth2.googleapis.com/token'
-REFRESH_TOKEN = config('REFRESH_TOKEN', default='')
-
 # Log environment variable values (excluding sensitive information where necessary)
 logger.debug(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
 logger.debug(f"GOOGLE_CLIENT_SECRET: {'REDACTED' if GOOGLE_CLIENT_SECRET else 'Not set'}")
@@ -54,14 +50,11 @@ logger.debug(f"GMAIL_TOKEN_JSON: {'REDACTED' if GMAIL_TOKEN_JSON else 'Not set'}
 # Define Token File Path
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
 
-
 # Define your redirect URIs based on the environment
 if os.environ.get('DJANGO_ENV') == 'production':
     GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/jobs/oauth2callback/'
 else:
     GOOGLE_REDIRECT_URI = 'http://localhost:8000/jobs/oauth2callback/'
-
-# Ensure your OAuth2 flow uses this setting
 
 # Function to get Google credentials from environment variable
 def get_google_credentials():
@@ -219,8 +212,6 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Logging configuration
 LOGGING = {
