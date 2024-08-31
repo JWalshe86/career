@@ -5,7 +5,8 @@ from .views import (
     jobs_dashboard_basic,  # This view is imported but not used in urlpatterns
     job_search_view, 
     oauth2callback,  # Import the OAuth2 callback view
-    show_env_var
+    show_env_var,
+    error_view,
 )
 
 from . import views  # Import all views from the current app
@@ -22,5 +23,6 @@ urlpatterns = [
     path("delete/<int:jobsearch_id>/", views.delete_jobsearch, name="delete_jobsearch"),  # Delete job search view
     path("job-search/", job_search_view, name="job_search_view"),  # Job search view
     path("oauth2callback/", oauth2callback, name="oauth2callback"),  # OAuth2 callback view
+    path("error/", error_view, name="error_view"),  # OAuth2 callback view
 ]
 

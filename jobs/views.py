@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.conf import settings
@@ -12,6 +12,7 @@ import os
 import json
 import logging
 from google.auth.transport.requests import Request
+from google.auth.exceptions import GoogleAuthError
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -27,6 +28,10 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 # Setup logger
 logger = logging.getLogger(__name__)
+
+
+def error_view(request):
+    return render(request, 'error.html')
 
 def show_env_var(request):
     google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
@@ -67,6 +72,8 @@ def get_oauth2_authorization_url():
         logger.error(f"Error generating authorization URL: {e}")
         raise
 
+
+
 def oauth2callback(request):
     logger.debug("Handling OAuth2 callback.")
     try:
@@ -74,24 +81,61 @@ def oauth2callback(request):
             settings.GOOGLE_CREDENTIALS_PATH,
             SCOPES
         )
-        flow.redirect_uri = settings.GOOGLE_REDIRECT_URI
-        authorization_response = request.build_absolute_uri()
-        
-        if not authorization_response:
-            raise RuntimeError("Authorization response not received.")
-        
+        flow.redirect_uri = 'http://localhost:8000/'  # Fixed port
+        authorization_response = request.get_full_path()
+        logger.info(f"Authorization response URL: {authorization_response}")
+
         flow.fetch_token(authorization_response=authorization_response)
         creds = flow.credentials
+        
         with open(settings.TOKEN_FILE_PATH, "w") as token_file:
             token_file.write(creds.to_json())
+        
         logger.info(f"Token saved to {settings.TOKEN_FILE_PATH}")
         return redirect(reverse('jobs_dashboard_with_emails'))
-    except Exception as e:
-        logger.error(f"Error in OAuth callback: {e}")
-        return redirect(reverse('jobs_dashboard_with_emails'))
+    except GoogleAuthError as e:
+        if 'redirect_uri_mismatch' in str(e):
+            error_message = (
+                "It looks like there is a mismatch between the redirect URI in your "
+                "application and the one registered in the Google Cloud Console. "
+                "Please ensure that the redirect URI specified in your code matches the one "
+                "you have registered in your Google Cloud project."
+            )
+        else:
+            error_message = f"An error occurred: {e}"
+        
+        logger.error(f"Error in OAuth callback: {error_message}")
+        return redirect(reverse('error_view'))  # Redirect to the error page
+
+
+
+def refresh_google_token():
+    # Implement token refresh logic
+    creds = None
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+        if creds and creds.refresh_token:
+            try:
+                creds.refresh(Request())
+                with open('token.json', 'w') as token_file:
+                    token_file.write(creds.to_json())
+                logger.info("Refreshed and saved credentials.")
+                return creds.token, None
+            except Exception as e:
+                logger.error(f"Error refreshing token: {e}")
+                auth_url = get_oauth2_authorization_url()
+                return None, auth_url
+        else:
+            auth_url = get_oauth2_authorization_url()
+            return None, auth_url
+    else:
+        auth_url = get_oauth2_authorization_url()
+        return None, auth_url
+
 
 def get_unread_emails():
     creds = None
+    auth_url = None
 
     if 'DYNO' in os.environ:  # Heroku environment
         google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
@@ -146,7 +190,7 @@ def get_unread_emails():
             query += f" -from:{sender}"
         results = service.users().messages().list(userId="me", q=query).execute()
         messages = results.get('messages', [])
-        
+
         unread_emails = []
         for message in messages:
             msg = service.users().messages().get(userId="me", id=message['id']).execute()
@@ -159,7 +203,7 @@ def get_unread_emails():
                 'highlight': 'highlight' if 'unfortunately' in snippet.lower() else ''
             }
             unread_emails.append(email_data)
-        
+
         logger.info(f"Processed unread emails: {unread_emails}")
         return unread_emails, None
     except HttpError as error:
@@ -172,7 +216,7 @@ def get_unread_emails():
 @login_required
 def jobs_dashboard_with_emails(request):
     logger.debug("Rendering jobs dashboard with emails.")
-    
+
     email_subjects, auth_url = get_unread_emails()
     if auth_url:
         logger.debug(f"Redirecting to authorization URL: {auth_url}")
@@ -180,7 +224,7 @@ def jobs_dashboard_with_emails(request):
 
     unread_email_count = len(email_subjects) if email_subjects else 0
     tasks = Task.objects.all()
-    
+
     # Debugging output
     for task in tasks:
         logger.debug(f"Task ID: {task.id}, Title: {task.title}")
@@ -202,7 +246,7 @@ def jobs_dashboard_basic(request):
     key = settings.GOOGLE_API_KEY
     eligible_locations = Jobsearch.objects.filter(place_id__isnull=False)
     locations = [{'lat': float(a.lat), 'lng': float(a.lng), 'name': a.name} for a in eligible_locations]
-    
+
     return render(request, "jobs/jobs_dashboard.html", context={'key': key, 'locations': locations})
 
 @login_required
@@ -259,7 +303,6 @@ def jobs_searched(request):
 
         return render(request, "jobs/jobs_searched.html", context)
 
-
 @login_required
 def add_jobsearch(request):
     logger.debug("Handling add jobsearch.")
@@ -314,7 +357,6 @@ def add_jobsearch(request):
     # Render the form in case of non-POST requests
     return render(request, "jobs/add_jobsearch.html", {'form': form})
 
-
 def edit_jobsearch(request, jobsearch_id):
     logger.debug("Handling edit jobsearch for ID: %s", jobsearch_id)
     jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
@@ -329,17 +371,10 @@ def edit_jobsearch(request, jobsearch_id):
         form = JobsearchForm(instance=jobsearch)
     return render(request, "jobs/edit_jobsearch.html", {'form': form, 'jobsearch': jobsearch})
 
-
-
-logger = logging.getLogger(__name__)
-
-
-
-
 @login_required
 def delete_jobsearch(request, jobsearch_id):
     logger.debug(f"Attempting to delete job search with ID: {jobsearch_id}")
-    
+
     if request.method == 'POST':
         jobsearch = get_object_or_404(Jobsearch, pk=jobsearch_id)
         jobsearch.delete()
@@ -348,7 +383,6 @@ def delete_jobsearch(request, jobsearch_id):
     else:
         messages.error(request, _("Invalid request method."))
         return redirect(reverse('jobs_dashboard_with_emails'))
-
 
 def job_search_view(request):
     logger.debug("Rendering job search view.")
@@ -377,3 +411,4 @@ def favs_display(request):
     else:
         logger.debug("User is not authenticated, redirecting to login.")
         return redirect(reverse('login'))
+

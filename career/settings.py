@@ -24,7 +24,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,5b57-86-46-100-229.ngrok-free.app' if DEBUG else 'www.jwalshedev.ie', cast=Csv())
 
 # Define Google Redirect URI based on environment
-GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/jobs/oauth2callback/'
+GOOGLE_REDIRECT_URI = 'http://localhost:8000/jobs/oauth2callback/' if DEBUG else 'https://www.jwalshedev.ie/jobs/oauth2callback/'
 
 # Security settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
@@ -48,8 +48,6 @@ logger.debug(f"GMAIL_TOKEN_JSON: {'REDACTED' if GMAIL_TOKEN_JSON else 'Not set'}
 # Define Token File Path
 TOKEN_FILE_PATH = os.path.join(BASE_DIR, 'token.json')
 
-# Define your redirect URIs based on the environment
-GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/jobs/oauth2callback/' if os.environ.get('DJANGO_ENV') == 'production' else 'http://localhost:8000/jobs/oauth2callback/'
 
 # Function to get Google credentials from environment variable
 def get_google_credentials():
@@ -98,20 +96,32 @@ def get_access_token():
     save_token_to_file(token_info)
     return token_info['access_token']
 
-# Refresh Google token when it expires
-def refresh_google_token(refresh_token):
-    response = requests.post(TOKEN_URI, data={
-        'client_id': GOOGLE_CLIENT_ID,
-        'client_secret': GOOGLE_CLIENT_SECRET,
-        'refresh_token': refresh_token,
-        'grant_type': 'refresh_token',
-    })
-    
-    if response.status_code == 200:
-        return response.json()
+
+def refresh_google_token():
+    creds = None
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+        if creds and creds.refresh_token:
+            try:
+                creds.refresh(Request())
+                with open('token.json', 'w') as token_file:
+                    token_file.write(creds.to_json())
+                logger.info("Refreshed and saved credentials.")
+                return creds.token, None
+            except Exception as e:
+                logger.error(f"Error refreshing token: {e}")
+                # Token refresh failed, prompt for reauthorization
+                auth_url = get_oauth2_authorization_url()
+                return None, auth_url
+        else:
+            # No refresh token available, prompt for reauthorization
+            auth_url = get_oauth2_authorization_url()
+            return None, auth_url
     else:
-        logger.error(f"Failed to refresh token: {response.content.decode('utf-8')}")
-        response.raise_for_status()
+        # Token file does not exist, prompt for reauthorization
+        auth_url = get_oauth2_authorization_url()
+        return None, auth_url
+
 
 # Make an API request to Google services using the access token
 def make_google_api_request(url, token):
