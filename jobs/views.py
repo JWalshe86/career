@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.db.models import Q, Count
 from django.utils import timezone
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext as _
 from django.conf import settings
 from datetime import date, timedelta
@@ -30,8 +31,16 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 logger = logging.getLogger(__name__)
 
 
+def trigger_middleware_error(request):
+
+    # This view will raise an exception to trigger the middleware error handling
+    raise RuntimeError("This is a test error to trigger the middleware.")
+
+
 def error_view(request):
-    return render(request, 'error.html')
+    error_message = request.GET.get('error_message', 'An unexpected error occurred.')
+    return render(request, 'error.html', {'error_message': error_message})
+
 
 def show_env_var(request):
     google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
@@ -74,6 +83,18 @@ def get_oauth2_authorization_url():
 
 
 
+# Set up logger
+logger = logging.getLogger(__name__)
+
+from django.shortcuts import render
+from google.auth.exceptions import GoogleAuthError
+from google_auth_oauthlib.flow import InstalledAppFlow
+from oauthlib.oauth2 import InsecureTransportError
+import logging
+
+# Set up logger
+logger = logging.getLogger(__name__)
+
 def oauth2callback(request):
     logger.debug("Handling OAuth2 callback.")
     try:
@@ -81,19 +102,31 @@ def oauth2callback(request):
             settings.GOOGLE_CREDENTIALS_PATH,
             SCOPES
         )
-        flow.redirect_uri = 'http://localhost:8000/'  # Fixed port
+        # Use the correct redirect URI
+        flow.redirect_uri = 'http://localhost:8000/oauth2callback'  # Ensure this is the correct URI
         authorization_response = request.get_full_path()
         logger.info(f"Authorization response URL: {authorization_response}")
 
+        # Attempt to fetch the token
         flow.fetch_token(authorization_response=authorization_response)
         creds = flow.credentials
         
+        # Save the credentials
         with open(settings.TOKEN_FILE_PATH, "w") as token_file:
             token_file.write(creds.to_json())
         
         logger.info(f"Token saved to {settings.TOKEN_FILE_PATH}")
         return redirect(reverse('jobs_dashboard_with_emails'))
+    except InsecureTransportError:
+        # Specific handling for insecure transport errors
+        error_message = (
+            "OAuth2 requires a secure HTTPS connection. Please ensure you are using HTTPS "
+            "for your redirect URI instead of HTTP."
+        )
+        logger.error(f"Insecure transport error in OAuth callback: {error_message}")
+        return render(request, 'error.html', {'error_message': error_message})
     except GoogleAuthError as e:
+        # Handle GoogleAuthError
         if 'redirect_uri_mismatch' in str(e):
             error_message = (
                 "It looks like there is a mismatch between the redirect URI in your "
@@ -105,7 +138,12 @@ def oauth2callback(request):
             error_message = f"An error occurred: {e}"
         
         logger.error(f"Error in OAuth callback: {error_message}")
-        return redirect(reverse('error_view'))  # Redirect to the error page
+        return render(request, 'error.html', {'error_message': error_message})
+    except Exception as e:
+        # Handle any other unexpected exceptions
+        error_message = f"An unexpected error occurred: {e}"
+        logger.error(f"Unexpected error in OAuth callback: {error_message}")
+        return render(request, 'error.html', {'error_message': error_message})
 
 
 

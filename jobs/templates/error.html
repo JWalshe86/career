@@ -4,11 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8d7da;
+            color: #721c24;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .container {
+            background-color: #ffffff;
+            border: 1px solid #f5c6cb;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+        }
+        p {
+            font-size: 18px;
+        }
+        a {
+            color: #155724;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>Something went wrong</h1>
-    <p>{{ error_message }}</p>
-    <a href="{% url 'home' %}">Return to Home</a>
+    <div class="container" role="alert" aria-live="assertive">
+        <h1>Something went wrong</h1>
+        <p>{{ error_message|default:"An unexpected error occurred. Please try again later." }}</p>
+        <a href="{% url 'home' %}">Return to Home</a>
+    </div>
 </body>
 </html>
 

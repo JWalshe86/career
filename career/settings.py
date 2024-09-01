@@ -17,6 +17,10 @@ logger = logging.getLogger(__name__)
 # Define BASE_DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+import os
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+print("OAUTHLIB_INSECURE_TRANSPORT:", os.environ.get('OAUTHLIB_INSECURE_TRANSPORT'))
+
 # Retrieve DEBUG setting using python-decouple
 DEBUG = config('DEBUG', default=False, cast=bool)
 
@@ -225,9 +229,15 @@ LOGGING = {
             'level': 'DEBUG',
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+        'career.middleware.custom_error_middleware': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
     },
 }
 
@@ -237,7 +247,7 @@ ROOT_URLCONF = 'career.urls'
 # WSGI configuration
 WSGI_APPLICATION = 'career.wsgi.application'
 
-# Middleware
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -245,9 +255,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'career.middleware.custom_error_middleware.CustomErrorMiddleware',  # Custom middleware
+    'django.contrib.messages.middleware.MessageMiddleware',
 ]
+
 
 # Installed apps
 INSTALLED_APPS = [

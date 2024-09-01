@@ -22,7 +22,5 @@ urlpatterns = [
     path("edit/<int:jobsearch_id>/", views.edit_jobsearch, name="edit_jobsearch"),  # Edit job search view
     path("delete/<int:jobsearch_id>/", views.delete_jobsearch, name="delete_jobsearch"),  # Delete job search view
     path("job-search/", job_search_view, name="job_search_view"),  # Job search view
-    path("oauth2callback/", oauth2callback, name="oauth2callback"),  # OAuth2 callback view
-    path("error/", error_view, name="error_view"),  # OAuth2 callback view
 ]
 
