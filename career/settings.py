@@ -219,24 +219,27 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Logging configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            'class': 'logging.StreamHandler',
             'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'WARNING',  # Set the level to WARNING or higher
         },
-        'career.middleware.custom_error_middleware': {
+        'django.utils': {  # Remove this section to stop logging for django.utils
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'WARNING',  # Set the level to WARNING or higher, or remove this section
+        },
+        '': {  # This will apply to all other loggers
+            'handlers': ['console'],
+            'level': 'WARNING',  # Set the level to WARNING or higher
         },
     },
 }
