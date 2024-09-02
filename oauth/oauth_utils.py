@@ -33,27 +33,26 @@ def get_oauth2_authorization_url():
     """Generate OAuth2 authorization URL."""
     logger.debug("Generating OAuth2 authorization URL.")
     try:
-        if 'DYNO' in os.environ:
-            google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
-            credentials_data = json.loads(google_credentials_json)
-            
-            # Ensure the JSON data has the correct structure
-            if 'installed' not in credentials_data and 'web' not in credentials_data:
-                raise ValueError("Invalid client secrets format. Must contain 'installed' or 'web'.")
-
-            # Use InstalledAppFlow with client configuration
-            flow = InstalledAppFlow.from_client_config(credentials_data, SCOPES)
-        else:
-            # Local development, use client secrets file
-            flow = InstalledAppFlow.from_client_secrets_file(settings.GOOGLE_CREDENTIALS_PATH, SCOPES)
-
-        # Generate the authorization URL
-        auth_url, _ = flow.authorization_url(access_type='offline', include_granted_scopes='true')
-        logger.info(f"Generated authorization URL: {auth_url}")
-        return auth_url
-    except Exception as e:
-        logger.error(f"Error generating authorization URL: {e}")
-        raise
+    if 'DYNO' in os.environ:
+        google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
+        logger.debug(f"GOOGLE_CREDENTIALS_JSON: {google_credentials_json}")
+        credentials_data = json.loads(google_credentials_json)
+        
+        # Check if the JSON is correctly structured
+        if 'installed' not in credentials_data and 'web' not in credentials_data:
+            logger.error(f"Invalid client secrets format: {credentials_data}")
+            raise ValueError("Invalid client secrets format. Must contain 'installed' or 'web'.")
+        
+        flow = InstalledAppFlow.from_client_config(credentials_data, SCOPES)
+    else:
+        flow = InstalledAppFlow.from_client_secrets_file(settings.GOOGLE_CREDENTIALS_PATH, SCOPES)
+    
+    auth_url, _ = flow.authorization_url(access_type='offline', include_granted_scopes='true')
+    logger.info(f"Generated authorization URL: {auth_url}")
+    return auth_url
+except Exception as e:
+    logger.error(f"Error generating authorization URL: {e}")
+    raise
 
 
 def get_unread_emails():
