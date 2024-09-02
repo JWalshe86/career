@@ -15,22 +15,27 @@ logger = logging.getLogger(__name__)
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 TOKEN_FILE_PATH = os.path.join(os.path.dirname(__file__), 'token.json')
 
+
 def get_oauth2_authorization_url():
     """Generate OAuth2 authorization URL."""
     logger.debug("Generating OAuth2 authorization URL.")
     try:
         if 'DYNO' in os.environ:
             google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
+            logger.debug(f"GOOGLE_CREDENTIALS_JSON: {google_credentials_json}")  # Debug log
             credentials = json.loads(google_credentials_json)
             flow = InstalledAppFlow.from_client_config(credentials, SCOPES)
         else:
             flow = InstalledAppFlow.from_client_secrets_file(settings.GOOGLE_CREDENTIALS_PATH, SCOPES)
+        
         auth_url, _ = flow.authorization_url(access_type='offline', include_granted_scopes='true')
         logger.info(f"Generated authorization URL: {auth_url}")
         return auth_url
+
     except Exception as e:
         logger.error(f"Error generating authorization URL: {e}")
         raise
+
 
 def get_unread_emails():
     creds = None
