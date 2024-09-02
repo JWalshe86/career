@@ -1,2 +1,1 @@
-web: gunicorn career.wsgi
-release: python manage.py collectstatic --noinput
+web: gunicorn career.wsgi --log-file -

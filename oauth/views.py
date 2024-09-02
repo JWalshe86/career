@@ -1,17 +1,36 @@
 # oauth/views.py
-
 from django.shortcuts import render, redirect
 from django.conf import settings
 from .oauth_utils import get_oauth2_authorization_url, get_unread_emails
-from google.auth.exceptions import GoogleAuthError
-from oauthlib.oauth2 import InsecureTransportError
 import logging
 
 logger = logging.getLogger(__name__)
 
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from google_auth_oauthlib.flow import InstalledAppFlow
+
 def oauth2callback(request):
-    # Implementation for handling the OAuth2 callback
-    pass
+    code = request.GET.get('code')
+    if not code:
+        logger.error("No authorization code provided.")
+        return HttpResponse("Authorization code missing.", status=400)
+    
+    try:
+        flow = InstalledAppFlow.from_client_secrets_file(
+            settings.GOOGLE_CREDENTIALS_PATH,
+            SCOPES
+        )
+        flow.fetch_token(code=code)
+        creds = flow.credentials
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+        logger.info("OAuth2 authorization completed successfully.")
+        return redirect('dashboard')  # Redirect to the dashboard or another page
+    except (GoogleAuthError, InsecureTransportError) as e:
+        logger.error(f"OAuth2 error: {e}")
+        return HttpResponse("OAuth2 error occurred.", status=500)
+
 
 def jobs_dashboard_with_emails(request):
     logger.debug("Rendering jobs dashboard with emails.")
