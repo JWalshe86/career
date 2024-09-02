@@ -26,33 +26,51 @@ def refresh_tokens(creds: Credentials):
         return creds
     except RefreshError as e:
         logger.error(f"Token refresh error: {e}")
-        return None
 
 
 def get_oauth2_authorization_url():
     """Generate OAuth2 authorization URL."""
+    logger = logging.getLogger(__name__)
     logger.debug("Generating OAuth2 authorization URL.")
     try:
-        if 'DYNO' in os.environ:
-            google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
-            credentials_data = json.loads(google_credentials_json)
-            
-            # Check if the JSON is correctly structured
-            if 'installed' not in credentials_data and 'web' not in credentials_data:
-                logger.error(f"Invalid client secrets format: {credentials_data}")
-                raise ValueError("Invalid client secrets format. Must contain 'installed' or 'web'.")
-            
-            # Use InstalledAppFlow with client config
-            flow = InstalledAppFlow.from_client_config(credentials_data, SCOPES)
-        else:
-            # Use InstalledAppFlow with client secrets file
-            flow = InstalledAppFlow.from_client_secrets_file(settings.GOOGLE_CREDENTIALS_PATH, SCOPES)
-        
+        google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
+        credentials_data = json.loads(google_credentials_json)
+
+        # Check if the JSON is correctly structured
+        if 'web' not in credentials_data:
+            logger.error(f"Invalid client secrets format: {credentials_data}")
+            raise ValueError("Invalid client secrets format. Must contain 'web'.")
+
+        flow = InstalledAppFlow.from_client_config(credentials_data, SCOPES)
         auth_url, _ = flow.authorization_url(access_type='offline', include_granted_scopes='true')
         logger.info(f"Generated authorization URL: {auth_url}")
         return auth_url
     except Exception as e:
         logger.error(f"Error generating authorization URL: {e}")
+        raise
+
+
+def get_unread_emails():
+    """Fetch unread emails."""
+    try:
+        google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
+        credentials_data = json.loads(google_credentials_json)
+
+        # Use InstalledAppFlow for initial setup or reauthentication
+        if 'web' in credentials_data:
+            flow = InstalledAppFlow.from_client_config(credentials_data, SCOPES)
+            creds = flow.run_local_server(port=0)  # Use appropriate method to get the credentials
+
+        else:
+            raise ValueError("Invalid client secrets format. Must contain 'web'.")
+
+        # Assuming you have a valid `creds` object here
+        # Here you would fetch emails using the `creds` object
+
+        return email_subjects, auth_url
+
+    except Exception as e:
+        logger.error(f"Error fetching unread emails: {e}")
         raise
  
 
