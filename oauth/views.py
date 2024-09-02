@@ -33,6 +33,20 @@ def oauth2callback(request):
         return HttpResponse("OAuth2 error occurred.", status=500)
 
 
+def exchange_code_for_tokens(auth_code):
+    response = requests.post(
+        'https://oauth2.googleapis.com/token',
+        data={
+            'code': auth_code,
+            'client_id': settings.GOOGLE_CLIENT_ID,
+            'client_secret': settings.GOOGLE_CLIENT_SECRET,
+            'redirect_uri': settings.GOOGLE_REDIRECT_URI,
+            'grant_type': 'authorization_code'
+        }
+    )
+    tokens = response.json()
+    return tokens
+
 
 def jobs_dashboard_with_emails(request):
     logger.debug("Rendering jobs dashboard with emails.")
