@@ -67,7 +67,10 @@ def get_unread_emails():
             creds = Credentials.from_authorized_user_file('token.json', SCOPES)
             logger.debug("Loaded credentials from token.json.")
         else:
-            creds = initiate_oauth2_flow()
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+            with open('token.json', 'w') as token:
+                token.write(creds.to_json())
             logger.info("Saved credentials to token.json.")
 
     if creds and creds.expired and creds.refresh_token:
@@ -77,7 +80,7 @@ def get_unread_emails():
                 with open('token.json', 'w') as token:
                     token.write(creds.to_json())
             logger.info("Credentials refreshed and saved.")
-        except Exception as e:
+        except (RefreshError, Exception) as e:
             logger.error(f"Error refreshing credentials: {e}")
             auth_url = get_oauth2_authorization_url()
             return [], auth_url
