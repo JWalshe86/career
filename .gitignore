@@ -4,6 +4,7 @@ core.python*
 documents
 env.py
 .venv
+career_venv/
 .env
 __pycache__/
 *.py[cod]
