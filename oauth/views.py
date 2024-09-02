@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from google_auth_oauthlib.flow import InstalledAppFlow
 
+
 def oauth2callback(request):
     code = request.GET.get('code')
     if not code:
@@ -26,10 +27,11 @@ def oauth2callback(request):
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
         logger.info("OAuth2 authorization completed successfully.")
-        return redirect('dashboard')  # Redirect to the dashboard or another page
+        return redirect('jobs_dashboard_with_emails')  # Redirect to the new jobs dashboard URL
     except (GoogleAuthError, InsecureTransportError) as e:
         logger.error(f"OAuth2 error: {e}")
         return HttpResponse("OAuth2 error occurred.", status=500)
+
 
 
 def jobs_dashboard_with_emails(request):
