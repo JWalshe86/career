@@ -1,4 +1,4 @@
-from .views import get_unread_emails
+from oauth.views import get_unread_emails
 
 def unread_email_count(request):
     email_subjects, _ = get_unread_emails()

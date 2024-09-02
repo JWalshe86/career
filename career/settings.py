@@ -1,16 +1,9 @@
 import os
-import json
 import logging
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
 from decouple import config, Csv
 from dotenv import load_dotenv
 import dj_database_url
-from django.http import HttpResponse
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google.auth.exceptions import RefreshError
 
 # Load environment variables from .env file (for local development)
 load_dotenv()
@@ -18,7 +11,7 @@ load_dotenv()
 # Set debug mode
 DEBUG = config('DEBUG', default=False, cast=bool)
 ROOT_URLCONF = 'career.urls'  # Adjust according to your project name
-print(f"DEBUG from .env: {os.getenv('DEBUG')}")
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -29,204 +22,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Retrieve settings
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,5b57-86-46-100-229.ngrok-free.app,johnsite-d251709cf12b.herokuapp.com,www.jwalshedev.ie', cast=Csv())
 GOOGLE_REDIRECT_URI = config('GOOGLE_REDIRECT_URI', default='https://www.jwalshedev.ie/jobs/oauth2callback')
-SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
-
-# Retrieve environment variables
-GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
-GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
-GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='')
 SECRET_KEY = config('SECRET_KEY', default='default-secret-key')
 DATABASE_URL = config('DATABASE_URL', default='')
-GMAIL_TOKEN_JSON = config('GMAIL_TOKEN_JSON', default='')
 
-# Log environment variable values (excluding sensitive information where necessary)
-logger.debug(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
-logger.debug(f"GOOGLE_CLIENT_SECRET: {'REDACTED' if GOOGLE_CLIENT_SECRET else 'Not set'}")
-logger.debug(f"GOOGLE_API_KEY: {'REDACTED' if GOOGLE_API_KEY else 'Not set'}")
-logger.debug(f"SECRET_KEY: {'REDACTED' if SECRET_KEY else 'Not set'}")
-logger.debug(f"DATABASE_URL: {'REDACTED' if DATABASE_URL else 'Not set'}")
-logger.debug(f"GMAIL_TOKEN_JSON: {'REDACTED' if GMAIL_TOKEN_JSON else 'Not set'}")
-
-# Define Token File Path
-TOKEN_FILE_PATH = BASE_DIR / 'token.json'
-
-# Function to get Google credentials from environment variable
-def get_google_credentials():
-    """Retrieve Google credentials based on environment."""
-    if 'DYNO' in os.environ:  # Heroku environment
-        credentials_json = GOOGLE_CREDENTIALS_JSON
-    else:  # Local development
-        credentials_file_path = BASE_DIR / 'credentials.json'
-        if not credentials_file_path.is_file():
-            raise FileNotFoundError(f"File not found: {credentials_file_path}")
-        with open(credentials_file_path) as f:
-            credentials_json = f.read()
-    
-    try:
-        credentials = json.loads(GMAIL_TOKEN_JSON)
-        logger.debug(f"GOOGLE_CREDENTIALS loaded: {credentials}")
-        return credentials
-    except json.JSONDecodeError as e:
-        logger.error("Error decoding GOOGLE_CREDENTIALS_JSON: %s", e)
-        raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON") from e
-
-
-def get_oauth2_authorization_url():
-    try:
-        if settings.DEBUG:
-            credentials_path = settings.GOOGLE_CREDENTIALS_PATH
-            with open(credentials_path, 'r') as file:
-                credentials = json.load(file)
-        else:
-            credentials = json.loads(settings.GOOGLE_CREDENTIALS_JSON)
-        
-        # Initialize OAuth2 flow
-        flow = InstalledAppFlow.from_client_config(credentials, SCOPES)
-        auth_url, _ = flow.authorization_url(prompt='consent')
-        return auth_url
-    except Exception as e:
-        logger.error(f"Error loading credentials: {e}")
-        return None
-
-
-def save_token_to_file(token_info):
-    """Save token information to a file."""
-    with open(TOKEN_FILE_PATH, 'w') as f:
-        json.dump(token_info, f)
-
-def get_access_token():
-    """Retrieve or refresh access token."""
-    if TOKEN_FILE_PATH.is_file():
-        with open(TOKEN_FILE_PATH) as f:
-            token_info = json.load(f)
-        if 'access_token' in token_info and 'expiry' in token_info:
-            expiry = datetime.fromisoformat(token_info['expiry'].replace('Z', '+00:00'))
-            if datetime.now(timezone.utc) < expiry:
-                return token_info['access_token']
-    
-    # Fetch new credentials
-    credentials = get_google_credentials()
-    refresh_token = credentials.get('refresh_token')
-    if not refresh_token:
-        raise ValueError("Refresh token is missing.")
-    
-    try:
-        token_info = refresh_google_token(refresh_token)
-        token_info['expiry'] = (datetime.now(timezone.utc) + timedelta(seconds=token_info['expires_in'])).isoformat()
-        save_token_to_file(token_info)
-        return token_info['access_token']
-    except RefreshError as e:
-        logger.error(f"Refresh token error: {e}")
-        auth_url = get_oauth2_authorization_url()
-        if auth_url:
-            logger.info(f"Please visit this URL to re-authenticate: {auth_url}")
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error during token retrieval: {e}")
-        raise
-
-def refresh_google_token(refresh_token):
-    """Refresh Google OAuth2 token using the refresh token."""
-    try:
-        creds = Credentials(
-            refresh_token=refresh_token,
-            client_id=GOOGLE_CLIENT_ID,
-            client_secret=GOOGLE_CLIENT_SECRET,
-            token=None  # Initial token is None
-        )
-        creds.refresh(Request())
-        token_info = {
-            'access_token': creds.token,
-            'expires_in': (creds.expiry.timestamp() - datetime.now(timezone.utc).timestamp()),
-            'expiry': creds.expiry.isoformat()
-        }
-        save_token_to_file(token_info)
-        return token_info
-    except RefreshError as e:
-        logger.error(f"Refresh token error: {e}")
-        # Trigger re-authentication if refresh fails
-        auth_url = get_oauth2_authorization_url()
-        if auth_url:
-            logger.info(f"Please visit this URL to re-authenticate: {auth_url}")
-        # Clear token file if refresh fails
-        if TOKEN_FILE_PATH.is_file():
-            os.remove(TOKEN_FILE_PATH)
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error during token refresh: {e}")
-        raise
-
-def make_google_api_request(url, token):
-    """Make an API request to Google services using the access token."""
-    headers = {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'application/json',
-    }
-    try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        return response.json()
-    except requests.HTTPError as http_err:
-        if http_err.response.status_code == 401:
-            # Access token may be expired or invalid
-            token = get_access_token()  # Refresh token and retry
-            headers['Authorization'] = f'Bearer {token}'
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()
-            return response.json()
-        logger.error(f"HTTP error occurred: {http_err}")
-    except requests.RequestException as req_err:
-        logger.error(f"Request error occurred: {req_err}")
-    except ValueError as json_err:
-        logger.error(f"JSON decode error: {json_err}")
-    return None
-
-def get_token_info(token):
-    """Get information about the current token."""
-    response = requests.get(f'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={token}')
-    if response.status_code == 200:
-        return response.json()
-    else:
-        logger.error(f"Failed to get token info: {response.text}")
-        return None
-
-def env_view(request):
-    """Django view to display environment variable."""
-    google_credentials_json = GOOGLE_CREDENTIALS_JSON
-    return HttpResponse(f"GOOGLE_CREDENTIALS_JSON: {google_credentials_json}")
-
-def token_file_view(request):
-    """Django view to display token information."""
-    if TOKEN_FILE_PATH.is_file():
-        with open(TOKEN_FILE_PATH) as f:
-            token_info = json.load(f)
-        return HttpResponse(f"Token info: {json.dumps(token_info, indent=2)}")
-    return HttpResponse("Token file not found.")
-
-# Heroku detection
+# Define Heroku detection
 HEROKU = 'DYNO' in os.environ
-
-# Check if running in production (Heroku)
-IS_HEROKU = 'DYNO' in os.environ
-
-# Define GOOGLE_CREDENTIALS
-# Define GOOGLE_CREDENTIALS
-if IS_HEROKU:
-    GOOGLE_CREDENTIALS_JSON = os.environ.get('GOOGLE_CREDENTIALS_JSON')
-    if GOOGLE_CREDENTIALS_JSON:
-        GOOGLE_CREDENTIALS = json.loads(GOOGLE_CREDENTIALS_JSON)
-    else:
-        GOOGLE_CREDENTIALS = {}
-else:
-    GOOGLE_CREDENTIALS_PATH = BASE_DIR / 'credentials.json'
-
-
 
 # Database configuration
 if HEROKU:
     DATABASES = {
         'default': dj_database_url.config(
-            default=config('DATABASE_URL', default=''),
+            default=DATABASE_URL,
             conn_max_age=600
         )
     }
@@ -245,9 +51,8 @@ else:
 # Static files (CSS, JavaScript, images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-# Static files storage
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # Ensure this is the correct path to your static files
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 LOGGING = {
     'version': 1,
@@ -299,6 +104,9 @@ INSTALLED_APPS = [
     'django_extensions',
     'crispy_forms',
     'crispy_bootstrap5',
+    'emails',
+    'oauth',  # Your new app
+    'dashboard',
     'decouple',
     'tasks',
     'jobs',
@@ -310,7 +118,7 @@ INSTALLED_APPS = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Ensure this path is correct
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -318,7 +126,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'jobs.context_processors.unread_email_count',  # Ensure this path is correct
+                'jobs.context_processors.unread_email_count',
             ],
         },
     },
