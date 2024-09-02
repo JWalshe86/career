@@ -71,26 +71,22 @@ def get_google_credentials():
         raise ValueError("Error decoding GOOGLE_CREDENTIALS_JSON") from e
 
 
-# Google OAuth
 def get_oauth2_authorization_url():
-    """Generate OAuth2 authorization URL."""
     try:
-        if IS_HEROKU:
-            if not GOOGLE_CREDENTIALS:
-                logger.error("GOOGLE_CREDENTIALS_JSON environment variable is not set or empty.")
-                return None
-
-            flow = InstalledAppFlow.from_client_config(GOOGLE_CREDENTIALS, SCOPES)
+        if settings.DEBUG:
+            credentials_path = settings.GOOGLE_CREDENTIALS_PATH
+            with open(credentials_path, 'r') as file:
+                credentials = json.load(file)
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(GOOGLE_CREDENTIALS_PATH, SCOPES)
+            credentials = json.loads(settings.GOOGLE_CREDENTIALS_JSON)
         
+        # Initialize OAuth2 flow
+        flow = InstalledAppFlow.from_client_config(credentials, SCOPES)
         auth_url, _ = flow.authorization_url(prompt='consent')
         return auth_url
-    except json.JSONDecodeError as e:
-        logger.error(f"Error decoding JSON for Google credentials: {e}")
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-    return None
+        logger.error(f"Error loading credentials: {e}")
+        return None
 
 
 def save_token_to_file(token_info):
