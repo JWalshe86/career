@@ -1,4 +1,3 @@
-# oauth/oauth_utils.py
 import json
 import logging
 import os
@@ -15,9 +14,19 @@ logger = logging.getLogger(__name__)
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 TOKEN_FILE_PATH = os.path.join(os.path.dirname(__file__), 'token.json')
 
-
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
+def refresh_tokens(creds: Credentials):
+    """Refresh OAuth2 tokens if expired."""
+    try:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            # Save refreshed credentials back to file
+            with open(TOKEN_FILE_PATH, 'w') as token_file:
+                token_file.write(creds.to_json())
+            logger.info("Credentials refreshed and saved.")
+        return creds
+    except RefreshError as e:
+        logger.error(f"Token refresh error: {e}")
+        return None
 
 def get_oauth2_authorization_url():
     """Generate OAuth2 authorization URL."""
@@ -26,16 +35,9 @@ def get_oauth2_authorization_url():
         if 'DYNO' in os.environ:
             google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON', '{}')
             credentials_data = json.loads(google_credentials_json)
-            
-            credentials = Credentials.from_authorized_user_info(
-                info=credentials_data,
-                scopes=SCOPES
-            )
-            
+            credentials = Credentials.from_authorized_user_info(info=credentials_data, scopes=SCOPES)
             if not credentials.valid:
-                if credentials.expired and credentials.refresh_token:
-                    credentials.refresh(Request())
-            
+                credentials = refresh_tokens(credentials)
             flow = InstalledAppFlow.from_client_config(credentials_data, SCOPES)
         else:
             flow = InstalledAppFlow.from_client_secrets_file(settings.GOOGLE_CREDENTIALS_PATH, SCOPES)
@@ -47,9 +49,8 @@ def get_oauth2_authorization_url():
         logger.error(f"Error generating authorization URL: {e}")
         raise
 
-
-
 def get_unread_emails():
+    """Fetch unread emails from Gmail."""
     creds = None
     auth_url = None
 
@@ -63,29 +64,22 @@ def get_unread_emails():
             logger.error(f"Error decoding JSON for Google credentials: {e}")
             return [], None
     else:
-        if os.path.exists('token.json'):
-            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+        if os.path.exists(TOKEN_FILE_PATH):
+            creds = Credentials.from_authorized_user_file(TOKEN_FILE_PATH, SCOPES)
             logger.debug("Loaded credentials from token.json.")
         else:
             flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
-            with open('token.json', 'w') as token:
+            with open(TOKEN_FILE_PATH, 'w') as token:
                 token.write(creds.to_json())
             logger.info("Saved credentials to token.json.")
 
-    if creds and creds.expired and creds.refresh_token:
-        try:
-            creds.refresh(Request())
-            if not 'DYNO' in os.environ:
-                with open('token.json', 'w') as token:
-                    token.write(creds.to_json())
-            logger.info("Credentials refreshed and saved.")
-        except (RefreshError, Exception) as e:
-            logger.error(f"Error refreshing credentials: {e}")
+    if creds:
+        creds = refresh_tokens(creds)
+        if not creds:
             auth_url = get_oauth2_authorization_url()
             return [], auth_url
-
-    if not creds or not creds.valid:
+    else:
         logger.debug("No valid credentials found. Redirecting to authorization URL.")
         auth_url = get_oauth2_authorization_url()
         return [], auth_url
