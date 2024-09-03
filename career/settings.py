@@ -8,7 +8,7 @@ import dj_database_url
 
 # Load environment variables from .env file (for local development)
 load_dotenv()
-
+ROOT_URLCONF = 'career.urls'  # Adjust according to your project name
 # Load CSRF trusted origins from environment
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS',
