@@ -8,7 +8,7 @@ urlpatterns = [
     # Path for the OAuth login
     path('oauth/login/', oauth_login, name='oauth_login'),
     
-    # Path for the OAuth2 callback
-    path('oauth/callback/', oauth2callback, name='oauth2callback'),
+    # Updated path for the OAuth2 callback to match the REDIRECT_URI
+    path('jobs-dashboard/oauth2callback/', oauth2callback, name='oauth2callback'),
 ]
 
