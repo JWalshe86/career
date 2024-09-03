@@ -1,19 +1,17 @@
-# emails/views.py
-from django.shortcuts import redirect, render
-from django.contrib import messages
-from django.conf import settings
-from oauth.views import get_oauth2_authorization_url, get_unread_emails
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from google.auth.exceptions import GoogleAuthError
 import logging
+import os
+from django.shortcuts import render, redirect
 
+# Setup logger
 logger = logging.getLogger(__name__)
 
 def get_unread_emails():
     try:
-        # Replace this with actual token data
-        token_json = "<path_to_token_json_file>"
+        # Replace with the actual path or environment variable for token JSON file
+        token_json = os.getenv('TOKEN_JSON_PATH', 'path/to/token.json')
 
         # Load credentials from the token JSON file
         creds = Credentials.from_authorized_user_file(token_json)
@@ -32,14 +30,11 @@ def get_unread_emails():
 
     except GoogleAuthError as error:
         logger.error(f"An error occurred with Google Auth: {error}")
+        # Return a valid authorization URL or handle authorization flow elsewhere
         return None, "<authorization_url>"
     except Exception as e:
         logger.error(f"An unexpected error occurred: {str(e)}")
         return None, None
-
-
-# Setup logger
-logger = logging.getLogger(__name__)
 
 def email_dashboard(request):
     """Render email dashboard with unread emails."""
