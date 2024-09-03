@@ -57,20 +57,18 @@ def jobs_dashboard_with_emails_or_callback(request):
         return render(request, "jobs/jobs_dashboard.html", context)
 
 
-
-def generate_authorization_url(client_id, redirect_uri, scopes, state):
+def generate_authorization_url(client_id, scopes, state):
     logger.debug('Generating authorization URL')
-    base_url = "https://accounts.google.com/o/oauth2/auth"
-    params = {
-        "response_type": "code",
-        "client_id": client_id,
-        "redirect_uri": redirect_uri,
-        "scope": " ".join(scopes),
-        "state": state
-    }
-    url = f"{base_url}?{urllib.parse.urlencode(params)}"
-    logger.debug(f'Authorization URL: {url}')  # Log the full URL
-    return url
+    flow = InstalledAppFlow.from_client_config(
+        settings.GOOGLE_CREDENTIALS,
+        scopes
+    )
+    authorization_url, _ = flow.authorization_url(
+        access_type='offline',
+        state=state
+    )
+    logger.debug(f'Authorization URL: {authorization_url}')  # Log the full URL
+    return authorization_url
 
 
 def oauth_login(request):
@@ -104,17 +102,21 @@ def env_vars(request):
     return JsonResponse(env_vars)
 
 def exchange_code_for_tokens(auth_code):
-    response = requests.post(
-        'https://oauth2.googleapis.com/token',
-        data={
-            'code': auth_code,
-            'client_id': settings.GOOGLE_CLIENT_ID,
-            'client_secret': settings.GOOGLE_CLIENT_SECRET,
-            'redirect_uri': settings.GOOGLE_REDIRECT_URI,
-            'grant_type': 'authorization_code'
-        }
-    )
-    response.raise_for_status()  # Ensure we raise an error for bad HTTP responses
-    tokens = response.json()
-    return tokens
+    try:
+        response = requests.post(
+            'https://oauth2.googleapis.com/token',
+            data={
+                'code': auth_code,
+                'client_id': settings.GOOGLE_CLIENT_ID,
+                'client_secret': settings.GOOGLE_CLIENT_SECRET,
+                'redirect_uri': settings.GOOGLE_REDIRECT_URI,
+                'grant_type': 'authorization_code'
+            }
+        )
+        response.raise_for_status()  # Ensure we raise an error for bad HTTP responses
+        tokens = response.json()
+        return tokens
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error exchanging code for tokens: {e}")
+        raise
 
