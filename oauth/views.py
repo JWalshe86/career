@@ -17,13 +17,6 @@ logger = logging.getLogger(__name__)
 logger.debug("SCOPES in views.py: %s", settings.SCOPES)
 
 
-from django.conf import settings
-from google.auth.transport.requests import Request
-from google.oauth2 import InstalledAppFlow
-from google.auth.exceptions import GoogleAuthError
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
-import logging
 
 logger = logging.getLogger(__name__)
 
