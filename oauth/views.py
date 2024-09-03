@@ -47,7 +47,9 @@ def oauth_login(request):
 
 
 def oauth2callback(request):
+    logger.debug("Entered oauth2callback view.")
     code = request.GET.get('code')
+    logger.debug(f"Authorization code: {code}")
     if not code:
         logger.error("No authorization code provided.")
         return HttpResponse("Authorization code missing.", status=400)
