@@ -8,7 +8,6 @@ from django.http import JsonResponse, HttpResponse
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.exceptions import GoogleAuthError
 from google.oauth2.credentials import Credentials
-
 from .oauth_utils import get_unread_emails
 
 logger = logging.getLogger(__name__)
@@ -71,24 +70,57 @@ def generate_authorization_url(client_id, scopes, state):
     return authorization_url
 
 
-def oauth_login(request):
-    client_id = settings.GOOGLE_CLIENT_ID
-    redirect_uri = settings.GOOGLE_REDIRECT_URI
-    scopes = settings.SCOPES
-    state = "random_state_string"  # Generate a unique state value for each request
+from django.shortcuts import redirect
+from google_auth_oauthlib.flow import InstalledAppFlow
+from django.http import HttpResponse
 
-    # Using InstalledAppFlow to generate the authorization URL
-    flow = InstalledAppFlow.from_client_config(
-        settings.GOOGLE_CREDENTIALS,
-        scopes
-    )
-    authorization_url, _ = flow.authorization_url(
-        redirect_uri=redirect_uri,
-        state=state
-    )
-    
-    logger.debug(f"Redirecting to authorization URL: {authorization_url}")
-    return redirect(authorization_url)
+from django.shortcuts import redirect
+from google_auth_oauthlib.flow import InstalledAppFlow
+from django.http import HttpResponse
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+def oauth_login(request):
+    # Hardcoded Google credentials JSON
+    hardcoded_google_credentials = {
+        "web": {
+            "client_id": "554722957427-8i5p5m7jd1vobctsb34ql0km1qorpihg.apps.googleusercontent.com",
+            "project_id": "johnsite-433520",
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_secret": "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",
+            "redirect_uris": [
+                "https://www.jwalshedev.ie/oauth/jobs-dashboard/",
+                "http://localhost:8000/oauth/jobs-dashboard/"
+            ]
+        }
+    }
+
+    # Hardcoded scopes
+    scopes = ["https://www.googleapis.com/auth/gmail.readonly"]
+
+    try:
+        # Initialize the OAuth flow with hardcoded credentials
+        flow = InstalledAppFlow.from_client_config(
+            hardcoded_google_credentials,
+            scopes
+        )
+        
+        # Generate the authorization URL
+        authorization_url, _ = flow.authorization_url(
+            access_type='offline',
+            include_granted_scopes='true'
+        )
+
+        logger.debug(f"Authorization URL: {authorization_url}")
+
+        return redirect(authorization_url)
+    except Exception as e:
+        logger.error(f"Error in OAuth login: {e}")
+        return HttpResponse(f"Error occurred during OAuth login: {e}", status=500)
 
 
 def env_vars(request):

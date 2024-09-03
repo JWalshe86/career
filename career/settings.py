@@ -12,7 +12,6 @@ load_dotenv()
 # Determine if running on Heroku
 HEROKU = 'DYNO' in os.environ
 
-
 DEBUG = config('DEBUG', default=False, cast=bool)
 ROOT_URLCONF = 'career.urls'
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
