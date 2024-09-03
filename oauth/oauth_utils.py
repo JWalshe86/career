@@ -9,6 +9,9 @@ import requests
 import logging
 
 logger = logging.getLogger(__name__)
+logger.debug(f"GOOGLE_CREDENTIALS_JSON: {os.getenv('GOOGLE_CREDENTIALS_JSON')}")
+logger.debug(f"GOOGLE_REDIRECT_URI: {os.getenv('GOOGLE_REDIRECT_URI')}")
+
 
 # Path to store the token
 TOKEN_FILE_PATH = 'token.json'
@@ -16,21 +19,32 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 def exchange_code_for_tokens(auth_code):
     """Exchange the authorization code for tokens."""
-    response = requests.post(
-        'https://oauth2.googleapis.com/token',
-        data={
-            'code': auth_code,
-            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
-            'client_secret': os.getenv('GOOGLE_CLIENT_SECRET'),
-            'redirect_uri': os.getenv('GOOGLE_REDIRECT_URI'),
-            'grant_type': 'authorization_code'
-        }
-    )
-    tokens = response.json()
-    if 'error' in tokens:
-        logger.error(f"Error exchanging code for tokens: {tokens['error_description']}")
-        raise Exception("Error exchanging code for tokens")
-    return tokens
+    try:
+        client_id = os.getenv('GOOGLE_CLIENT_ID')
+        client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+        redirect_uri = os.getenv('GOOGLE_REDIRECT_URI')
+        
+        if not client_id or not client_secret or not redirect_uri:
+            raise ValueError("Missing environment variables for OAuth2.")
+
+        response = requests.post(
+            'https://oauth2.googleapis.com/token',
+            data={
+                'code': auth_code,
+                'client_id': client_id,
+                'client_secret': client_secret,
+                'redirect_uri': redirect_uri,
+                'grant_type': 'authorization_code'
+            }
+        )
+        tokens = response.json()
+        if 'error' in tokens:
+            logger.error(f"Error exchanging code for tokens: {tokens['error_description']}")
+            raise Exception("Error exchanging code for tokens")
+        return tokens
+    except Exception as e:
+        logger.error(f"Error in exchange_code_for_tokens: {e}")
+        raise
 
 def refresh_tokens(creds):
     """Refresh OAuth2 tokens."""
