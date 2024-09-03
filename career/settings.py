@@ -8,7 +8,7 @@ import dj_database_url
 
 # Load environment variables from .env file (for local development)
 load_dotenv()
-
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='https://www.jwalshedev.ie,https://johnsite.herokuapp.com,https://5b57-86-46-100-229.ngrok-free.app', cast=Csv())
 # Determine if running on Heroku
 HEROKU = 'DYNO' in os.environ
 
