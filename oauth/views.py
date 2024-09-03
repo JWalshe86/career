@@ -5,7 +5,7 @@ import urllib.parse
 from django.conf import settings
 from .oauth_utils import get_oauth2_authorization_url, get_unread_emails
 from django.http import JsonResponse
-from google.auth.exceptions import GoogleAuthError, InsecureTransportError
+from google.auth.exceptions import GoogleAuthError
 import logging
 
 logger = logging.getLogger(__name__)
@@ -58,10 +58,9 @@ def oauth2callback(request):
             token.write(creds.to_json())
         logger.info("OAuth2 authorization completed successfully.")
         return redirect('jobs_dashboard_with_emails')  # Redirect to the new jobs dashboard URL
-    except (GoogleAuthError, InsecureTransportError) as e:
+    except GoogleAuthError as e:
         logger.error(f"OAuth2 error: {e}")
         return HttpResponse("OAuth2 error occurred.", status=500)
-
 
 def env_vars(request):
     env_vars = {
