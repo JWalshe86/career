@@ -7,8 +7,9 @@ from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.exceptions import GoogleAuthError
+from google.oauth2.credentials import Credentials
 
-from .oauth_utils import get_oauth2_authorization_url, get_unread_emails
+from .oauth_utils import get_unread_emails
 
 logger = logging.getLogger(__name__)
 
@@ -24,12 +25,20 @@ def jobs_dashboard_with_emails_or_callback(request):
         if not code:
             logger.error("No authorization code provided.")
             return HttpResponse("Authorization code missing.", status=400)
-        
+
         try:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                settings.GOOGLE_CREDENTIALS_PATH,
-                settings.SCOPES
-            )
+            # Check if we are using a path or the JSON directly
+            if hasattr(settings, 'GOOGLE_CREDENTIALS_PATH'):
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    settings.GOOGLE_CREDENTIALS_PATH,
+                    settings.SCOPES
+                )
+            else:
+                flow = InstalledAppFlow.from_client_config(
+                    settings.GOOGLE_CREDENTIALS,
+                    settings.SCOPES
+                )
+
             flow.fetch_token(code=code)
             creds = flow.credentials
             with open('token.json', 'w') as token:

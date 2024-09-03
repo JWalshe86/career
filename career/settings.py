@@ -20,23 +20,18 @@ GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
 SCOPES = json.loads(os.getenv('SCOPES', '["https://www.googleapis.com/auth/gmail.readonly"]'))
 
-# Check environment
-GOOGLE_CREDENTIALS_PATH = os.getenv('GOOGLE_CREDENTIALS_PATH')
-
-# Further logic depending on the presence of credentials
-if GOOGLE_CREDENTIALS_PATH:
-    # Load credentials only if path is provided
-    try:
-        credentials = service_account.Credentials.from_service_account_file(GOOGLE_CREDENTIALS_PATH)
-        service = build('your_service_name', 'v1', credentials=credentials)
-    except Exception as e:
-        print(f"Error loading credentials: {e}")
-        service = None
+# Check if running on Heroku
+if os.getenv('DJANGO_ENV') == 'production':
+    # Use the credentials from the environment variable on Heroku
+    GOOGLE_CREDENTIALS = json.loads(os.getenv('GOOGLE_CREDENTIALS_JSON'))
 else:
-    # Handle cases where credentials are not provided
-    print("No credentials provided; some features may be unavailable.")
-    service = None
-
+    # Use the local credentials file path
+    GOOGLE_CREDENTIALS_PATH = os.getenv('GOOGLE_CREDENTIALS_PATH')
+    if GOOGLE_CREDENTIALS_PATH:
+        with open(GOOGLE_CREDENTIALS_PATH, 'r') as file:
+            GOOGLE_CREDENTIALS = json.load(file)
+    else:
+        GOOGLE_CREDENTIALS = None
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
