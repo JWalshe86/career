@@ -19,32 +19,23 @@ logger.debug("SCOPES in views.py: %s", settings.SCOPES)
 
 def jobs_dashboard_with_emails_or_callback(request):
     if 'code' in request.GET:
-        # Handle OAuth2 callback logic here
         code = request.GET.get('code')
-        logger.debug(f"Authorization code: {code}")
+        logger.debug(f"Authorization code received: {code}")
         if not code:
             logger.error("No authorization code provided.")
             return HttpResponse("Authorization code missing.", status=400)
 
         try:
-            # Check if we are using a path or the JSON directly
-            if hasattr(settings, 'GOOGLE_CREDENTIALS_PATH'):
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    settings.GOOGLE_CREDENTIALS_PATH,
-                    settings.SCOPES
-                )
-            else:
-                flow = InstalledAppFlow.from_client_config(
-                    settings.GOOGLE_CREDENTIALS,
-                    settings.SCOPES
-                )
-
+            flow = InstalledAppFlow.from_client_config(
+                settings.GOOGLE_CREDENTIALS,
+                settings.SCOPES
+            )
             flow.fetch_token(code=code)
             creds = flow.credentials
-            with open('token.json', 'w') as token:
-                token.write(creds.to_json())
+            with open('token.json', 'w') as token_file:
+                token_file.write(creds.to_json())
             logger.info("OAuth2 authorization completed successfully.")
-            return redirect('jobs_dashboard_with_emails')  # Redirect to the new jobs dashboard URL
+            return redirect('jobs_dashboard_with_emails')
         except GoogleAuthError as e:
             logger.error(f"OAuth2 error: {e}")
             return HttpResponse("OAuth2 error occurred.", status=500)
@@ -52,7 +43,6 @@ def jobs_dashboard_with_emails_or_callback(request):
             logger.error(f"Unexpected error: {e}")
             return HttpResponse("An unexpected error occurred.", status=500)
     else:
-        # Handle jobs dashboard logic here
         logger.debug("Rendering jobs dashboard with emails.")
         email_subjects, auth_url = get_unread_emails()
         if auth_url:
@@ -63,9 +53,9 @@ def jobs_dashboard_with_emails_or_callback(request):
         context = {
             'email_subjects': email_subjects,
             'unread_email_count': unread_email_count,
-            # Add other context data as needed
         }
         return render(request, "jobs/jobs_dashboard.html", context)
+
 
 
 def generate_authorization_url(client_id, redirect_uri, scopes, state):
@@ -82,17 +72,26 @@ def generate_authorization_url(client_id, redirect_uri, scopes, state):
     logger.debug(f'Authorization URL: {url}')  # Log the full URL
     return url
 
+
 def oauth_login(request):
     client_id = settings.GOOGLE_CLIENT_ID
-    # Hardcoded redirect URI for testing
-    redirect_uri = 'https://www.jwalshedev.ie/oauth/jobs-dashboard/'
+    redirect_uri = settings.GOOGLE_REDIRECT_URI
     scopes = settings.SCOPES
     state = "random_state_string"  # Generate a unique state value for each request
 
-    authorization_url = generate_authorization_url(client_id, redirect_uri, scopes, state)
+    # Using InstalledAppFlow to generate the authorization URL
+    flow = InstalledAppFlow.from_client_config(
+        settings.GOOGLE_CREDENTIALS,
+        scopes
+    )
+    authorization_url, _ = flow.authorization_url(
+        redirect_uri=redirect_uri,
+        state=state
+    )
     
-    # Redirect user to the OAuth provider's authorization page
+    logger.debug(f"Redirecting to authorization URL: {authorization_url}")
     return redirect(authorization_url)
+
 
 def env_vars(request):
     env_vars = {
