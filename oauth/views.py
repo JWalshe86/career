@@ -58,9 +58,10 @@ def oauth2callback(request):
             token.write(creds.to_json())
         logger.info("OAuth2 authorization completed successfully.")
         return redirect('jobs_dashboard_with_emails')  # Redirect to the new jobs dashboard URL
-    except GoogleAuthError as e:
+    except Exception as e:
         logger.error(f"OAuth2 error: {e}")
         return HttpResponse("OAuth2 error occurred.", status=500)
+
 
 def env_vars(request):
     env_vars = {
