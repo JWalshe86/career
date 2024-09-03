@@ -71,14 +71,6 @@ def generate_authorization_url(client_id, scopes, state):
     return authorization_url
 
 
-
-
-
-# Configure logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-
 def oauth_login(request):
     client_config = {
         "web": {
@@ -88,12 +80,12 @@ def oauth_login(request):
             "token_uri": "https://oauth2.googleapis.com/token",
             "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
             "client_secret": settings.GOOGLE_CLIENT_SECRET,
-            "redirect_uris": settings.GOOGLE_REDIRECT_URIS
+            "redirect_uris": ["https://www.jwalshedev.ie/oauth/jobs-dashboard/"]  # Hardcoded redirect URI
         }
     }
 
     # Set your redirect URI here for the authorization flow
-    redirect_uri = settings.GOOGLE_REDIRECT_URIS[0]  # Adjust based on your needs
+    redirect_uri = "https://www.jwalshedev.ie/oauth/jobs-dashboard/"  # Hardcoded redirect URI
 
     flow = Flow.from_client_config(
         client_config,
@@ -107,6 +99,8 @@ def oauth_login(request):
     )
 
     return redirect(authorization_url)
+
+
 
 def env_vars(request):
     env_vars = {
