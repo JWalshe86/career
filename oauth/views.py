@@ -16,6 +16,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 
 def generate_authorization_url(client_id, redirect_uri, scopes, state):
+    print('client_id in gen auth', client_id)
     base_url = "https://accounts.google.com/o/oauth2/auth"
     params = {
         "response_type": "code",
@@ -39,36 +40,6 @@ def oauth_login(request):
     return redirect(authorization_url)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def env_vars(request):
-    env_vars = {
-        'DEBUG': os.getenv('DEBUG'),
-        'DATABASE_URL': os.getenv('DATABASE_URL'),
-        'GOOGLE_CLIENT_ID': os.getenv('GOOGLE_CLIENT_ID'),
-        'GOOGLE_CLIENT_SECRET': os.getenv('GOOGLE_CLIENT_SECRET'),
-        'GOOGLE_REDIRECT_URI': os.getenv('GOOGLE_REDIRECT_URI'),
-    }
-    return JsonResponse(env_vars)
-
-
 def oauth2callback(request):
     code = request.GET.get('code')
     if not code:
@@ -89,6 +60,19 @@ def oauth2callback(request):
     except (GoogleAuthError, InsecureTransportError) as e:
         logger.error(f"OAuth2 error: {e}")
         return HttpResponse("OAuth2 error occurred.", status=500)
+
+
+def env_vars(request):
+    env_vars = {
+        'DEBUG': os.getenv('DEBUG'),
+        'DATABASE_URL': os.getenv('DATABASE_URL'),
+        'GOOGLE_CLIENT_ID': os.getenv('GOOGLE_CLIENT_ID'),
+        'GOOGLE_CLIENT_SECRET': os.getenv('GOOGLE_CLIENT_SECRET'),
+        'GOOGLE_REDIRECT_URI': os.getenv('GOOGLE_REDIRECT_URI'),
+    }
+    return JsonResponse(env_vars)
+
+
 
 
 def exchange_code_for_tokens(auth_code):
