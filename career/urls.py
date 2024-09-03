@@ -2,7 +2,6 @@ from django.views.generic.base import TemplateView
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
-from oauth.views import oauth2callback
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html'), name='home'),
