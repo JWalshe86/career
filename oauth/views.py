@@ -1,23 +1,22 @@
-# oauth/views.py
 import os
-from django.shortcuts import render, redirect
 import urllib.parse
-from django.conf import settings
-from .oauth_utils import get_oauth2_authorization_url, get_unread_emails
-from django.http import JsonResponse
-from google.auth.exceptions import GoogleAuthError
 import logging
+import requests
+from django.shortcuts import render, redirect
+from django.conf import settings
+from django.http import JsonResponse, HttpResponse
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.exceptions import GoogleAuthError
+
+from .oauth_utils import get_oauth2_authorization_url, get_unread_emails
 
 logger = logging.getLogger(__name__)
 
-from django.http import HttpResponse
-from django.shortcuts import redirect
-from google_auth_oauthlib.flow import InstalledAppFlow
-
-print("SCOPES in views.py:", settings.SCOPES)
+# Print SCOPES for debugging (remove or replace with proper logging in production)
+logger.debug("SCOPES in views.py: %s", settings.SCOPES)
 
 def generate_authorization_url(client_id, redirect_uri, scopes, state):
-    print('client_id in gen auth', client_id)
+    logger.debug('client_id in generate_authorization_url: %s', client_id)
     base_url = "https://accounts.google.com/o/oauth2/auth"
     params = {
         "response_type": "code",
@@ -30,16 +29,15 @@ def generate_authorization_url(client_id, redirect_uri, scopes, state):
     return url
 
 def oauth_login(request):
-    client_id = "554722957427-8i5p5m7jd1vobctsb34ql0km1qorpihg.apps.googleusercontent.com"
-    redirect_uri = "https://www.jwalshedev.ie/jobs-dashboard/oauth2callback/"
-    scopes = ["email", "profile"]
+    client_id = settings.GOOGLE_CLIENT_ID
+    redirect_uri = settings.GOOGLE_REDIRECT_URI
+    scopes = settings.SCOPES
     state = "random_state_string"  # Generate a unique state value for each request
 
     authorization_url = generate_authorization_url(client_id, redirect_uri, scopes, state)
     
     # Redirect user to the OAuth provider's authorization page
     return redirect(authorization_url)
-
 
 def oauth2callback(request):
     code = request.GET.get('code')
@@ -50,7 +48,7 @@ def oauth2callback(request):
     try:
         flow = InstalledAppFlow.from_client_secrets_file(
             settings.GOOGLE_CREDENTIALS_PATH,
-            SCOPES
+            settings.SCOPES
         )
         flow.fetch_token(code=code)
         creds = flow.credentials
@@ -58,10 +56,12 @@ def oauth2callback(request):
             token.write(creds.to_json())
         logger.info("OAuth2 authorization completed successfully.")
         return redirect('jobs_dashboard_with_emails')  # Redirect to the new jobs dashboard URL
-    except Exception as e:
+    except GoogleAuthError as e:
         logger.error(f"OAuth2 error: {e}")
         return HttpResponse("OAuth2 error occurred.", status=500)
-
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return HttpResponse("An unexpected error occurred.", status=500)
 
 def env_vars(request):
     env_vars = {
@@ -72,9 +72,6 @@ def env_vars(request):
         'GOOGLE_REDIRECT_URI': os.getenv('GOOGLE_REDIRECT_URI'),
     }
     return JsonResponse(env_vars)
-
-
-
 
 def exchange_code_for_tokens(auth_code):
     response = requests.post(
@@ -87,9 +84,9 @@ def exchange_code_for_tokens(auth_code):
             'grant_type': 'authorization_code'
         }
     )
+    response.raise_for_status()  # Ensure we raise an error for bad HTTP responses
     tokens = response.json()
     return tokens
-
 
 def jobs_dashboard_with_emails(request):
     logger.debug("Rendering jobs dashboard with emails.")
