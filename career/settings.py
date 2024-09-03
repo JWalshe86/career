@@ -1,5 +1,4 @@
 import os
-import json
 import logging
 from pathlib import Path
 from decouple import config, Csv
@@ -8,48 +7,31 @@ import dj_database_url
 
 # Load environment variables from .env file (for local development)
 load_dotenv()
-ROOT_URLCONF = 'career.urls'  # Adjust according to your project name
-# Load CSRF trusted origins from environment
-CSRF_TRUSTED_ORIGINS = config(
-    'CSRF_TRUSTED_ORIGINS',
-    default='https://www.jwalshedev.ie,https://johnsite.herokuapp.com,https://5b57-86-46-100-229.ngrok-free.app',
-    cast=Csv()
-)
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='https://www.jwalshedev.ie,https://johnsite.herokuapp.com,https://5b57-86-46-100-229.ngrok-free.app', cast=Csv())
 
 # Set debug mode
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# Define BASE_DIR
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Verify the Google redirect URI
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
+if not GOOGLE_REDIRECT_URI:
+    raise ValueError("GOOGLE_REDIRECT_URI environment variable is not set")
 
 # Google OAuth 2.0 credentials
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
-
-# Get credentials JSON from environment variable
 GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON')
-if GOOGLE_CREDENTIALS_JSON:
-    # Write the credentials to a temporary file for use
-    with open('/tmp/credentials.json', 'w') as f:
-        f.write(GOOGLE_CREDENTIALS_JSON)
-    GOOGLE_CREDENTIALS_PATH = '/tmp/credentials.json'
-else:
-    GOOGLE_CREDENTIALS_PATH = None
-
 SCOPES = json.loads(os.getenv('SCOPES', '["https://www.googleapis.com/auth/gmail.readonly"]'))
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Define BASE_DIR
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 # Retrieve settings
-ALLOWED_HOSTS = config(
-    'ALLOWED_HOSTS',
-    default='localhost,5b57-86-46-100-229.ngrok-free.app,johnsite-d251709cf12b.herokuapp.com,www.jwalshedev.ie',
-    cast=Csv()
-)
-GOOGLE_REDIRECT_URI = config('GOOGLE_REDIRECT_URI', default='https://www.jwalshedev.ie/oauth/jobs-dashboard/')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,5b57-86-46-100-229.ngrok-free.app,johnsite-d251709cf12b.herokuapp.com,www.jwalshedev.ie', cast=Csv())
 SECRET_KEY = config('SECRET_KEY', default='default-secret-key')
 DATABASE_URL = config('DATABASE_URL', default='')
 
