@@ -17,6 +17,16 @@ logger = logging.getLogger(__name__)
 logger.debug("SCOPES in views.py: %s", settings.SCOPES)
 
 
+from django.conf import settings
+from google.auth.transport.requests import Request
+from google.oauth2 import InstalledAppFlow
+from google.auth.exceptions import GoogleAuthError
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
+import logging
+
+logger = logging.getLogger(__name__)
+
 def jobs_dashboard_with_emails_or_callback(request):
     if 'code' in request.GET:
         code = request.GET.get('code')
@@ -27,7 +37,6 @@ def jobs_dashboard_with_emails_or_callback(request):
             return HttpResponse("Authorization code missing.", status=400)
 
         try:
-            # Load OAuth credentials and scopes from settings
             client_config = {
                 "web": {
                     "client_id": settings.GOOGLE_CLIENT_ID,
@@ -36,13 +45,10 @@ def jobs_dashboard_with_emails_or_callback(request):
                     "token_uri": "https://oauth2.googleapis.com/token",
                     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
                     "client_secret": settings.GOOGLE_CLIENT_SECRET,
-                    "redirect_uris": [settings.GOOGLE_REDIRECT_URI]  # Ensure this matches your OAuth2 settings
+                    "redirect_uris": [settings.GOOGLE_REDIRECT_URI]
                 }
             }
-
-            # Specify the redirect URI explicitly for the flow
-            redirect_uri = settings.GOOGLE_REDIRECT_URI
-
+            
             # Create the OAuth2 flow object
             logger.debug("Creating OAuth2 flow object.")
             flow = InstalledAppFlow.from_client_config(
