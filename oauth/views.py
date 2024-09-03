@@ -71,7 +71,18 @@ def generate_authorization_url(client_id, scopes, state):
     return authorization_url
 
 
+import logging
+from google_auth_oauthlib.flow import Flow
+from django.conf import settings
+from django.shortcuts import redirect
+
+# Setup logging
+logger = logging.getLogger(__name__)
+
 def oauth_login(request):
+    # Debugging output
+    logger.debug("Starting OAuth login process")
+
     client_config = {
         "web": {
             "client_id": settings.GOOGLE_CLIENT_ID,
@@ -84,21 +95,41 @@ def oauth_login(request):
         }
     }
 
-    # Set your redirect URI here for the authorization flow
     redirect_uri = "https://www.jwalshedev.ie/oauth/jobs-dashboard/"  # Hardcoded redirect URI
 
-    flow = Flow.from_client_config(
-        client_config,
-        scopes=["https://www.googleapis.com/auth/gmail.readonly"],
-        redirect_uri=redirect_uri
-    )
+    # Debugging output
+    logger.debug(f"Client config: {client_config}")
+    logger.debug(f"Redirect URI: {redirect_uri}")
 
-    authorization_url, state = flow.authorization_url(
-        access_type='offline',
-        include_granted_scopes='true'
-    )
+    try:
+        # Create the OAuth Flow object
+        flow = Flow.from_client_config(
+            client_config,
+            scopes=["https://www.googleapis.com/auth/gmail.readonly"],
+            redirect_uri=redirect_uri
+        )
+        
+        # Debugging output
+        logger.debug("OAuth Flow object created successfully")
+        
+        # Generate the authorization URL
+        authorization_url, state = flow.authorization_url(
+            access_type='offline',
+            include_granted_scopes='true'
+        )
+        
+        # Debugging output
+        logger.debug(f"Authorization URL: {authorization_url}")
+        logger.debug(f"State: {state}")
+        
+        # Redirect to the authorization URL
+        return redirect(authorization_url)
+    
+    except Exception as e:
+        # Log any exceptions that occur
+        logger.error(f"Error during OAuth login process: {e}")
+        return redirect('/')  # Redirect to home or error page
 
-    return redirect(authorization_url)
 
 
 
