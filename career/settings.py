@@ -14,6 +14,7 @@ CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='https://www.jwals
 # Set debug mode
 DEBUG = config('DEBUG', default=False, cast=bool)
 ROOT_URLCONF = 'career.urls'  # Adjust according to your project name
+GOOGLE_CREDENTIALS_PATH = os.getenv('GOOGLE_CREDENTIALS_PATH')
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
