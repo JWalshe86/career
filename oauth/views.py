@@ -5,6 +5,7 @@ import urllib.parse
 from django.conf import settings
 from .oauth_utils import get_oauth2_authorization_url, get_unread_emails
 from django.http import JsonResponse
+from google.auth.exceptions import GoogleAuthError, InsecureTransportError
 import logging
 
 logger = logging.getLogger(__name__)
