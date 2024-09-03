@@ -79,12 +79,22 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from django.http import HttpResponse
 
 
+
 # Configure logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+from django.shortcuts import redirect
+from google_auth_oauthlib.flow import Flow
+from django.http import HttpResponse
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 def oauth_login(request):
-    # Hardcoded Google credentials JSON
-    hardcoded_google_credentials = {
+    # Configuration with your client secret and client ID
+    client_config = {
         "web": {
             "client_id": "554722957427-8i5p5m7jd1vobctsb34ql0km1qorpihg.apps.googleusercontent.com",
             "project_id": "johnsite-433520",
@@ -93,35 +103,27 @@ def oauth_login(request):
             "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
             "client_secret": "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",
             "redirect_uris": [
+                "http://localhost:8000/oauth/jobs-dashboard/",
                 "https://www.jwalshedev.ie/oauth/jobs-dashboard/",
-                "http://localhost:8000/oauth/jobs-dashboard/"
+                "https://johnsite-d251709cf12b.herokuapp.com/jobs-dashboard/oauth2callback/"
             ]
         }
     }
 
-    # Hardcoded scopes
-    scopes = ["https://www.googleapis.com/auth/gmail.readonly"]
+    # Create a Flow instance with your configuration
+    flow = Flow.from_client_config(
+        client_config,
+        scopes=["https://www.googleapis.com/auth/gmail.readonly"],
+        redirect_uri="http://localhost:8000/oauth/jobs-dashboard/"  # Use appropriate redirect URI based on the environment
+    )
 
-    try:
-        # Initialize the OAuth flow with hardcoded credentials
-        flow = InstalledAppFlow.from_client_config(
-            hardcoded_google_credentials,
-            scopes
-        )
-        
-        # Generate the authorization URL
-        authorization_url, _ = flow.authorization_url(
-            access_type='offline',
-            include_granted_scopes='true'
-        )
+    authorization_url, state = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true'
+    )
 
-        logger.debug(f"Authorization URL: {authorization_url}")
-
-        return redirect(authorization_url)
-    except Exception as e:
-        logger.error(f"Error in OAuth login: {e}")
-        return HttpResponse(f"Error occurred during OAuth login: {e}", status=500)
-
+    logger.debug(f"Authorization URL: {authorization_url}")
+    return redirect(authorization_url)
 
 def env_vars(request):
     env_vars = {
