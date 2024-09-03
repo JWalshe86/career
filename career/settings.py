@@ -5,6 +5,7 @@ from pathlib import Path
 from decouple import config, Csv
 from dotenv import load_dotenv
 import dj_database_url
+ROOT_URLCONF = 'career.urls'
 
 # Load environment variables from .env file (for local development)
 load_dotenv()
