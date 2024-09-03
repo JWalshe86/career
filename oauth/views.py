@@ -14,7 +14,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-
+print("SCOPES in views.py:", settings.SCOPES)
 
 def generate_authorization_url(client_id, redirect_uri, scopes, state):
     print('client_id in gen auth', client_id)
