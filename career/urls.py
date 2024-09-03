@@ -10,9 +10,8 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path('emails/', include('emails.urls')),
     path('jobs/', include('jobs.urls')),
-    path('oauth/', include('oauth.urls')),
+    path('', include('oauth.urls')),
     path('users/', include('users.urls')),
     path('map/', include('map.urls')),
     path('tasks/', include('tasks.urls', namespace='tasks')),
-    path("oauth2callback/", oauth2callback, name="oauth2callback"),
 ]
