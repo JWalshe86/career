@@ -15,8 +15,9 @@ logger = logging.getLogger(__name__)
 # Print SCOPES for debugging (remove or replace with proper logging in production)
 logger.debug("SCOPES in views.py: %s", settings.SCOPES)
 
+
 def generate_authorization_url(client_id, redirect_uri, scopes, state):
-    logger.debug('client_id in generate_authorization_url: %s', client_id)
+    logger.debug('Generating authorization URL')
     base_url = "https://accounts.google.com/o/oauth2/auth"
     params = {
         "response_type": "code",
@@ -26,7 +27,9 @@ def generate_authorization_url(client_id, redirect_uri, scopes, state):
         "state": state
     }
     url = f"{base_url}?{urllib.parse.urlencode(params)}"
+    logger.debug(f'Authorization URL: {url}')  # Log the full URL
     return url
+
 
 
 def oauth_login(request):
