@@ -18,7 +18,6 @@ logger.debug("SCOPES in views.py: %s", settings.SCOPES)
 
 
 def jobs_dashboard_with_emails_or_callback(request):
-    # Check if the request contains the authorization code
     if 'code' in request.GET:
         code = request.GET.get('code')
         logger.debug(f"Authorization code received: {code}")
@@ -28,18 +27,36 @@ def jobs_dashboard_with_emails_or_callback(request):
             return HttpResponse("Authorization code missing.", status=400)
 
         try:
-            logger.debug("Starting OAuth2 flow to fetch token.")
-            # Create the flow object using client credentials and scopes
+            # Load OAuth credentials and scopes from settings
+            client_config = {
+                "web": {
+                    "client_id": settings.GOOGLE_CLIENT_ID,
+                    "project_id": "johnsite-433520",
+                    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                    "token_uri": "https://oauth2.googleapis.com/token",
+                    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                    "client_secret": settings.GOOGLE_CLIENT_SECRET,
+                    "redirect_uris": [settings.GOOGLE_REDIRECT_URI]  # Ensure this matches your OAuth2 settings
+                }
+            }
+
+            # Specify the redirect URI explicitly for the flow
+            redirect_uri = settings.GOOGLE_REDIRECT_URI
+
+            # Create the OAuth2 flow object
+            logger.debug("Creating OAuth2 flow object.")
             flow = InstalledAppFlow.from_client_config(
-                settings.GOOGLE_CREDENTIALS,
-                settings.SCOPES
+                client_config,
+                scopes=settings.SCOPES
             )
             
             # Fetch the token using the provided code
+            logger.debug("Fetching token with the authorization code.")
             flow.fetch_token(code=code)
             creds = flow.credentials
             
             # Save the credentials to a file
+            logger.debug("Saving credentials to 'token.json'.")
             with open('token.json', 'w') as token_file:
                 token_file.write(creds.to_json())
                 
@@ -72,6 +89,8 @@ def jobs_dashboard_with_emails_or_callback(request):
         except Exception as e:
             logger.error(f"Error in getting unread emails or rendering dashboard: {e}")
             return HttpResponse("An unexpected error occurred while fetching emails.", status=500)
+
+
 
 def generate_authorization_url(client_id, scopes, state):
     logger.debug('Generating authorization URL')
