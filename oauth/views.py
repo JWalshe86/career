@@ -20,6 +20,7 @@ logger.debug("SCOPES in views.py: %s", settings.SCOPES)
 
 logger = logging.getLogger(__name__)
 
+
 def jobs_dashboard_with_emails_or_callback(request):
     if 'code' in request.GET:
         code = request.GET.get('code')
@@ -38,7 +39,7 @@ def jobs_dashboard_with_emails_or_callback(request):
                     "token_uri": "https://oauth2.googleapis.com/token",
                     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
                     "client_secret": settings.GOOGLE_CLIENT_SECRET,
-                    "redirect_uris": [settings.GOOGLE_REDIRECT_URI]  # Ensure this URI matches what Google expects
+                    "redirect_uris": [settings.GOOGLE_REDIRECT_URI]
                 }
             }
             
@@ -66,7 +67,7 @@ def jobs_dashboard_with_emails_or_callback(request):
             return HttpResponse("OAuth2 error occurred.", status=500)
         except Exception as e:
             logger.error(f"Unexpected error: {e}")
-            return HttpResponse("An unexpected error occurred. From jobsdashboard funct", status=500)
+            return HttpResponse("An unexpected error occurred.", status=500)
     else:
         logger.debug("No authorization code present in request.")
         logger.debug("Rendering jobs dashboard with emails.")
