@@ -21,29 +21,54 @@ from google.auth.exceptions import RefreshError
 from googleapiclient.discovery import build
 import json
 
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+import json
+import os
+import logging
+
 logger = logging.getLogger(__name__)
 
 # Path to store the token
 TOKEN_FILE_PATH = 'token.json'
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
+def load_credentials():
+    """Load credentials from the token file."""
+    if os.path.exists(TOKEN_FILE_PATH):
+        with open(TOKEN_FILE_PATH, 'r') as token_file:
+            token_info = json.load(token_file)
+            creds = Credentials.from_authorized_user_info(token_info, SCOPES)
+            return creds
+    return None
+
+def save_credentials(creds):
+    """Save credentials to the token file."""
+    with open(TOKEN_FILE_PATH, 'w') as token_file:
+        token_file.write(creds.to_json())
+    logger.info("Credentials saved to token.json.")
+
+def refresh_tokens(creds):
+    """Refresh OAuth2 tokens."""
+    try:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            save_credentials(creds)
+            logger.info("Credentials refreshed and saved.")
+        return creds
+    except Exception as e:
+        logger.error(f"Token refresh error: {e}")
+        return None
+
 def exchange_code_for_tokens(auth_code):
     """Exchange the authorization code for tokens."""
-    redirect_uri = os.getenv('GOOGLE_REDIRECT_URI')
-    client_id = os.getenv('GOOGLE_CLIENT_ID')
-    client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
-
-    if not redirect_uri or not client_id or not client_secret:
-        logger.error("Missing environment variables for token exchange.")
-        raise ValueError("Missing required environment variables")
-
     response = requests.post(
         'https://oauth2.googleapis.com/token',
         data={
             'code': auth_code,
-            'client_id': client_id,
-            'client_secret': client_secret,
-            'redirect_uri': redirect_uri,
+            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+            'client_secret': os.getenv('GOOGLE_CLIENT_SECRET'),
+            'redirect_uri': os.getenv('GOOGLE_REDIRECT_URI'),
             'grant_type': 'authorization_code'
         }
     )
@@ -51,21 +76,10 @@ def exchange_code_for_tokens(auth_code):
     if 'error' in tokens:
         logger.error(f"Error exchanging code for tokens: {tokens.get('error_description', 'No error description')}")
         raise Exception("Error exchanging code for tokens")
-    return tokens
-
-def refresh_tokens(creds):
-    """Refresh OAuth2 tokens."""
-    try:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            # Save refreshed credentials back to file
-            with open(TOKEN_FILE_PATH, 'w') as token_file:
-                token_file.write(creds.to_json())
-            logger.info("Credentials refreshed and saved.")
-        return creds
-    except RefreshError as e:
-        logger.error(f"Token refresh error: {e}")
-        return None
+    
+    creds = Credentials.from_authorized_user_info(tokens, SCOPES)
+    save_credentials(creds)
+    return creds
 
 def get_oauth2_authorization_url():
     """Generate OAuth2 authorization URL."""
@@ -93,18 +107,7 @@ def get_unread_emails(auth_code=None):
 
     if auth_code:
         try:
-            tokens = exchange_code_for_tokens(auth_code)
-            google_credentials = {
-                "client_id": os.getenv('GOOGLE_CLIENT_ID'),
-                "client_secret": os.getenv('GOOGLE_CLIENT_SECRET'),
-                "refresh_token": tokens.get('refresh_token'),
-                "token_uri": "https://oauth2.googleapis.com/token"
-            }
-            creds = Credentials.from_authorized_user_info(google_credentials, SCOPES)
-            # Save credentials to file
-            with open(TOKEN_FILE_PATH, 'w') as token_file:
-                token_file.write(creds.to_json())
-            logger.info("Saved new credentials to token.json.")
+            creds = exchange_code_for_tokens(auth_code)
         except Exception as e:
             logger.error(f"Error handling authorization code: {e}")
             return [], None
@@ -115,9 +118,8 @@ def get_unread_emails(auth_code=None):
             auth_url = get_oauth2_authorization_url()
             return [], auth_url
     else:
-        if os.path.exists(TOKEN_FILE_PATH):
-            creds = Credentials.from_authorized_user_file(TOKEN_FILE_PATH, SCOPES)
-            logger.debug("Loaded credentials from token.json.")
+        creds = load_credentials()
+        if creds:
             creds = refresh_tokens(creds)
             if not creds:
                 auth_url = get_oauth2_authorization_url()
