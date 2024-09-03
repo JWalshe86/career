@@ -5,24 +5,25 @@ from pathlib import Path
 from decouple import config, Csv
 from dotenv import load_dotenv
 import dj_database_url
-ROOT_URLCONF = 'career.urls'
 
 # Load environment variables from .env file (for local development)
 load_dotenv()
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='https://www.jwalshedev.ie,https://johnsite.herokuapp.com,https://5b57-86-46-100-229.ngrok-free.app', cast=Csv())
 
-# Set debug mode
+# Determine if running on Heroku
+HEROKU = 'DYNO' in os.environ
+
+# Google OAuth 2.0 credentials settings
+if HEROKU:
+    GOOGLE_CREDENTIALS_PATH = None
+else:
+    GOOGLE_CREDENTIALS_PATH = os.getenv('GOOGLE_CREDENTIALS_PATH', 'path/to/local/credentials.json')
+
+# Other settings
 DEBUG = config('DEBUG', default=False, cast=bool)
-
-# Verify the Google redirect URI
-GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
-if not GOOGLE_REDIRECT_URI:
-    raise ValueError("GOOGLE_REDIRECT_URI environment variable is not set")
-
-# Google OAuth 2.0 credentials
+ROOT_URLCONF = 'career.urls'
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON')
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
 SCOPES = json.loads(os.getenv('SCOPES', '["https://www.googleapis.com/auth/gmail.readonly"]'))
 
 # Configure logging
@@ -36,9 +37,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,5b57-86-46-100-229.ngrok-free.app,johnsite-d251709cf12b.herokuapp.com,www.jwalshedev.ie', cast=Csv())
 SECRET_KEY = config('SECRET_KEY', default='default-secret-key')
 DATABASE_URL = config('DATABASE_URL', default='')
-
-# Define Heroku detection
-HEROKU = 'DYNO' in os.environ
 
 # Database configuration
 if HEROKU:
