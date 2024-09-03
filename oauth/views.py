@@ -1,6 +1,7 @@
 # oauth/views.py
 import os
 from django.shortcuts import render, redirect
+import urllib.parse
 from django.conf import settings
 from .oauth_utils import get_oauth2_authorization_url, get_unread_emails
 from django.http import JsonResponse
@@ -11,6 +12,50 @@ logger = logging.getLogger(__name__)
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from google_auth_oauthlib.flow import InstalledAppFlow
+
+
+
+def generate_authorization_url(client_id, redirect_uri, scopes, state):
+    base_url = "https://accounts.google.com/o/oauth2/auth"
+    params = {
+        "response_type": "code",
+        "client_id": client_id,
+        "redirect_uri": redirect_uri,
+        "scope": " ".join(scopes),
+        "state": state
+    }
+    url = f"{base_url}?{urllib.parse.urlencode(params)}"
+    return url
+
+def oauth_login(request):
+    client_id = "YOUR_CLIENT_ID"
+    redirect_uri = "https://www.jwalshedev.ie/jobs-dashboard/oauth2callback/"
+    scopes = ["email", "profile"]
+    state = "random_state_string"  # Generate a unique state value for each request
+
+    authorization_url = generate_authorization_url(client_id, redirect_uri, scopes, state)
+    
+    # Redirect user to the OAuth provider's authorization page
+    return redirect(authorization_url)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def env_vars(request):
