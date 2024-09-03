@@ -13,11 +13,8 @@ load_dotenv()
 HEROKU = 'DYNO' in os.environ
 
 # Google OAuth 2.0 credentials settings
-if HEROKU:
-    GOOGLE_CREDENTIALS_PATH = None
-else:
-    GOOGLE_CREDENTIALS_PATH = os.getenv('GOOGLE_CREDENTIALS_PATH', 'path/to/local/credentials.json')
-
+# Google OAuth 2.0 credentials settings
+GOOGLE_CREDENTIALS_PATH = os.getenv('GOOGLE_CREDENTIALS_PATH') if not HEROKU else None
 # Other settings
 DEBUG = config('DEBUG', default=False, cast=bool)
 ROOT_URLCONF = 'career.urls'
