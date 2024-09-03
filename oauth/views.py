@@ -28,7 +28,7 @@ def generate_authorization_url(client_id, redirect_uri, scopes, state):
     return url
 
 def oauth_login(request):
-    client_id = "YOUR_CLIENT_ID"
+    client_id = "554722957427-8i5p5m7jd1vobctsb34ql0km1qorpihg.apps.googleusercontent.com"
     redirect_uri = "https://www.jwalshedev.ie/jobs-dashboard/oauth2callback/"
     scopes = ["email", "profile"]
     state = "random_state_string"  # Generate a unique state value for each request
