@@ -1,7 +1,9 @@
 # oauth/views.py
+import os
 from django.shortcuts import render, redirect
 from django.conf import settings
 from .oauth_utils import get_oauth2_authorization_url, get_unread_emails
+from django.http import JsonResponse
 import logging
 
 logger = logging.getLogger(__name__)
@@ -9,6 +11,17 @@ logger = logging.getLogger(__name__)
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from google_auth_oauthlib.flow import InstalledAppFlow
+
+
+def env_vars(request):
+    env_vars = {
+        'DEBUG': os.getenv('DEBUG'),
+        'DATABASE_URL': os.getenv('DATABASE_URL'),
+        'GOOGLE_CLIENT_ID': os.getenv('GOOGLE_CLIENT_ID'),
+        'GOOGLE_CLIENT_SECRET': os.getenv('GOOGLE_CLIENT_SECRET'),
+        'GOOGLE_REDIRECT_URI': os.getenv('GOOGLE_REDIRECT_URI'),
+    }
+    return JsonResponse(env_vars)
 
 
 def oauth2callback(request):
