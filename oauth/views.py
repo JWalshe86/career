@@ -38,7 +38,7 @@ def jobs_dashboard_with_emails_or_callback(request):
                     "token_uri": "https://oauth2.googleapis.com/token",
                     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
                     "client_secret": settings.GOOGLE_CLIENT_SECRET,
-                    "redirect_uris": [settings.GOOGLE_REDIRECT_URI]
+                    "redirect_uris": [settings.GOOGLE_REDIRECT_URI]  # Ensure this URI matches what Google expects
                 }
             }
             
@@ -88,8 +88,6 @@ def jobs_dashboard_with_emails_or_callback(request):
         except Exception as e:
             logger.error(f"Error in getting unread emails or rendering dashboard: {e}")
             return HttpResponse("An unexpected error occurred while fetching emails.", status=500)
-
-
 
 def generate_authorization_url(client_id, scopes, state):
     logger.debug('Generating authorization URL')
