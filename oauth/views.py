@@ -28,9 +28,11 @@ def generate_authorization_url(client_id, redirect_uri, scopes, state):
     url = f"{base_url}?{urllib.parse.urlencode(params)}"
     return url
 
+
 def oauth_login(request):
     client_id = settings.GOOGLE_CLIENT_ID
-    redirect_uri = settings.GOOGLE_REDIRECT_URI
+    # Hardcoded redirect URI for testing
+    redirect_uri = 'https://www.jwalshedev.ie/oauth/jobs-dashboard/'
     scopes = settings.SCOPES
     state = "random_state_string"  # Generate a unique state value for each request
 
@@ -38,6 +40,8 @@ def oauth_login(request):
     
     # Redirect user to the OAuth provider's authorization page
     return redirect(authorization_url)
+
+
 
 def oauth2callback(request):
     code = request.GET.get('code')
