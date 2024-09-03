@@ -18,22 +18,31 @@ logger.debug("SCOPES in views.py: %s", settings.SCOPES)
 
 
 def jobs_dashboard_with_emails_or_callback(request):
+    # Check if the request contains the authorization code
     if 'code' in request.GET:
         code = request.GET.get('code')
         logger.debug(f"Authorization code received: {code}")
+
         if not code:
             logger.error("No authorization code provided.")
             return HttpResponse("Authorization code missing.", status=400)
 
         try:
+            logger.debug("Starting OAuth2 flow to fetch token.")
+            # Create the flow object using client credentials and scopes
             flow = InstalledAppFlow.from_client_config(
                 settings.GOOGLE_CREDENTIALS,
                 settings.SCOPES
             )
+            
+            # Fetch the token using the provided code
             flow.fetch_token(code=code)
             creds = flow.credentials
+            
+            # Save the credentials to a file
             with open('token.json', 'w') as token_file:
                 token_file.write(creds.to_json())
+                
             logger.info("OAuth2 authorization completed successfully.")
             return redirect('jobs_dashboard_with_emails')
         except GoogleAuthError as e:
@@ -43,19 +52,26 @@ def jobs_dashboard_with_emails_or_callback(request):
             logger.error(f"Unexpected error: {e}")
             return HttpResponse("An unexpected error occurred. From jobsdashboard funct", status=500)
     else:
+        logger.debug("No authorization code present in request.")
         logger.debug("Rendering jobs dashboard with emails.")
-        email_subjects, auth_url = get_unread_emails()
-        if auth_url:
-            logger.debug(f"Redirecting to authorization URL: {auth_url}")
-            return redirect(auth_url)
 
-        unread_email_count = len(email_subjects) if email_subjects else 0
-        context = {
-            'email_subjects': email_subjects,
-            'unread_email_count': unread_email_count,
-        }
-        return render(request, "jobs/jobs_dashboard.html", context)
+        try:
+            email_subjects, auth_url = get_unread_emails()
+            logger.debug(f"Email subjects: {email_subjects}")
+            
+            if auth_url:
+                logger.debug(f"Redirecting to authorization URL: {auth_url}")
+                return redirect(auth_url)
 
+            unread_email_count = len(email_subjects) if email_subjects else 0
+            context = {
+                'email_subjects': email_subjects,
+                'unread_email_count': unread_email_count,
+            }
+            return render(request, "jobs/jobs_dashboard.html", context)
+        except Exception as e:
+            logger.error(f"Error in getting unread emails or rendering dashboard: {e}")
+            return HttpResponse("An unexpected error occurred while fetching emails.", status=500)
 
 def generate_authorization_url(client_id, scopes, state):
     logger.debug('Generating authorization URL')
