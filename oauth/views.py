@@ -29,13 +29,21 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 def exchange_code_for_tokens(auth_code):
     """Exchange the authorization code for tokens."""
+    redirect_uri = os.getenv('GOOGLE_REDIRECT_URI')
+    client_id = os.getenv('GOOGLE_CLIENT_ID')
+    client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+
+    if not redirect_uri or not client_id or not client_secret:
+        logger.error("Missing environment variables for token exchange.")
+        raise ValueError("Missing required environment variables")
+
     response = requests.post(
         'https://oauth2.googleapis.com/token',
         data={
             'code': auth_code,
-            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
-            'client_secret': os.getenv('GOOGLE_CLIENT_SECRET'),
-            'redirect_uri': os.getenv('GOOGLE_REDIRECT_URI'),
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'redirect_uri': redirect_uri,
             'grant_type': 'authorization_code'
         }
     )
