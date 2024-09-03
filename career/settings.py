@@ -12,16 +12,31 @@ load_dotenv()
 # Determine if running on Heroku
 HEROKU = 'DYNO' in os.environ
 
-# Google OAuth 2.0 credentials settings
-# Google OAuth 2.0 credentials settings
-GOOGLE_CREDENTIALS_PATH = os.getenv('GOOGLE_CREDENTIALS_PATH') if not HEROKU else None
-# Other settings
+
 DEBUG = config('DEBUG', default=False, cast=bool)
 ROOT_URLCONF = 'career.urls'
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
 SCOPES = json.loads(os.getenv('SCOPES', '["https://www.googleapis.com/auth/gmail.readonly"]'))
+
+# Check environment
+GOOGLE_CREDENTIALS_PATH = os.getenv('GOOGLE_CREDENTIALS_PATH')
+
+# Further logic depending on the presence of credentials
+if GOOGLE_CREDENTIALS_PATH:
+    # Load credentials only if path is provided
+    try:
+        credentials = service_account.Credentials.from_service_account_file(GOOGLE_CREDENTIALS_PATH)
+        service = build('your_service_name', 'v1', credentials=credentials)
+    except Exception as e:
+        print(f"Error loading credentials: {e}")
+        service = None
+else:
+    # Handle cases where credentials are not provided
+    print("No credentials provided; some features may be unavailable.")
+    service = None
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
