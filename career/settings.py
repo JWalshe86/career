@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Retrieve settings
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,5b57-86-46-100-229.ngrok-free.app,johnsite-d251709cf12b.herokuapp.com,www.jwalshedev.ie', cast=Csv())
-GOOGLE_REDIRECT_URI = config('GOOGLE_REDIRECT_URI', default='https://www.jwalshedev.ie/oauth/jobs-dashboard/oauth2callback/')
+GOOGLE_REDIRECT_URI = config('GOOGLE_REDIRECT_URI', default='https://www.jwalshedev.ie/jobs-dashboard/oauth2callback/')
 SECRET_KEY = config('SECRET_KEY', default='default-secret-key')
 DATABASE_URL = config('DATABASE_URL', default='')
 
