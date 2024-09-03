@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from google_auth_oauthlib.flow import InstalledAppFlow
+from google_auth_oauthlib.flow import Flow
 from google.auth.exceptions import GoogleAuthError
 from google.oauth2.credentials import Credentials
 from .oauth_utils import get_unread_emails
@@ -70,13 +71,6 @@ def generate_authorization_url(client_id, scopes, state):
     return authorization_url
 
 
-from django.shortcuts import redirect
-from google_auth_oauthlib.flow import InstalledAppFlow
-from django.http import HttpResponse
-
-from django.shortcuts import redirect
-from google_auth_oauthlib.flow import InstalledAppFlow
-from django.http import HttpResponse
 
 
 
@@ -84,37 +78,27 @@ from django.http import HttpResponse
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-from django.shortcuts import redirect
-from google_auth_oauthlib.flow import Flow
-from django.http import HttpResponse
-import logging
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 def oauth_login(request):
-    # Configuration with your client secret and client ID
     client_config = {
         "web": {
-            "client_id": "554722957427-8i5p5m7jd1vobctsb34ql0km1qorpihg.apps.googleusercontent.com",
+            "client_id": settings.GOOGLE_CLIENT_ID,
             "project_id": "johnsite-433520",
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token",
             "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            "client_secret": "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",
-            "redirect_uris": [
-                "http://localhost:8000/oauth/jobs-dashboard/",
-                "https://www.jwalshedev.ie/oauth/jobs-dashboard/",
-                "https://johnsite-d251709cf12b.herokuapp.com/jobs-dashboard/oauth2callback/"
-            ]
+            "client_secret": settings.GOOGLE_CLIENT_SECRET,
+            "redirect_uris": settings.GOOGLE_REDIRECT_URIS
         }
     }
 
-    # Create a Flow instance with your configuration
+    # Set your redirect URI here for the authorization flow
+    redirect_uri = settings.GOOGLE_REDIRECT_URIS[0]  # Adjust based on your needs
+
     flow = Flow.from_client_config(
         client_config,
         scopes=["https://www.googleapis.com/auth/gmail.readonly"],
-        redirect_uri="http://localhost:8000/oauth/jobs-dashboard/"  # Use appropriate redirect URI based on the environment
+        redirect_uri=redirect_uri
     )
 
     authorization_url, state = flow.authorization_url(
@@ -122,7 +106,6 @@ def oauth_login(request):
         include_granted_scopes='true'
     )
 
-    logger.debug(f"Authorization URL: {authorization_url}")
     return redirect(authorization_url)
 
 def env_vars(request):
