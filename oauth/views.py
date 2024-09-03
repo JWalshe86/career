@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 # Print SCOPES for debugging (remove or replace with proper logging in production)
 logger.debug("SCOPES in views.py: %s", settings.SCOPES)
 
-def jobs_dashboard_with_emails_or_callback(request):
+
+ef jobs_dashboard_with_emails_or_callback(request):
     if 'code' in request.GET:
         # Handle OAuth2 callback logic here
-        logger.debug("Entered oauth2callback view.")
         code = request.GET.get('code')
         logger.debug(f"Authorization code: {code}")
         if not code:
@@ -57,6 +57,7 @@ def jobs_dashboard_with_emails_or_callback(request):
             # Add other context data as needed
         }
         return render(request, "jobs/jobs_dashboard.html", context)
+
 
 def generate_authorization_url(client_id, redirect_uri, scopes, state):
     logger.debug('Generating authorization URL')
