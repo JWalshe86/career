@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 logger.debug("SCOPES in views.py: %s", settings.SCOPES)
 
 
-ef jobs_dashboard_with_emails_or_callback(request):
+def jobs_dashboard_with_emails_or_callback(request):
     if 'code' in request.GET:
         # Handle OAuth2 callback logic here
         code = request.GET.get('code')
