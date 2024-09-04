@@ -10,39 +10,12 @@ from google.auth.exceptions import GoogleAuthError
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
-from .oauth_utils import get_unread_emails
+from .oauth_utils import load_credentials_from_db, save_credentials_to_db, get_unread_emails
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
-# Path to store the token file and scopes for Gmail API
-TOKEN_FILE_PATH = 'token.json'
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
-
-def load_credentials():
-    """
-    Load credentials from the token file.
-    
-    Returns:
-        Credentials: Loaded credentials if file exists, otherwise None.
-    """
-    if os.path.exists(TOKEN_FILE_PATH):
-        with open(TOKEN_FILE_PATH, 'r') as token_file:
-            token_info = json.load(token_file)
-            creds = Credentials.from_authorized_user_info(token_info, SCOPES)
-            return creds
-    return None
-
-def save_credentials(creds):
-    """
-    Save credentials to the token file.
-    
-    Args:
-        creds (Credentials): The credentials to save.
-    """
-    with open(TOKEN_FILE_PATH, 'w') as token_file:
-        token_file.write(creds.to_json())
-    logger.info("Credentials saved to token.json.")
 
 def refresh_tokens(creds):
     """
@@ -57,7 +30,8 @@ def refresh_tokens(creds):
     try:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
-            save_credentials(creds)
+            # Save refreshed credentials to the database
+            save_credentials_to_db(user, creds)
             logger.info("Credentials refreshed and saved.")
         return creds
     except Exception as e:
@@ -94,7 +68,8 @@ def exchange_code_for_tokens(auth_code):
             raise Exception("Error exchanging code for tokens")
         
         creds = Credentials.from_authorized_user_info(tokens, SCOPES)
-        save_credentials(creds)
+        # Save credentials to the database
+        save_credentials_to_db(user, creds)
         return creds
     except Exception as e:
         # ** RED FLAG: Error handling authorization code exchange **
@@ -159,7 +134,7 @@ def get_unread_emails(auth_code=None):
             auth_url = get_oauth2_authorization_url()
             return [], auth_url
     else:
-        creds = load_credentials()
+        creds = load_credentials_from_db(user)
         if creds:
             creds = refresh_tokens(creds)
             if not creds:
@@ -300,9 +275,8 @@ def jobs_dashboard_with_emails_or_callback(request):
             flow.fetch_token(code=code)
             creds = flow.credentials
 
-            logger.debug("Saving credentials to 'token.json'.")
-            with open('token.json', 'w') as token_file:
-                token_file.write(creds.to_json())
+            # Save credentials to the database
+            save_credentials_to_db(request.user, creds)
 
             logger.info("OAuth2 authorization completed successfully.")
             return redirect('jobs_dashboard_with_emails')
