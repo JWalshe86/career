@@ -6,10 +6,15 @@ from django.conf import settings
 from django.urls import reverse
 from tasks.models import Task
 from jobs.models import Jobsearch
+from django.http import HttpResponse  # Import HttpResponse
 from emails.views import get_unread_emails
 from google.auth.exceptions import GoogleAuthError
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+
+
+# Configure the logger
+logger = logging.getLogger(__name__)
 
 
 def dashboard(request):

@@ -9,23 +9,31 @@ from django.shortcuts import render, redirect
 # Setup logger
 logger = logging.getLogger(__name__)
 
-# emails/views.py
+import os
+import json
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 
-
-def get_unread_emails(user):
+def get_unread_emails():
     """
     Fetch unread emails for the authenticated user.
-    
-    :param user: Django user object (not used in this example but included for completeness)
+
     :return: Tuple (email_subjects, auth_url)
     """
     try:
-        # Load credentials from environment variable
-        token_json_content = os.getenv('TOKEN_JSON_CONTENT')
-        if token_json_content:
-            credentials_data = json.loads(token_json_content)
+        # Determine if running on Heroku
+        if os.getenv('HEROKU'):
+            # Load credentials from TOKEN_JSON_CONTENT environment variable
+            token_json_content = os.getenv('TOKEN_JSON_CONTENT')
+            if token_json_content:
+                credentials_data = json.loads(token_json_content)
+            else:
+                raise ValueError("TOKEN_JSON_CONTENT environment variable is not set.")
         else:
-            raise ValueError("TOKEN_JSON_CONTENT environment variable is not set.")
+            # Load credentials from token.json file when running locally
+            token_json_path = os.getenv('TOKEN_JSON_PATH', 'token.json')
+            with open(token_json_path, 'r') as token_file:
+                credentials_data = json.load(token_file)
 
         # Create Credentials object from loaded data
         creds = Credentials(
