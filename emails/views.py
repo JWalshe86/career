@@ -14,18 +14,26 @@ logger = logging.getLogger(__name__)
 
 def get_unread_emails():
     try:
-        token_json_path = os.getenv('TOKEN_JSON_PATH')
-        if not token_json_path:
-            raise FileNotFoundError('TOKEN_JSON_PATH environment variable is not set.')
+        # Check if TOKEN_JSON_CONTENT environment variable is set
+        token_json_content = os.getenv('TOKEN_JSON_CONTENT')
+        if token_json_content:
+            # Use the JSON content from the environment variable
+            token_data = json.loads(token_json_content)
+        else:
+            # Fall back to reading from TOKEN_JSON_PATH if TOKEN_JSON_CONTENT is not set
+            token_json_path = os.getenv('TOKEN_JSON_PATH')
+            if not token_json_path:
+                raise FileNotFoundError('TOKEN_JSON_PATH environment variable is not set.')
 
-        # Read the contents of the token.json file
-        with open(token_json_path, 'r') as token_file:
-            token_json_content = json.load(token_file)
+            # Read the contents of the token.json file
+            with open(token_json_path, 'r') as token_file:
+                token_data = json.load(token_file)
 
-        # Use the JSON content to create the credentials
-        creds = Credentials.from_authorized_user_info(token_json_content)
+        # Create the credentials from the JSON data
+        creds = Credentials.from_authorized_user_info(token_data)
         service = build('gmail', 'v1', credentials=creds)
 
+        # Fetch unread emails
         results = service.users().messages().list(userId='me', labelIds=['INBOX'], q='is:unread').execute()
         messages = results.get('messages', [])
 
@@ -42,6 +50,7 @@ def get_unread_emails():
     except Exception as e:
         logger.error(f"An unexpected error occurred: {str(e)}")
         return None, None
+
 
 
 def email_dashboard(request):
