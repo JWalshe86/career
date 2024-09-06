@@ -1,22 +1,45 @@
 # dashboard/views.py
-
+import os
 from django.shortcuts import render
 from django.conf import settings
 from tasks.models import Task
-from .models import Jobsearch
+from jobs.models import Jobsearch
+from emails.views import get_unread_emails
 import logging
 
 # Setup logger
 logger = logging.getLogger(__name__)
 
-def dashboard_basic(request):
-    """Render basic dashboard view."""
-    logger.debug("Rendering basic dashboard view.")
-    key = settings.GOOGLE_API_KEY
+
+def dashboard(request):
+    """Render dashboard view with job locations and unread emails."""
+    logger.debug("Rendering dashboard view.")
+    
+    key = os.getenv('GOOGLE_API_KEY')
     eligible_locations = Jobsearch.objects.filter(place_id__isnull=False)
     locations = [{'lat': float(a.lat), 'lng': float(a.lng), 'name': a.name} for a in eligible_locations]
+    
+    # Get unread emails
+    email_subjects, auth_url = get_unread_emails()
+    logger.debug(f"Email subjects fetched: {email_subjects}")
+    
+    if auth_url:
+        logger.debug(f"Redirecting to auth URL: {auth_url}")
+        return redirect(auth_url)
 
-    return render(request, "dashboard/dashboard_basic.html", context={'key': key, 'locations': locations})
+    unread_email_count = len(email_subjects) if email_subjects else 0
+
+    context = {
+        'key': key,
+        'locations': locations,
+        'email_subjects': email_subjects,
+        'unread_email_count': unread_email_count,
+    }
+    
+    logger.debug(f"Context passed to template: {context}")
+    
+    return render(request, "dashboard/dashboard.html", context)
+
 
 def dashboard_searched(request):
     """Render dashboard with searched jobs."""

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Dashboard Searched</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Task</button>
+  </form>
+
+  <h2>Tasks</h2>
+  <ul>
+    {% for task in tasks %}
+      <li>{{ task.name }} - {{ task.description }}</li>
+    {% empty %}
+      <li>No tasks available.</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Job Statistics</h2>
+  <p>Jobs contacted in the last week: {{ jobs_contacted_week }}</p>
+  <p>Jobs contacted in the last two weeks: {{ jobs_contacted_two_weeks }}</p>
+  <p>Jobs contacted in the last month: {{ jobs_contacted_month }}</p>
+
+{% endblock %}
+

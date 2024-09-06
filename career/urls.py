@@ -13,4 +13,5 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('map/', include('map.urls')),
     path('tasks/', include('tasks.urls', namespace='tasks')),
+    path('dashboard/', include('dashboard.urls')),
 ]

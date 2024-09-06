@@ -8,16 +8,13 @@ from django.shortcuts import render, redirect
 # Setup logger
 logger = logging.getLogger(__name__)
 
+
 def get_unread_emails():
     try:
-        # Replace with the actual path or environment variable for token JSON file
         token_json = os.getenv('TOKEN_JSON_PATH', 'path/to/token.json')
-
-        # Load credentials from the token JSON file
         creds = Credentials.from_authorized_user_file(token_json)
         service = build('gmail', 'v1', credentials=creds)
 
-        # Fetch unread emails
         results = service.users().messages().list(userId='me', labelIds=['INBOX'], q='is:unread').execute()
         messages = results.get('messages', [])
 
@@ -30,11 +27,11 @@ def get_unread_emails():
 
     except GoogleAuthError as error:
         logger.error(f"An error occurred with Google Auth: {error}")
-        # Return a valid authorization URL or handle authorization flow elsewhere
         return None, "<authorization_url>"
     except Exception as e:
         logger.error(f"An unexpected error occurred: {str(e)}")
         return None, None
+
 
 def email_dashboard(request):
     """Render email dashboard with unread emails."""

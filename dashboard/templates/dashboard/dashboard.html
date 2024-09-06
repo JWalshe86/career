@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Dashboard</h1>
+  
+  <!-- Map Section -->
+  <div id="map" style="height: 500px; width: 100%;"></div>
+  
+  <!-- Unread Emails Section -->
+  <h2>Unread Emails ({{ unread_email_count }})</h2>
+  <ul>
+    {% if email_subjects %}
+      {% for email in email_subjects %}
+        <li>{{ email }}</li>
+      {% endfor %}
+    {% else %}
+      <li>No unread emails found.</li>
+    {% endif %}
+  </ul>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key={{ key }}"></script>
+  <script>
+    function initMap() {
+      const locations = {{ locations|safe }};
+      const map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 10,
+        center: { lat: locations[0].lat, lng: locations[0].lng }
+      });
+
+      locations.forEach(location => {
+        new google.maps.Marker({
+          position: { lat: location.lat, lng: location.lng },
+          map: map,
+          title: location.name
+        });
+      });
+    }
+
+    window.onload = initMap;
+  </script>
+{% endblock %}
+

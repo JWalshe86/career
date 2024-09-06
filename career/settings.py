@@ -8,21 +8,25 @@ import dj_database_url
 
 # Load environment variables from .env file (for local development)
 load_dotenv()
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='https://www.jwalshedev.ie,https://johnsite.herokuapp.com,https://5b57-86-46-100-229.ngrok-free.app', cast=Csv())
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='https://www.jwalshedev.ie,https://johnsite.herokuapp.com,https://4f81-84-203-41-130.ngrok-free.app', cast=Csv())
 # Determine if running on Heroku
 HEROKU = 'DYNO' in os.environ
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 ROOT_URLCONF = 'career.urls'
-GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/oauth/jobs-dashboard/'
+GOOGLE_REDIRECT_URI = 'http://localhost:9000/oauth/jobs-dashboard/'
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 GOOGLE_REDIRECT_URIS = [
-        'https://www.jwalshedev.ie/oauth/jobs-dashboard/',
+        'http://localhost:9000/oauth/jobs-dashboard/',
                 ]
+GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='')
+print(f"GOOGLE_CLIENT_ID in setting.py: {GOOGLE_CLIENT_ID}")
+print(f"GOOGLE_CLIENT_SECRET: {GOOGLE_CLIENT_SECRET}")
+print(f"GOOGLE_REDIRECT_URI: {GOOGLE_REDIRECT_URI}")
 
 SCOPES = json.loads(os.getenv('SCOPES', '["https://www.googleapis.com/auth/gmail.readonly"]'))
-
+TOKEN_JSON_PATH = os.getenv('TOKEN_JSON_PATH', 'token.json')
 google_credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
 if google_credentials_json:
     try:
@@ -39,8 +43,15 @@ logger = logging.getLogger(__name__)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Retrieve settings
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,5b57-86-46-100-229.ngrok-free.app,johnsite-d251709cf12b.herokuapp.com,www.jwalshedev.ie', cast=Csv())
 SECRET_KEY = config('SECRET_KEY', default='default-secret-key')
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '4f81-84-203-41-130.ngrok-free.app',  # Add ngrok domain here
+    'www.jwalshedev.ie',
+    # other domains
+]
+
 DATABASE_URL = config('DATABASE_URL', default='')
 
 # Database configuration
