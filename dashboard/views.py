@@ -11,32 +11,28 @@ from google.auth.exceptions import GoogleAuthError
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
-# Setup logger
-logger = logging.getLogger(__name__)
-
 
 def dashboard(request):
     """
-    Render the dashboard view with unread emails.
+    Render the dashboard with unread emails.
     """
     if not request.user.is_authenticated:
         return HttpResponse("User must be logged in to access this page.", status=403)
 
     try:
-        # Fetch unread emails with the user argument
-        email_subjects, auth_url = get_unread_emails(request.user)
-        if auth_url:
-            return redirect(auth_url)
-
+        email_subjects = get_unread_emails()
         unread_email_count = len(email_subjects) if email_subjects else 0
+
         context = {
             'email_subjects': email_subjects,
             'unread_email_count': unread_email_count,
         }
         return render(request, "dashboard/dashboard.html", context)
+
     except Exception as e:
         logger.error(f"Error in getting unread emails or rendering dashboard: {e}")
         return HttpResponse("An unexpected error occurred while fetching emails.", status=500)
+
 
 
 def dashboard_searched(request):
