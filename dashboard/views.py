@@ -1,6 +1,6 @@
 # dashboard/views.py
 import os
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.conf import settings
 from tasks.models import Task
 from jobs.models import Jobsearch
