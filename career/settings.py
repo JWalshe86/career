@@ -12,7 +12,7 @@ GMAIL_TOKEN_JSON = os.getenv('GMAIL_TOKEN_JSON')
 if GMAIL_TOKEN_JSON:
     GMAIL_TOKEN_JSON = json.loads(GMAIL_TOKEN_JSON)
 
-
+DEFAULT_HOSTNAME = 'www.jwalshedev.ie'  # Adjust as needed
 
 
 # Load environment variables from .env file (for local development)

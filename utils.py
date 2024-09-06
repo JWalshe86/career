@@ -1,4 +1,3 @@
-# utils.py
 from django.conf import settings
 from django.urls import reverse
 
@@ -14,7 +13,7 @@ def get_oauth_cb_url(request, cb_hostname=None):
         cb_hostname = settings.DEFAULT_HOSTNAME
     
     callback_url = request.build_absolute_uri(
-        reverse('oauth2callback')  # Adjust this to your actual OAuth callback view name
+        reverse('oauth_callback')  # Adjust this to your actual OAuth callback view name
     )
     return callback_url
 

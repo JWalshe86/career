@@ -19,30 +19,42 @@ logger = logging.getLogger(__name__)
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
-def jobs_dashboard_with_emails_or_callback(request):
-    """
-    Handle the jobs dashboard view with or without OAuth2 callback.
-    """
-    if not request.user.is_authenticated:
-        return HttpResponse("User must be logged in to access this page.", status=403)
 
-    try:
-        # Fetch unread emails with the user argument
-        email_subjects, auth_url = get_unread_emails(request.user)
-        if auth_url:
-            # If there's an auth URL, it means credentials need to be refreshed
-            return redirect(auth_url)
+from django.shortcuts import redirect
 
-        unread_email_count = len(email_subjects) if email_subjects else 0
-        context = {
-            'email_subjects': email_subjects,
-            'unread_email_count': unread_email_count,
-        }
-        # Render the dashboard with the email context
-        return render(request, "dashboard/dashboard.html", context)
-    except Exception as e:
-        logger.error(f"Error in getting unread emails or rendering dashboard: {e}")
-        return HttpResponse("An unexpected error occurred while fetching emails.", status=500)
+def oauth_callback_view(request):
+    # Handle OAuth callback logic here
+    # Redirect to the dashboard or any appropriate page
+    return redirect('dashboard')
+
+
+def oauth2callback(request):
+    """
+    Handle the OAuth2 callback from Google and exchange the authorization code for an access token.
+    """
+    code = request.GET.get('code')
+    if not code:
+        return HttpResponse('Authorization code missing.', status=400)
+
+    token_url = 'https://oauth2.googleapis.com/token'
+    data = {
+        'code': code,
+        'client_id': settings.GOOGLE_CLIENT_ID,
+        'client_secret': settings.GOOGLE_CLIENT_SECRET,
+        'redirect_uri': request.build_absolute_uri(reverse('oauth2callback')),
+        'grant_type': 'authorization_code'
+    }
+    response = requests.post(token_url, data=data)
+    response_data = response.json()
+    
+    if 'access_token' not in response_data:
+        return HttpResponse('Failed to get access token.', status=400)
+
+    # Store the access token in the session
+    request.session['access_token'] = response_data['access_token']
+    
+    # Redirect to the dashboard
+    return redirect('dashboard')  # Adjust this to your dashboard view name
 
 
 def refresh_tokens(user, creds):
