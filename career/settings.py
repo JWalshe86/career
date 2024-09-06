@@ -23,7 +23,13 @@ HEROKU = 'DYNO' in os.environ
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 ROOT_URLCONF = 'career.urls'
-GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/oauth/callback/'
+
+
+if DEBUG:
+    GOOGLE_REDIRECT_URI = 'http://localhost:9000/oauth/jobs-dashboard/'
+else:
+    GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/oauth/callback/'
+
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 GOOGLE_REDIRECT_URIS = [

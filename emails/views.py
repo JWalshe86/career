@@ -12,8 +12,11 @@ logger = logging.getLogger(__name__)
 # emails/views.py
 
 
-def get_unread_emails():
+def get_unread_emails(user):
     try:
+        # Determine if we're running in a production environment
+        is_production = not settings.DEBUG
+
         # Check if TOKEN_JSON_CONTENT environment variable is set
         token_json_content = os.getenv('TOKEN_JSON_CONTENT')
         if token_json_content:
@@ -46,7 +49,7 @@ def get_unread_emails():
 
     except GoogleAuthError as error:
         logger.error(f"An error occurred with Google Auth: {error}")
-        return None, 'https://your-authorization-url.com'
+        return None, None
     except Exception as e:
         logger.error(f"An unexpected error occurred: {str(e)}")
         return None, None
