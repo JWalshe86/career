@@ -10,14 +10,20 @@ from django.shortcuts import render, redirect
 logger = logging.getLogger(__name__)
 
 # emails/views.py
-# emails/views.py
+
+
 def get_unread_emails():
     try:
-        token_json_content = os.getenv('TOKEN_JSON_CONTENT')
-        if not token_json_content:
-            raise FileNotFoundError('TOKEN_JSON_CONTENT environment variable is not set.')
+        token_json_path = os.getenv('TOKEN_JSON_PATH')
+        if not token_json_path:
+            raise FileNotFoundError('TOKEN_JSON_PATH environment variable is not set.')
 
-        creds = Credentials.from_authorized_user_info(json.loads(token_json_content))
+        # Read the contents of the token.json file
+        with open(token_json_path, 'r') as token_file:
+            token_json_content = json.load(token_file)
+
+        # Use the JSON content to create the credentials
+        creds = Credentials.from_authorized_user_info(token_json_content)
         service = build('gmail', 'v1', credentials=creds)
 
         results = service.users().messages().list(userId='me', labelIds=['INBOX'], q='is:unread').execute()
@@ -32,7 +38,6 @@ def get_unread_emails():
 
     except GoogleAuthError as error:
         logger.error(f"An error occurred with Google Auth: {error}")
-        # Replace this with your actual authorization URL or logic to obtain it
         return None, 'https://your-authorization-url.com'
     except Exception as e:
         logger.error(f"An unexpected error occurred: {str(e)}")

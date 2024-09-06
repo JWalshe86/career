@@ -9,7 +9,6 @@ def unread_email_count(request):
             'unread_email_count': unread_email_count,
         }
     except Exception as e:
-        logger.error(f"Error in unread_email_count context processor: {e}")
         return {
             'unread_email_count': 0,
         }
