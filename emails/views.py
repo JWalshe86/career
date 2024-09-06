@@ -9,6 +9,8 @@ from django.shortcuts import render, redirect
 # Setup logger
 logger = logging.getLogger(__name__)
 
+# emails/views.py
+# emails/views.py
 def get_unread_emails():
     try:
         token_json_content = os.getenv('TOKEN_JSON_CONTENT')
@@ -30,7 +32,7 @@ def get_unread_emails():
 
     except GoogleAuthError as error:
         logger.error(f"An error occurred with Google Auth: {error}")
-        # Provide a valid URL for redirection
+        # Replace this with your actual authorization URL or logic to obtain it
         return None, 'https://your-authorization-url.com'
     except Exception as e:
         logger.error(f"An unexpected error occurred: {str(e)}")

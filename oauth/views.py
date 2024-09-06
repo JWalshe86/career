@@ -19,11 +19,9 @@ logger = logging.getLogger(__name__)
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
-
-
 def jobs_dashboard_with_emails_or_callback(request):
     """
-    Handle the jobs dashboard view without OAuth2 callback.
+    Handle the jobs dashboard view with or without OAuth2 callback.
     """
     if not request.user.is_authenticated:
         return HttpResponse("User must be logged in to access this page.", status=403)
@@ -40,7 +38,8 @@ def jobs_dashboard_with_emails_or_callback(request):
             'email_subjects': email_subjects,
             'unread_email_count': unread_email_count,
         }
-        return render(request, "jobs/jobs_dashboard.html", context)
+        # Render the dashboard with the email context
+        return render(request, "dashboard/dashboard.html", context)
     except Exception as e:
         logger.error(f"Error in getting unread emails or rendering dashboard: {e}")
         return HttpResponse("An unexpected error occurred while fetching emails.", status=500)
