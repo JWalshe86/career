@@ -1,15 +1,18 @@
-# dashboard/views.py
 import os
+import json
+import logging
 from django.shortcuts import render, redirect
 from django.conf import settings
+from django.urls import reverse
 from tasks.models import Task
 from jobs.models import Jobsearch
 from emails.views import get_unread_emails
-import logging
+from google.auth.exceptions import GoogleAuthError
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 
 # Setup logger
 logger = logging.getLogger(__name__)
-
 
 def dashboard(request):
     """Render dashboard view with job locations and unread emails."""
