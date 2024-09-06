@@ -14,32 +14,29 @@ from googleapiclient.discovery import build
 # Setup logger
 logger = logging.getLogger(__name__)
 
-def dashboard(request):
-    logger.debug("Rendering dashboard view.")
-    
-    key = os.getenv('GOOGLE_API_KEY')
-    eligible_locations = Jobsearch.objects.filter(place_id__isnull=False)
-    locations = [{'lat': float(a.lat), 'lng': float(a.lng), 'name': a.name} for a in eligible_locations]
-    
-    email_subjects, auth_url = get_unread_emails()
-    logger.debug(f"Email subjects fetched: {email_subjects}")
-    
-    if auth_url:
-        logger.debug(f"Redirecting to auth URL: {auth_url}")
-        return redirect(auth_url)  # Redirect directly to the URL
-    
-    unread_email_count = len(email_subjects) if email_subjects else 0
 
-    context = {
-        'key': key,
-        'locations': locations,
-        'email_subjects': email_subjects,
-        'unread_email_count': unread_email_count,
-    }
-    
-    logger.debug(f"Context passed to template: {context}")
-    
-    return render(request, "dashboard/dashboard.html", context)
+def dashboard(request):
+    """
+    Render the dashboard view with unread emails.
+    """
+    if not request.user.is_authenticated:
+        return HttpResponse("User must be logged in to access this page.", status=403)
+
+    try:
+        # Fetch unread emails with the user argument
+        email_subjects, auth_url = get_unread_emails(request.user)
+        if auth_url:
+            return redirect(auth_url)
+
+        unread_email_count = len(email_subjects) if email_subjects else 0
+        context = {
+            'email_subjects': email_subjects,
+            'unread_email_count': unread_email_count,
+        }
+        return render(request, "dashboard/dashboard.html", context)
+    except Exception as e:
+        logger.error(f"Error in getting unread emails or rendering dashboard: {e}")
+        return HttpResponse("An unexpected error occurred while fetching emails.", status=500)
 
 
 def dashboard_searched(request):
