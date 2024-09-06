@@ -11,61 +11,13 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from .oauth_utils import load_credentials_from_db, save_credentials_to_db, get_unread_emails
+from emails.views import get_unread_emails
 from oauthlib.oauth2 import WebApplicationClient
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
-
-
-def get_unread_emails(user):
-    """
-    Fetch unread emails from Gmail using saved credentials.
-    """
-    creds = load_credentials_from_db(user)
-    if not creds:
-        return [], None
-
-    creds = refresh_tokens(user, creds)
-    if not creds:
-        return [], None
-
-    try:
-        service = build("gmail", "v1", credentials=creds)
-        excluded_senders = [
-            "no-reply@usebubbles.com",
-            "chandeep@2toucans.com",
-            "craig@itcareerswitch.co.uk",
-            "no-reply@swagapp.com",
-            "no-reply@fathom.video",
-            "mailer@jobleads.com",
-            "careerservice@email.jobleads.com"
-        ]
-        query = "is:unread -category:social -category:promotions"
-        for sender in excluded_senders:
-            query += f" -from:{sender}"
-        results = service.users().messages().list(userId="me", q=query).execute()
-        messages = results.get('messages', [])
-
-        unread_emails = []
-        for message in messages:
-            msg = service.users().messages().get(userId="me", id=message['id']).execute()
-            snippet = msg['snippet']
-            email_data = {
-                'id': message['id'],
-                'snippet': snippet,
-                'sender': next(header['value'] for header in msg['payload']['headers'] if header['name'] == 'From'),
-                'subject': next(header['value'] for header in msg['payload']['headers'] if header['name'] == 'Subject'),
-                'highlight': 'highlight' if 'unfortunately' in snippet.lower() else ''
-            }
-            unread_emails.append(email_data)
-
-        logger.info(f"Processed unread emails: {unread_emails}")
-        return unread_emails, None
-    except Exception as e:
-        logger.error(f"An error occurred while fetching emails: {e}")
-        return [], None
 
 
 

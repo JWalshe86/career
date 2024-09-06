@@ -11,12 +11,10 @@ logger = logging.getLogger(__name__)
 
 def get_unread_emails():
     try:
-        # Read token from environment variable directly
         token_json_content = os.getenv('TOKEN_JSON_CONTENT')
         if not token_json_content:
             raise FileNotFoundError('TOKEN_JSON_CONTENT environment variable is not set.')
 
-        # Load credentials from the token content
         creds = Credentials.from_authorized_user_info(json.loads(token_json_content))
         service = build('gmail', 'v1', credentials=creds)
 
@@ -32,7 +30,8 @@ def get_unread_emails():
 
     except GoogleAuthError as error:
         logger.error(f"An error occurred with Google Auth: {error}")
-        return None, "<authorization_url>"
+        # Provide a valid URL for redirection
+        return None, 'https://your-authorization-url.com'
     except Exception as e:
         logger.error(f"An unexpected error occurred: {str(e)}")
         return None, None

@@ -1,4 +1,4 @@
-from oauth.views import get_unread_emails
+from emails.views import get_unread_emails
 import logging
 import json
 

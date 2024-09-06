@@ -15,21 +15,19 @@ from googleapiclient.discovery import build
 logger = logging.getLogger(__name__)
 
 def dashboard(request):
-    """Render dashboard view with job locations and unread emails."""
     logger.debug("Rendering dashboard view.")
     
     key = os.getenv('GOOGLE_API_KEY')
     eligible_locations = Jobsearch.objects.filter(place_id__isnull=False)
     locations = [{'lat': float(a.lat), 'lng': float(a.lng), 'name': a.name} for a in eligible_locations]
     
-    # Get unread emails
     email_subjects, auth_url = get_unread_emails()
     logger.debug(f"Email subjects fetched: {email_subjects}")
     
     if auth_url:
         logger.debug(f"Redirecting to auth URL: {auth_url}")
-        return redirect(auth_url)
-
+        return redirect(auth_url)  # Redirect directly to the URL
+    
     unread_email_count = len(email_subjects) if email_subjects else 0
 
     context = {
