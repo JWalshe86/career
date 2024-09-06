@@ -1,15 +1,23 @@
 import json
-import os
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 def get_credentials():
-    # Load credentials from environment variable
-    token_json_content = os.getenv('TOKEN_JSON_CONTENT')
-    if token_json_content:
-        credentials_data = json.loads(token_json_content)
-    else:
-        raise ValueError("TOKEN_JSON_CONTENT environment variable is not set.")
+    # Hardcoded token.json content
+    token_json_content = '''
+    {
+        "token": "ya29.a0AcM612yfkQCayqMYT5-DN_xDnVTjjZrRZZY5yGP6JHRVZXzQRh5MImRNCIwOlIigSLtKICq8SLOTC1nbD1VQU1Ej5O4h6e5G_XeTiZVehPsVsU80WpBk8-IHkffv1clAb09EFz7F4FpEyjOsdVxwDcB10-1yPmeVZA2hFtS3xAaCgYKAfESARESFQHGX2MixNGe9x5k1BATXkE5ht7jvg0177",
+        "refresh_token": "1//09rLfVZGZF9plCgYIARAAGAkSNwF-L9IrQvgywgMQuI5zW-t8BEPNVv1_vbZNwQ9XhJ5b8HVN2Zr3Mnbix9ULtKGJcNqra5d6y6w",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "client_id": "554722957427-8i5p5m7jd1vobctsb34ql0km1qorpihg.apps.googleusercontent.com",
+        "client_secret": "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",
+        "scopes": ["https://www.googleapis.com/auth/gmail.readonly"],
+        "universe_domain": "googleapis.com",
+        "expiry": "2024-09-04T22:32:59.726508Z"
+    }
+    '''
+    
+    credentials_data = json.loads(token_json_content)
 
     # Create Credentials object from loaded data
     creds = Credentials(
