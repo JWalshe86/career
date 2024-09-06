@@ -136,16 +136,6 @@ def get_unread_emails(auth_code=None):
         logger.error(f"An error occurred while fetching emails: {e}")
         return [], None
 
-import json
-import logging
-import requests
-from django.conf import settings
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow, Flow
-from google.auth.transport.requests import Request
-
-# Setup logging
-logger = logging.getLogger(__name__)
 
 def exchange_code_for_tokens(auth_code):
     """
@@ -189,12 +179,14 @@ def exchange_code_for_tokens(auth_code):
         logger.error(f"Error during token exchange: {e}")
         raise
 
-def refresh_tokens(creds):
+
+def refresh_tokens(creds, user):
     """
     Refresh OAuth2 tokens if they are expired.
     
     Args:
         creds (Credentials): The credentials to refresh.
+        user (User): The user whose credentials are to be updated.
     
     Returns:
         Credentials: Refreshed credentials or None if refresh failed.
@@ -208,6 +200,7 @@ def refresh_tokens(creds):
     except Exception as e:
         logger.error(f"Token refresh error: {e}")
         return None
+
 
 def get_oauth2_authorization_url():
     """

@@ -6,6 +6,15 @@ from decouple import config, Csv
 from dotenv import load_dotenv
 import dj_database_url
 
+
+# Load Gmail token JSON from environment variable
+GMAIL_TOKEN_JSON = os.getenv('GMAIL_TOKEN_JSON')
+if GMAIL_TOKEN_JSON:
+    GMAIL_TOKEN_JSON = json.loads(GMAIL_TOKEN_JSON)
+
+
+
+
 # Load environment variables from .env file (for local development)
 load_dotenv()
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='https://www.jwalshedev.ie,https://johnsite.herokuapp.com,https://4f81-84-203-41-130.ngrok-free.app', cast=Csv())
