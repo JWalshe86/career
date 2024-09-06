@@ -8,11 +8,15 @@ from django.shortcuts import render, redirect
 # Setup logger
 logger = logging.getLogger(__name__)
 
-
 def get_unread_emails():
     try:
-        token_json = os.getenv('TOKEN_JSON_PATH', 'path/to/token.json')
-        creds = Credentials.from_authorized_user_file(token_json)
+        # Read token from environment variable directly
+        token_json_content = os.getenv('TOKEN_JSON_CONTENT')
+        if not token_json_content:
+            raise FileNotFoundError('TOKEN_JSON_CONTENT environment variable is not set.')
+
+        # Load credentials from the token content
+        creds = Credentials.from_authorized_user_info(json.loads(token_json_content))
         service = build('gmail', 'v1', credentials=creds)
 
         results = service.users().messages().list(userId='me', labelIds=['INBOX'], q='is:unread').execute()
