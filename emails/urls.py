@@ -5,3 +5,4 @@ urlpatterns = [
     path('dashboard/', email_dashboard, name='email_dashboard'),
 ]
 
+

@@ -4,17 +4,29 @@
   <h1>Dashboard</h1>
   
   <!-- Map Section -->
-  <div id="map" style="height: 500px; width: 100%;"></div>
+  <div id="map" style="height: 500px; width: 100%; margin-bottom: 20px;"></div>
   
   <!-- Unread Emails Section -->
-<!DOCTYPE html>
-    <h1>Dashboard</h1>
-    <h2>Unread Emails ({{ unread_email_count }})</h2>
-    <ul>
-        {% for subject in email_subjects %}
-            <li>{{ subject }}</li>
+  <section style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; margin-top: 20px;">
+    <h2 style="font-size: 1.5rem; color: #333;">Unread Emails ({{ unread_email_count }})</h2>
+    <ul style="list-style-type: none; padding: 0; margin: 0;">
+        {% for email in unread_emails %}
+            <li style="border-bottom: 1px solid #ddd; padding: 10px 0;">
+                <div style="display: flex; flex-direction: row; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <strong style="display: block; font-size: 1rem; color: #333;">{{ email.sender }}</strong>
+                        <span style="display: block; font-size: 0.875rem; color: #777;">{{ email.date }}</span>
+                    </div>
+                    <div style="flex: 2; padding-left: 20px;">
+                        <p style="margin: 0; font-size: 0.875rem; color: #555;">{{ email.snippet }}</p>
+                    </div>
+                </div>
+            </li>
+        {% empty %}
+            <li style="padding: 10px; color: #888;">No unread emails found.</li>
         {% endfor %}
     </ul>
+  </section>
 
   <script src="https://maps.googleapis.com/maps/api/js?key={{ key }}"></script>
   <script>

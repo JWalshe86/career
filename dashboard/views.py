@@ -11,6 +11,11 @@ from emails.views import get_unread_emails
 from google.auth.exceptions import GoogleAuthError
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Count, Q
+from tasks.forms import TaskForm  # Ensure this import matches your actual form location
+
 
 
 # Configure the logger
@@ -25,11 +30,14 @@ def dashboard(request):
         return HttpResponse("User must be logged in to access this page.", status=403)
 
     try:
-        email_subjects = get_unread_emails()
-        unread_email_count = len(email_subjects) if email_subjects else 0
+        unread_emails, auth_url = get_unread_emails()
+        if auth_url:
+            return redirect(auth_url)
+
+        unread_email_count = len(unread_emails) if unread_emails else 0
 
         context = {
-            'email_subjects': email_subjects,
+            'unread_emails': unread_emails,
             'unread_email_count': unread_email_count,
         }
         return render(request, "dashboard/dashboard.html", context)
