@@ -42,9 +42,26 @@ def get_unread_emails():
 
         # Build the Gmail service
         service = build('gmail', 'v1', credentials=creds)
+        
+        # Define excluded senders
+        excluded_senders = [
+            "no-reply@usebubbles.com",
+            "chandeep@2toucans.com",
+            "info@email.meetup.com",           
+            "craig@itcareerswitch.co.uk",
+            "no-reply@swagapp.com",
+            "no-reply@fathom.video",
+            "mailer@jobleads.com",
+            "careerservice@email.jobleads.com"
+        ]
 
-        # List messages in the user's inbox
-        results = service.users().messages().list(userId='me', labelIds=['INBOX'], q="is:unread").execute()
+        # Build the query string
+        query = "is:unread -category:social -category:promotions"
+        for sender in excluded_senders:
+            query += f" -from:{sender}"
+        
+        # Fetch messages with the built query
+        results = service.users().messages().list(userId='me', q=query).execute()
         messages = results.get('messages', [])
 
         emails = []
