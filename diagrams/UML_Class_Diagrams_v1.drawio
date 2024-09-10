@@ -1,9 +1,101 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0" version="24.7.12">
   <diagram name="Page-1" id="PpCVHT5s35PxnzSJ_ftj">
-    <mxGraphModel>
+    <mxGraphModel dx="1042" dy="567" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-1" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontStyle=1;strokeColor=#0000CC;" vertex="1" parent="1">
+          <mxGeometry x="10" y="140" width="40" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-2" value="Oauth" style="html=1;whiteSpace=wrap;fillColor=#3399FF;" vertex="1" parent="1">
+          <mxGeometry x="610" y="70" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-11" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;fillColor=#000000;" edge="1" parent="1" source="DfZUmNxaL4MEf1Nwju60-1" target="DfZUmNxaL4MEf1Nwju60-45">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="150" y="200" as="sourcePoint" />
+            <mxPoint x="330" y="390" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="50" y="250" />
+              <mxPoint x="110" y="320" />
+              <mxPoint x="230" y="450" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-12" value="1. Authorize Request" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1" vertex="1" connectable="0" parent="DfZUmNxaL4MEf1Nwju60-11">
+          <mxGeometry x="-0.1188" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-19" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fillColor=#000000;" edge="1" parent="1" target="DfZUmNxaL4MEf1Nwju60-2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="30" y="190.37878787878788" as="sourcePoint" />
+            <mxPoint x="590" y="90" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="340" y="157.5" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-20" value="&lt;b style=&quot;font-size: 11px;&quot;&gt;3. Send Authorization code&lt;/b&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;" vertex="1" connectable="0" parent="DfZUmNxaL4MEf1Nwju60-19">
+          <mxGeometry x="-0.0496" y="4" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-37" value="" style="html=1;labelBackgroundColor=#ffffff;startArrow=none;startFill=0;startSize=6;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;dashed=1;fontSize=14;rounded=0;exitX=0.08;exitY=0.053;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.3333333333333333;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="DfZUmNxaL4MEf1Nwju60-45" target="DfZUmNxaL4MEf1Nwju60-1">
+          <mxGeometry width="60" height="60" relative="1" as="geometry">
+            <mxPoint x="347.5999999999999" y="389.20000000000005" as="sourcePoint" />
+            <mxPoint x="300" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-38" value="2. Redirect with code" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1" vertex="1" connectable="0" parent="DfZUmNxaL4MEf1Nwju60-37">
+          <mxGeometry x="0.1859" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-39" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=0.82;entryY=-0.027;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="DfZUmNxaL4MEf1Nwju60-2" target="DfZUmNxaL4MEf1Nwju60-45">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="820" y="180" as="sourcePoint" />
+            <mxPoint x="433.95000000000005" y="392.4" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="750" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-40" value="4.Token Exchange" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1" vertex="1" connectable="0" parent="DfZUmNxaL4MEf1Nwju60-39">
+          <mxGeometry x="-0.1224" y="3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-41" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=0.75;entryY=0.1;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.073;exitY=-0.032;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="DfZUmNxaL4MEf1Nwju60-2" target="DfZUmNxaL4MEf1Nwju60-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="549" y="10" as="sourcePoint" />
+            <mxPoint x="290" y="282" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="240" y="40" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-42" value="6. Redirect to dashboard" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1" vertex="1" connectable="0" parent="DfZUmNxaL4MEf1Nwju60-41">
+          <mxGeometry x="-0.1224" y="3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-43" value="" style="html=1;labelBackgroundColor=#ffffff;startArrow=none;startFill=0;startSize=6;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;dashed=1;fontSize=14;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="DfZUmNxaL4MEf1Nwju60-45" target="DfZUmNxaL4MEf1Nwju60-2">
+          <mxGeometry width="60" height="60" relative="1" as="geometry">
+            <mxPoint x="367.6199999999999" y="392.4" as="sourcePoint" />
+            <mxPoint x="116" y="160" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="510" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-44" value="5. Access Token" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1" vertex="1" connectable="0" parent="DfZUmNxaL4MEf1Nwju60-43">
+          <mxGeometry x="0.1859" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DfZUmNxaL4MEf1Nwju60-45" value="Google OAuth Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CCFFCC;arcSize=16;" vertex="1" parent="1">
+          <mxGeometry x="410" y="480" width="120" height="60" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
