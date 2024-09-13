@@ -27,9 +27,11 @@ def dashboard(request):
         # Load credentials
         credentials_data = load_credentials()
         creds = create_credentials(credentials_data)
+        logger.debug(f"Credentials loaded: {creds}")
 
         # Refresh the credentials if needed
         if creds and creds.expired and creds.refresh_token:
+            logger.debug("Refreshing credentials...")
             creds = refresh_credentials(creds)
         elif creds.expired and not creds.refresh_token:
             logger.warning("Token expired and no refresh token available. Redirecting to OAuth login.")
@@ -50,12 +52,10 @@ def dashboard(request):
 
     except RefreshError as refresh_error:
         logger.error(f"Google token refresh error: {refresh_error}")
-        logger.debug("Redirecting to OAuth login due to token refresh error.")
-        return redirect(reverse('oauth:oauth_login'))
+        return redirect(reverse('oauth:oauth_login'))  # Redirect to re-authentication
 
     except Exception as e:
         logger.error(f"An unexpected error occurred: {e}")
-        logger.debug("Returning 500 response due to unexpected error.")
         return HttpResponse("An unexpected error occurred. Please try again.", status=500)
 
 
