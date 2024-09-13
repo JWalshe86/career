@@ -73,12 +73,21 @@ def oauth_login(request):
         return redirect('/')  # Redirect to home or error page
 
 
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.conf import settings
+import requests
+import logging
+
+logger = logging.getLogger(__name__)
+
 def oauth_callback(request):
     """
     Handle the OAuth2 callback from Google and exchange the authorization code for an access token.
     """
     logger.info("OAuth callback view accessed")
-    
+
     code = request.GET.get('code')
     if not code:
         logger.error("Authorization code missing")
@@ -87,7 +96,7 @@ def oauth_callback(request):
     token_url = 'https://oauth2.googleapis.com/token'
     redirect_uri = settings.GOOGLE_REDIRECT_URI
     logger.info("Redirect URI used: %s", redirect_uri)
-    
+
     data = {
         'code': code,
         'client_id': settings.GOOGLE_CLIENT_ID,
@@ -95,20 +104,33 @@ def oauth_callback(request):
         'redirect_uri': redirect_uri,
         'grant_type': 'authorization_code'
     }
-    
+
     response = requests.post(token_url, data=data)
     response_data = response.json()
-    
+
     logger.info("OAuth token response: %s", response_data)
-    
+
+    # Handle errors in the response
+    if 'error' in response_data:
+        error = response_data['error']
+        error_description = response_data.get('error_description', 'No description provided')
+        logger.error(f"OAuth error: {error} - {error_description}")
+
+        if error == 'invalid_grant':
+            logger.warning("The authorization code is invalid or expired.")
+            return redirect(reverse('oauth:oauth_login'))  # Redirect to login or handle accordingly
+
+        return HttpResponse(f"OAuth error: {error_description}", status=400)
+
+    # Check if access token is present in the response
     if 'access_token' not in response_data:
         logger.error("Failed to get access token: %s", response_data)
         return HttpResponse('Failed to get access token.', status=400)
 
     # Store the access token in the session
     request.session['access_token'] = response_data['access_token']
-    
-    # Redirect to the dashboard using the namespace
+
+    # Redirect to the dashboard
     return redirect(reverse('dashboard:dashboard'))
 
 
