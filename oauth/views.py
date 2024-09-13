@@ -92,34 +92,26 @@ def oauth_callback(request):
         'code': code,
         'client_id': settings.GOOGLE_CLIENT_ID,
         'client_secret': settings.GOOGLE_CLIENT_SECRET,
-        'redirect_uri': redirect_uri,  # Use the dynamic redirect URI
+        'redirect_uri': redirect_uri,
         'grant_type': 'authorization_code'
     }
     
-    try:
-        response = requests.post(token_url, data=data)
-        response.raise_for_status()  # Raise HTTPError for bad responses
-        response_data = response.json()
-        
-        logger.info("OAuth token response: %s", response_data)
-        
-        if 'access_token' not in response_data:
-            logger.error("Failed to get access token: %s", response_data)
-            return HttpResponse('Failed to get access token.', status=400)
-
-        # Store the access token in the session
-        request.session['access_token'] = response_data['access_token']
-        
-        # Redirect to the dashboard using the namespace
-        logger.info("Redirecting to dashboard.")
-        return redirect('dashboard:dashboard')
+    response = requests.post(token_url, data=data)
+    response_data = response.json()
     
-    except requests.RequestException as req_err:
-        logger.error(f"Request error during token exchange: {req_err}")
-        return HttpResponse('Error during token exchange.', status=500)
-    except Exception as e:
-        logger.error(f"Unexpected error during token exchange: {e}")
-        return HttpResponse('Unexpected error occurred.', status=500)
+    logger.info("OAuth token response: %s", response_data)
+    
+    if 'access_token' not in response_data:
+        logger.error("Failed to get access token: %s", response_data)
+        return HttpResponse('Failed to get access token.', status=400)
+
+    # Store the access token in the session
+    request.session['access_token'] = response_data['access_token']
+    
+    # Redirect to the dashboard using the namespace
+    return redirect(reverse('dashboard:dashboard'))
+
+
 
 def exchange_code_for_tokens(auth_code):
     """

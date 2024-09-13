@@ -50,13 +50,11 @@ def dashboard(request):
 
     except RefreshError as refresh_error:
         logger.error(f"Google token refresh error: {refresh_error}")
-        # Add debugging info to check redirect
         logger.debug("Redirecting to OAuth login due to token refresh error.")
-        return redirect(reverse('oauth:oauth_login'))  # Redirect to re-authentication
+        return redirect(reverse('oauth:oauth_login'))
 
     except Exception as e:
         logger.error(f"An unexpected error occurred: {e}")
-        # Add debugging info to check response
         logger.debug("Returning 500 response due to unexpected error.")
         return HttpResponse("An unexpected error occurred. Please try again.", status=500)
 
