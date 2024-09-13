@@ -3,6 +3,7 @@ import json
 import logging
 import requests
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from google_auth_oauthlib.flow import InstalledAppFlow, Flow
@@ -71,14 +72,6 @@ def oauth_login(request):
         logger.error(f"Error during OAuth login process: {e}")
         return redirect('/')  # Redirect to home or error page
 
-import logging
-import requests
-from django.conf import settings
-from django.http import HttpResponse
-from django.shortcuts import redirect
-from django.urls import reverse
-
-logger = logging.getLogger(__name__)
 
 def oauth_callback(request):
     """
@@ -92,15 +85,21 @@ def oauth_callback(request):
         return HttpResponse('Authorization code missing.', status=400)
 
     token_url = 'https://oauth2.googleapis.com/token'
+    redirect_uri = settings.GOOGLE_REDIRECT_URI
+    logger.info("Redirect URI used: %s", redirect_uri)
+    
     data = {
         'code': code,
         'client_id': settings.GOOGLE_CLIENT_ID,
         'client_secret': settings.GOOGLE_CLIENT_SECRET,
-        'redirect_uri': request.build_absolute_uri(reverse('oauth_callback')),
+        'redirect_uri': redirect_uri,  # Use the dynamic redirect URI
         'grant_type': 'authorization_code'
     }
+    
     response = requests.post(token_url, data=data)
     response_data = response.json()
+    
+    logger.info("OAuth token response: %s", response_data)
     
     if 'access_token' not in response_data:
         logger.error("Failed to get access token: %s", response_data)
@@ -109,8 +108,8 @@ def oauth_callback(request):
     # Store the access token in the session
     request.session['access_token'] = response_data['access_token']
     
-    # Redirect to the dashboard
-    return redirect('dashboard')  # Adjust this to your dashboard view name
+    # Redirect to the dashboard using the namespace
+    return redirect('dashboard:dashboard')
 
 def exchange_code_for_tokens(auth_code):
     """
