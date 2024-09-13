@@ -2,6 +2,24 @@
 
 {% block content %}
   <h1>Dashboard</h1>
+
+<!-- Include Display Emails section -->
+<div class="display-emails">
+    <h2>Display Emails</h2>
+    {% if email_subjects %}
+        <!-- Display email subjects here -->
+        {% for email in email_subjects %}
+            <div class="email-item">
+                <p>Subject: {{ email.subject }}</p>
+                <p>From: {{ email.sender }}</p>
+                <!-- Other email details -->
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No unread emails</p>
+    {% endif %}
+</div>
+
   
   <!-- Map Section -->
   <div id="map" style="height: 500px; width: 100%; margin-bottom: 20px;"></div>

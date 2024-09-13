@@ -6,45 +6,55 @@ from django.conf import settings
 from django.urls import reverse
 from tasks.models import Task
 from jobs.models import Jobsearch
-from django.http import HttpResponse  # Import HttpResponse
-from emails.views import get_unread_emails
-from google.auth.exceptions import GoogleAuthError
+from django.http import HttpResponse
+from emails.views import get_unread_emails, load_credentials, create_credentials, refresh_credentials
+from google.auth.exceptions import GoogleAuthError, RefreshError
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Count, Q
-from tasks.forms import TaskForm  # Ensure this import matches your actual form location
+from tasks.forms import TaskForm
 
-
-
-# Configure the logger
 logger = logging.getLogger(__name__)
 
 
 def dashboard(request):
-    """
-    Render the dashboard with unread emails.
-    """
     if not request.user.is_authenticated:
         return HttpResponse("User must be logged in to access this page.", status=403)
 
     try:
-        unread_emails, auth_url = get_unread_emails()
+        # Load credentials
+        credentials_data = load_credentials()
+        creds = create_credentials(credentials_data)
+
+        # Refresh the credentials if needed
+        if creds and creds.expired and creds.refresh_token:
+            creds = refresh_credentials(creds)
+        elif creds.expired and not creds.refresh_token:
+            logger.warning("Token expired and no refresh token available. Redirecting to OAuth login.")
+            return redirect(reverse('oauth:oauth_login'))
+
+        # Fetch unread emails
+        unread_emails, auth_url = get_unread_emails(creds)
+
         if auth_url:
             return redirect(auth_url)
 
-        unread_email_count = len(unread_emails) if unread_emails else 0
-
+        # Render dashboard with unread emails
         context = {
             'unread_emails': unread_emails,
-            'unread_email_count': unread_email_count,
+            'unread_email_count': len(unread_emails),
         }
         return render(request, "dashboard/dashboard.html", context)
 
+    except RefreshError as refresh_error:
+        logger.error(f"Google token refresh error: {refresh_error}")
+        return redirect(reverse('oauth:oauth_login'))  # Redirect to re-authentication
+
     except Exception as e:
-        logger.error(f"Error in getting unread emails or rendering dashboard: {e}")
-        return HttpResponse("An unexpected error occurred while fetching emails.", status=500)
+        logger.error(f"An unexpected error occurred: {e}")
+        return HttpResponse("An unexpected error occurred. Please try again.", status=500)
 
 
 
@@ -89,4 +99,3 @@ def dashboard_searched(request):
         logger.debug(f"Jobs contacted in the last {period}: {jobs}")
 
     return render(request, "dashboard/dashboard_searched.html", context)
-

@@ -1,60 +1,76 @@
 import os
+import requests
+from dotenv import load_dotenv
 import json
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-import logging
 
-# Setup logging
-logger = logging.getLogger(__name__)
+# Load environment variables
+load_dotenv()
+from google_auth_oauthlib.flow import InstalledAppFlow
 
-def load_credentials():
-    """
-    Load OAuth2 credentials from environment variables or a file.
+# Load the client secrets file
+flow = InstalledAppFlow.from_client_secrets_file(
+    'credentials.json',
+    scopes=['https://www.googleapis.com/auth/gmail.readonly']
+)
+
+# Get the authorization URL
+auth_url, _ = flow.authorization_url(access_type='offline')
+print('Please go to this URL and authorize the application:', auth_url)
+
+# Get the authorization code from the user
+auth_code = input('Enter the authorization code: ')
+
+# Exchange the authorization code for tokens
+flow.fetch_token(code=auth_code)
+
+# Save the credentials
+credentials = flow.credentials
+print('Access token:', credentials.token)
+print('Refresh token:', credentials.refresh_token)
+
+def get_credentials():
+    try:
+        # Load the token JSON from environment variable
+        token_json = json.loads(os.getenv('GMAIL_TOKEN_JSON', '{}'))
+        access_token = token_json.get('access_token')
+        refresh_token = token_json.get('refresh_token')
+        client_id = os.getenv('GOOGLE_CLIENT_ID')
+        client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+        
+        if not access_token or not refresh_token or not client_id or not client_secret:
+            raise ValueError("Missing required credentials.")
+
+        return access_token, refresh_token, client_id, client_secret
+    except json.JSONDecodeError:
+        raise ValueError("Invalid JSON format in GMAIL_TOKEN_JSON.")
+
+def refresh_access_token():
+    access_token, refresh_token, client_id, client_secret = get_credentials()
+
+    # Token endpoint for Google's OAuth2
+    token_endpoint = "https://oauth2.googleapis.com/token"
     
-    Returns:
-        Credentials: The loaded credentials.
-    """
-    try:
-        if os.getenv('HEROKU'):
-            token_json_content = os.getenv('TOKEN_JSON_CONTENT')
-            if token_json_content:
-                credentials_data = json.loads(token_json_content)
-            else:
-                raise ValueError("TOKEN_JSON_CONTENT environment variable is not set.")
-        else:
-            token_json_path = os.getenv('TOKEN_JSON_PATH', 'token.json')
-            with open(token_json_path, 'r') as token_file:
-                credentials_data = json.load(token_file)
-
-        creds = Credentials(
-            token=credentials_data['token'],
-            refresh_token=credentials_data['refresh_token'],
-            token_uri=credentials_data['token_uri'],
-            client_id=credentials_data['client_id'],
-            client_secret=credentials_data['client_secret'],
-            scopes=credentials_data['scopes']
-        )
-        return creds
-    except Exception as e:
-        logger.error(f"Error loading credentials: {e}")
-        raise
-
-def refresh_token():
-    """
-    Refresh OAuth2 token.
-    """
-    try:
-        creds = load_credentials()
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            print("Token refreshed successfully.")
-            print(f"New access token: {creds.token}")
-        else:
-            print("Token is not expired or refresh token is not available.")
-    except Exception as e:
-        logger.error(f"Error refreshing token: {e}")
-        print(f"Error: {e}")
+    # Parameters for the POST request
+    data = {
+        'grant_type': 'refresh_token',
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'refresh_token': refresh_token
+    }
+    
+    response = requests.post(token_endpoint, data=data)
+    
+    if response.status_code == 200:
+        response_data = response.json()
+        return response_data.get('access_token')
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+        return None
 
 if __name__ == "__main__":
-    refresh_token()
+    new_access_token = refresh_access_token()
+    if new_access_token:
+        print(f"New access token: {new_access_token}")
+    else:
+        print("Failed to refresh access token.")
 

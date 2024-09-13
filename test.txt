@@ -1,1 +1,68 @@
-testing
+test_refresh_token.py:# Get the authorization URL
+test_refresh_token.py:auth_url, _ = flow.authorization_url(access_type='offline')
+test_refresh_token.py:# Get the authorization code from the user
+test_refresh_token.py:auth_code = input('Enter the authorization code: ')
+test_refresh_token.py:# Exchange the authorization code for tokens
+diagrams/views_structure.md:  - **Purpose**: Handle the OAuth2 callback from Google and exchange the authorization code for an access token.
+diagrams/views_structure.md:    - Retrieves the authorization code from the request.
+diagrams/views_structure.md:- **`get_oauth2_authorization_url`**:
+diagrams/views_structure.md:  - **Purpose**: Generate OAuth2 authorization URL.
+diagrams/views_structure.md:    - Constructs the OAuth2 authorization URL with the necessary parameters.
+diagrams/views_structure.md:    - Logs and returns the authorization URL or raises an error if something goes wrong.
+diagrams/views_structure.md:  - **Purpose**: Handle OAuth2 login by redirecting to the authorization URL.
+diagrams/views_structure.md:    - Generates the authorization URL and redirects the user to it.
+diagrams/views_structure.md:    - Logs the authorization URL or any errors that occur during the process.
+jobs/utils.py:def get_oauth2_authorization_url():
+jobs/utils.py:    logger.debug("Starting to generate OAuth2 authorization URL.")
+jobs/utils.py:        auth_url, state = flow.authorization_url(
+jobs/utils.py:        logger.info("Generated authorization URL: %s", auth_url)
+jobs/utils.py:        logger.error("Error generating authorization URL: %s", e)
+jobs/utils.py:        return [], get_oauth2_authorization_url()
+oauth_redirect_uris.py:def get_authorization_url():
+oauth_redirect_uris.py:    # Run the local server on port 9000 and get the authorization URL
+oauth_redirect_uris.py:    get_authorization_url()
+oauth/oauth_utils.py:        auth_code (str, optional): The authorization code received from the OAuth2 flow.
+oauth/oauth_utils.py:        tuple: A tuple containing a list of unread emails and an authorization URL if needed.
+oauth/oauth_utils.py:            logger.error(f"Error handling authorization code: {e}")
+oauth/oauth_utils.py:            auth_url = get_oauth2_authorization_url()
+oauth/oauth_utils.py:                auth_url = get_oauth2_authorization_url()
+oauth/oauth_utils.py:            logger.debug("No valid credentials found. Redirecting to authorization URL.")
+oauth/oauth_utils.py:            auth_url = get_oauth2_authorization_url()
+oauth/oauth_utils.py:    Exchange the authorization code for tokens.
+oauth/oauth_utils.py:        auth_code (str): The authorization code received from the OAuth2 flow.
+oauth/oauth_utils.py:                'grant_type': 'authorization_code'
+oauth/oauth_utils.py:def get_oauth2_authorization_url():
+oauth/oauth_utils.py:    Generate OAuth2 authorization URL.
+oauth/oauth_utils.py:        str: The authorization URL for OAuth2 login.
+oauth/oauth_utils.py:        Exception: If there is an error generating the authorization URL.
+oauth/oauth_utils.py:        authorization_url, _ = flow.authorization_url(
+oauth/oauth_utils.py:        logger.info(f"Generated authorization URL: {authorization_url}")
+oauth/oauth_utils.py:        return authorization_url
+oauth/oauth_utils.py:        logger.error(f"Error generating authorization URL: {e}")
+oauth/views.py:    Handle OAuth2 login by redirecting to the authorization URL.
+oauth/views.py:        HttpResponse: Redirect response to the authorization URL or home on error.
+oauth/views.py:        authorization_url, state = flow.authorization_url(
+oauth/views.py:        logger.debug(f"Authorization URL: {authorization_url}")
+oauth/views.py:        return redirect(authorization_url)
+oauth/views.py:    Handle the OAuth2 callback from Google and exchange the authorization code for an access token.
+oauth/views.py:        'grant_type': 'authorization_code'
+oauth/views.py:    Exchange the authorization code for tokens.
+oauth/views.py:        auth_code (str): The authorization code received from the OAuth2 flow.
+oauth/views.py:                'grant_type': 'authorization_code'
+oauth/views.py:                    print("The authorization code may be invalid or expired.")
+oauth/views.py:def get_oauth2_authorization_url():
+oauth/views.py:    Generate OAuth2 authorization URL.
+oauth/views.py:        str: The authorization URL for OAuth2 login.
+oauth/views.py:        Exception: If there is an error generating the authorization URL.
+oauth/views.py:    logger.debug("Generating OAuth2 authorization URL.")
+oauth/views.py:        authorization_endpoint = "https://accounts.google.com/o/oauth2/auth"
+oauth/views.py:        # Construct the authorization URL
+oauth/views.py:        authorization_url = client.prepare_request_uri(
+oauth/views.py:            authorization_endpoint,
+oauth/views.py:        logger.info(f"Generated authorization URL: {authorization_url}")
+oauth/views.py:        return authorization_url
+oauth/views.py:        logger.error(f"Error generating authorization URL: {e}")
+oauth/views.py:    Check the validity of an authorization code by attempting to exchange it for tokens.
+oauth/views.py:        auth_code (str): The authorization code to check.
+oauth/views.py:                'grant_type': 'authorization_code'
+oauth/views.py:                    print("The authorization code may be invalid or expired.")

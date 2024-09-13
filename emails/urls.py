@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import email_dashboard
+from .views import display_emails
 
 urlpatterns = [
-    path('dashboard/', email_dashboard, name='email_dashboard'),
+    path('display_emails/', display_emails, name='display_emails'),
 ]
 
 

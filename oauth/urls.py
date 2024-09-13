@@ -1,8 +1,10 @@
+app_name = 'oauth'
+
 from django.urls import path
-from .views import oauth_login, oauth_callback_view
+from .views import oauth_login, oauth_callback
 
 urlpatterns = [
     path('login/', oauth_login, name='oauth_login'),
-    path('oauth/callback/', oauth_callback_view, name='oauth_callback'),
+    path('callback/', oauth_callback, name='oauth_callback'),
 ]
 

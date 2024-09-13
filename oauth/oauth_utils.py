@@ -179,28 +179,58 @@ def exchange_code_for_tokens(auth_code):
         logger.error(f"Error during token exchange: {e}")
         raise
 
-
 def refresh_tokens(creds, user):
     """
-    Refresh OAuth2 tokens if they are expired.
-    
+    Refresh OAuth2 tokens, optionally forcing a refresh even if not expired.
+
     Args:
         creds (Credentials): The credentials to refresh.
         user (User): The user whose credentials are to be updated.
-    
+
     Returns:
         Credentials: Refreshed credentials or None if refresh failed.
     """
+    logger.debug(f"Starting token refresh process for user: {user.username}")
+
     try:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            save_credentials_to_db(user, creds)  # Ensure 'user' is available
-            logger.info("Credentials refreshed and saved.")
+        if creds:
+            logger.debug("Credentials object exists.")
+            
+            # Check if credentials are expired and refresh, OR comment out to force refresh for testing.
+            # if creds.expired:
+            #     logger.debug("Credentials have expired.")
+            #     if creds.refresh_token:
+            #         logger.debug("Refresh token is available. Attempting to refresh...")
+            #         creds.refresh(Request())
+            #         save_credentials_to_db(user, creds)
+            #         logger.info("Credentials refreshed and saved successfully.")
+            #     else:
+            #         logger.debug("No refresh token available. Cannot refresh credentials.")
+            
+            # Force refresh even if not expired (testing mode)
+            logger.debug("Forcing refresh regardless of expiration status.")
+            if creds.refresh_token:
+                logger.debug("Refresh token is available. Attempting to refresh...")
+                creds.refresh(Request())  # Use the refresh token to get a new access token
+                save_credentials_to_db(user, creds)
+                logger.info("Credentials refreshed and saved successfully.")
+            else:
+                logger.debug("No refresh token available. Cannot refresh credentials.")
+        else:
+            logger.debug("No credentials object provided.")
+        
         return creds
     except Exception as e:
         logger.error(f"Token refresh error: {e}")
         return None
 
+
+
+from google_auth_oauthlib.flow import InstalledAppFlow
+from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_oauth2_authorization_url():
     """
@@ -214,7 +244,7 @@ def get_oauth2_authorization_url():
     """
     try:
         client_config = {
-            "web": {
+            "installed": {
                 "client_id": settings.GOOGLE_CLIENT_ID,
                 "project_id": "johnsite-433520",
                 "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -224,12 +254,10 @@ def get_oauth2_authorization_url():
                 "redirect_uris": [settings.GOOGLE_REDIRECT_URI]
             }
         }
-
+        logger.debug(f"Client config: {json.dumps(client_config, indent=2)}")
+        
         flow = InstalledAppFlow.from_client_config(client_config, scopes=settings.SCOPES)
-        authorization_url, _ = flow.authorization_url(
-            access_type='offline',
-            include_granted_scopes='true'
-        )
+        authorization_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true')
         logger.info(f"Generated authorization URL: {authorization_url}")
         return authorization_url
     except Exception as e:

@@ -26,7 +26,7 @@ ROOT_URLCONF = 'career.urls'
 
 
 if DEBUG:
-    GOOGLE_REDIRECT_URI = 'http://localhost:9000/oauth/jobs-dashboard/'
+    GOOGLE_REDIRECT_URI = 'http://localhost:9000/oauth/callback/'
 else:
     GOOGLE_REDIRECT_URI = 'https://www.jwalshedev.ie/oauth/callback/'
 
@@ -100,23 +100,18 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'WARNING',  # Change this to 'ERROR' to suppress all SQL queries
+        },
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'django.utils': {
-            'handlers': ['console'],
-            'level': 'WARNING',
-        },
-        '': {
-            'handlers': ['console'],
-            'level': 'WARNING',
+            'level': 'INFO',
         },
     },
 }
@@ -124,6 +119,7 @@ LOGGING = {
 # Middleware
 MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -146,13 +142,15 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'emails',
-    'oauth',  # Your new app
+    'oauth', 
     'dashboard',
     'decouple',
     'tasks',
     'jobs',
+    'errors',
     'map',
     'users',
+	'debug_toolbar',
 ]
 
 # Templates
@@ -186,3 +184,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # WSGI configuration
 WSGI_APPLICATION = 'career.wsgi.application'
 
+
+INTERNAL_IPS = [
+    # ...
+    '127.0.0.1',
+]
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+}
