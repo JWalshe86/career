@@ -40,11 +40,11 @@ def oauth_login(request):
             "token_uri": "https://oauth2.googleapis.com/token",
             "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
             "client_secret": settings.GOOGLE_CLIENT_SECRET,
-            "redirect_uris": ["http://localhost:9000/oauth/callback"]
+            "redirect_uris": [settings.GOOGLE_REDIRECT_URI]
         }
     }
 
-    redirect_uri = "http://localhost:9000/oauth/callback"
+    redirect_uri = settings.GOOGLE_REDIRECT_URI
 
     logger.debug(f"Client config: {client_config}")
     logger.debug(f"Redirect URI: {redirect_uri}")
@@ -125,9 +125,9 @@ def exchange_code_for_tokens(auth_code):
         Exception: If there is an error exchanging the code for tokens.
     """
     try:
-        redirect_uri = 'http://localhost:9000/oauth/callback'
-        client_id = '554722957427-8i5p5m7jd1vobctsb34ql0km1qorpihg.apps.googleusercontent.com'
-        client_secret = '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'
+        redirect_uri = settings.GOOGLE_REDIRECT_URI
+        client_id = settings.GOOGLE_CLIENT_ID
+        client_secret = settings.GOOGLE_CLIENT_SECRET
         
         # Log details of the request for debugging
         print(f"Using Redirect URI: {redirect_uri}")
@@ -203,9 +203,9 @@ def check_auth_code_validity(auth_code):
         Exception: If the code is invalid or expired.
     """
     try:
-        redirect_uri = 'http://localhost:9000/oauth/callback'
-        client_id = '554722957427-8i5p5m7jd1vobctsb34ql0km1qorpihg.apps.googleusercontent.com'
-        client_secret = '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'
+        redirect_uri = settings.GOOGLE_REDIRECT_URI
+        client_id = settings.GOOGLE_CLIENT_ID
+        client_secret = settings.GOOGLE_CLIENT_SECRET
 
         # Request tokens from Google
         response = requests.post(
@@ -242,5 +242,4 @@ def check_auth_code_validity(auth_code):
     except Exception as e:
         print(f"Error during token exchange: {e}")
         raise
-
 
