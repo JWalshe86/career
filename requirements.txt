@@ -31,6 +31,7 @@ dj-database-url==2.2.0
 Django==5.0.7
 django-allauth==0.63.6
 django-crispy-forms==2.2
+django-debug-toolbar==4.4.6
 django-extensions==3.2.3
 django-gsheets==0.0.10
 django-import-export==4.1.1
@@ -58,7 +59,7 @@ google-api-core==2.19.1
 google-api-python-client==2.141.0
 google-auth==2.34.0
 google-auth-httplib2==0.2.0
-google-auth-oauthlib==1.2.0
+google-auth-oauthlib==1.2.1
 googleapis-common-protos==1.63.2
 googlemaps==4.10.0
 greenlet==3.0.3
