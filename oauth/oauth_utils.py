@@ -1,10 +1,13 @@
 import json
 import logging
+import requests
 from django.utils import timezone
-from .models import OAuthToken
+from django.conf import settings
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
+from .models import OAuthToken
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -63,12 +66,13 @@ def save_credentials_to_db(user, creds):
     except Exception as e:
         logger.error(f"Error saving credentials to database: {e}")
 
-def get_unread_emails(auth_code=None):
+def get_unread_emails(auth_code=None, user=None):
     """
     Fetch unread emails from Gmail.
     
     Args:
         auth_code (str, optional): The authorization code received from the OAuth2 flow.
+        user (User, optional): The user object to load credentials for.
     
     Returns:
         tuple: A tuple containing a list of unread emails and an authorization URL if needed.
@@ -84,14 +88,14 @@ def get_unread_emails(auth_code=None):
             return [], None
 
     if creds:
-        creds = refresh_tokens(creds)
+        creds = refresh_tokens(creds, user)
         if not creds:
             auth_url = get_oauth2_authorization_url()
             return [], auth_url
     else:
         creds = load_credentials_from_db(user)  # Make sure to pass the user object here
         if creds:
-            creds = refresh_tokens(creds)
+            creds = refresh_tokens(creds, user)
             if not creds:
                 auth_url = get_oauth2_authorization_url()
                 return [], auth_url
@@ -135,7 +139,6 @@ def get_unread_emails(auth_code=None):
     except Exception as e:
         logger.error(f"An error occurred while fetching emails: {e}")
         return [], None
-
 
 def exchange_code_for_tokens(auth_code):
     """
@@ -196,17 +199,6 @@ def refresh_tokens(creds, user):
         if creds:
             logger.debug("Credentials object exists.")
             
-            # Check if credentials are expired and refresh, OR comment out to force refresh for testing.
-            # if creds.expired:
-            #     logger.debug("Credentials have expired.")
-            #     if creds.refresh_token:
-            #         logger.debug("Refresh token is available. Attempting to refresh...")
-            #         creds.refresh(Request())
-            #         save_credentials_to_db(user, creds)
-            #         logger.info("Credentials refreshed and saved successfully.")
-            #     else:
-            #         logger.debug("No refresh token available. Cannot refresh credentials.")
-            
             # Force refresh even if not expired (testing mode)
             logger.debug("Forcing refresh regardless of expiration status.")
             if creds.refresh_token:
@@ -223,14 +215,6 @@ def refresh_tokens(creds, user):
     except Exception as e:
         logger.error(f"Token refresh error: {e}")
         return None
-
-
-
-from google_auth_oauthlib.flow import InstalledAppFlow
-from django.conf import settings
-import logging
-
-logger = logging.getLogger(__name__)
 
 def get_oauth2_authorization_url():
     """
