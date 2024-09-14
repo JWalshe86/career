@@ -10,43 +10,6 @@ class Command(BaseCommand):
     help = 'Fetch unread emails'
 
     def handle(self, *args, **options):
-        # Your code to fetch unread emails goes here
-        self.stdout.write(self.style.SUCCESS('Successfully fetched unread emails'))
-
-
-def get_credentials():
-    """Fetch credentials using OAuth 2.0 or use token from environment variables."""
-    try:
-        token_json = os.getenv('GMAIL_TOKEN_JSON')
-        if token_json:
-            print("Using token from environment variable.")
-            token_info = json.loads(token_json)
-            credentials = Credentials(
-                token=token_info['access_token'],
-                refresh_token=token_info.get('refresh_token'),
-                token_uri=token_info.get('token_uri'),
-                client_id=os.getenv('GOOGLE_CLIENT_ID'),
-                client_secret=os.getenv('GOOGLE_CLIENT_SECRET')
-            )
-        else:
-            # Handle case where token is not found
-            raise ValueError("No token found. Re-authentication required.")
-
-        if credentials and credentials.expired and credentials.refresh_token:
-            try:
-                credentials.refresh(Request())
-            except google.auth.exceptions.RefreshError:
-                print("Token is invalid. Please reauthorize.")
-                # Handle reauthorization flow
-                # ...
-
-        return credentials
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return None
-
-    def handle(self, *args, **options):
         creds = self.get_credentials()
         if not creds:
             self.stderr.write("No valid credentials found.")
@@ -67,4 +30,13 @@ def get_credentials():
 
         except HttpError as error:
             self.stderr.write(f"An error occurred: {error}")
+
+    def get_credentials(self):
+        """Fetch credentials using OAuth 2.0 or use token from environment variables."""
+        try:
+            token_json = os.getenv('GMAIL_TOKEN_JSON')
+            if token_json:
+                print("Using token from environment variable.")
+                token_info = json.loads(token_json)
+                credentials
 
