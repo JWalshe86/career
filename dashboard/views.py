@@ -19,6 +19,10 @@ from tasks.forms import TaskForm
 logger = logging.getLogger(__name__)
 
 
+def error_view(request):
+    return render(request, 'error.html', {'message': 'An unexpected error occurred. Please try again.'})
+
+
 def dashboard(request):
     if not request.user.is_authenticated:
         return HttpResponse("User must be logged in to access this page.", status=403)
@@ -56,7 +60,8 @@ def dashboard(request):
 
     except Exception as e:
         logger.error(f"An unexpected error occurred: {e}")
-        return HttpResponse("An unexpected error occurred. Please try again.", status=500)
+        return redirect(reverse('error_view'))  # Redirect to a dedicated error page
+
 
 
 
