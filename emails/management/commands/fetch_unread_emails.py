@@ -7,7 +7,11 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 class Command(BaseCommand):
-    help = 'Fetch unread emails from Gmail'
+    help = 'Fetch unread emails'
+
+    def handle(self, *args, **options):
+        # Your code to fetch unread emails goes here
+        self.stdout.write(self.style.SUCCESS('Successfully fetched unread emails'))
 
 
 def get_credentials():
