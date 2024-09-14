@@ -74,6 +74,14 @@ def oauth_login(request):
         return HttpResponseRedirect(reverse('dashboard:error_view'))
 
 
+import logging
+import requests
+from django.conf import settings
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
+
+logger = logging.getLogger(__name__)
+
 def oauth_callback(request):
     """
     Handle the OAuth2 callback from Google and exchange the authorization code for an access token.
@@ -118,7 +126,7 @@ def oauth_callback(request):
         request.session['refresh_token'] = response_data.get('refresh_token')  # Store refresh token if available
         
         # Redirect to the dashboard
-        return HttpResponseRedirect('/dashboard/')
+        return HttpResponseRedirect(reverse('dashboard:dashboard'))
     except requests.RequestException as req_err:
         logger.error(f"Request error during token exchange: {req_err}")
         return HttpResponseRedirect(reverse('dashboard:error_view'))
