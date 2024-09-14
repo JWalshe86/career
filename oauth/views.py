@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
+
 def oauth_login(request):
     """
     Handle OAuth2 login by redirecting to the authorization URL.
@@ -28,7 +29,7 @@ def oauth_login(request):
         request (HttpRequest): The incoming HTTP request.
     
     Returns:
-        HttpResponse: Redirect response to the authorization URL or home on error.
+        HttpResponse: Redirect response to the authorization URL or error page on failure.
     """
     logger.debug("Starting OAuth login process")
 
@@ -68,14 +69,19 @@ def oauth_login(request):
 
         return redirect(authorization_url)
     except Exception as e:
-        # ** RED FLAG: Error during OAuth login process **
         logger.error(f"Error during OAuth login process: {e}")
-        return redirect('/')  # Redirect to home or error page
+        return redirect(reverse('error_view'))  # Redirect to a dedicated error page
 
 
 def oauth_callback(request):
     """
     Handle the OAuth2 callback from Google and exchange the authorization code for an access token.
+    
+    Args:
+        request (HttpRequest): The incoming HTTP request.
+    
+    Returns:
+        HttpResponse: Redirect to the dashboard or error page on failure.
     """
     logger.info("OAuth callback view accessed")
     
@@ -96,21 +102,28 @@ def oauth_callback(request):
         'grant_type': 'authorization_code'
     }
     
-    response = requests.post(token_url, data=data)
-    response_data = response.json()
-    
-    logger.info("OAuth token response: %s", response_data)
-    
-    if 'access_token' not in response_data:
-        logger.error("Failed to get access token: %s", response_data)
-        return HttpResponse('Failed to get access token.', status=400)
+    try:
+        response = requests.post(token_url, data=data)
+        response_data = response.json()
+        
+        logger.info("OAuth token response: %s", response_data)
+        
+        if 'access_token' not in response_data:
+            logger.error("Failed to get access token: %s", response_data)
+            return HttpResponse('Failed to get access token.', status=400)
 
-    # Store the access token in the session
-    request.session['access_token'] = response_data['access_token']
-    request.session['refresh_token'] = response_data.get('refresh_token')  # Store refresh token if available
-    
-    # Redirect to the dashboard
-    return redirect('/')
+        # Store the access token in the session
+        request.session['access_token'] = response_data['access_token']
+        request.session['refresh_token'] = response_data.get('refresh_token')  # Store refresh token if available
+        
+        # Redirect to the dashboard
+        return redirect('/dashboard/')
+    except requests.RequestException as req_err:
+        logger.error(f"Request error during token exchange: {req_err}")
+        return redirect(reverse('error_view'))  # Redirect to a dedicated error page
+    except Exception as e:
+        logger.error(f"Error during token exchange: {e}")
+        return redirect(reverse('error_view'))  # Redirect to a dedicated error page
 
 
 
