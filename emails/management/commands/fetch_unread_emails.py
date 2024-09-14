@@ -38,5 +38,28 @@ class Command(BaseCommand):
             if token_json:
                 print("Using token from environment variable.")
                 token_info = json.loads(token_json)
-                credentials
+                credentials = Credentials(
+                    token=token_info['access_token'],
+                    refresh_token=token_info.get('refresh_token'),
+                    token_uri=token_info.get('token_uri'),
+                    client_id=os.getenv('GOOGLE_CLIENT_ID'),
+                    client_secret=os.getenv('GOOGLE_CLIENT_SECRET')
+                )
+            else:
+                # Handle case where token is not found
+                raise ValueError("No token found. Re-authentication required.")
+
+            if credentials and credentials.expired and credentials.refresh_token:
+                try:
+                    credentials.refresh(Request())
+                except google.auth.exceptions.RefreshError:
+                    print("Token is invalid. Please reauthorize.")
+                    # Handle reauthorization flow
+                    # ...
+
+            return credentials
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return None
 
