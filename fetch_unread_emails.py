@@ -12,11 +12,11 @@ GOOGLE_CREDENTIALS_JSON = {
         "token_uri": "https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
         "client_secret": "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",
-        "redirect_uris": ["http://localhost:9000/oauth/callback"]
+        "redirect_uris": ["https://jwalshedev.ie/oauth/callback/"]
     }
 }
 
-GOOGLE_REDIRECT_URI = 'http://localhost:9000/oauth/callback'
+GOOGLE_REDIRECT_URI = 'http://jwalshedev.ie/oauth/callback'
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 def get_credentials():
