@@ -67,10 +67,11 @@ def oauth_login(request):
         logger.debug(f"Authorization URL: {authorization_url}")
         logger.debug(f"State: {state}")
 
-        return redirect(authorization_url)
+        return HttpResponseRedirect(reverse('dashboard:error_view'))
     except Exception as e:
         logger.error(f"Error during OAuth login process: {e}")
-        return redirect(reverse('error_view'))  # Redirect to a dedicated error page
+          # Redirect to a dedicated error page
+        return HttpResponseRedirect(reverse('dashboard:error_view'))
 
 
 def oauth_callback(request):
@@ -117,13 +118,13 @@ def oauth_callback(request):
         request.session['refresh_token'] = response_data.get('refresh_token')  # Store refresh token if available
         
         # Redirect to the dashboard
-        return redirect('/dashboard/')
+        return HttpResponseRedirect('/dashboard/')
     except requests.RequestException as req_err:
         logger.error(f"Request error during token exchange: {req_err}")
-        return redirect(reverse('error_view'))  # Redirect to a dedicated error page
+        return HttpResponseRedirect(reverse('dashboard:error_view'))
     except Exception as e:
         logger.error(f"Error during token exchange: {e}")
-        return redirect(reverse('error_view'))  # Redirect to a dedicated error page
+        return HttpResponseRedirect(reverse('dashboard:error_view'))  # Redirect to a dedicated error page
 
 
 
