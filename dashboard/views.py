@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def error_view(request):
-    return render(request, 'dashboard/error.html', {'message': 'An unexpected error occurred. Please try again.'})
+    return render(request, 'dashboard/error.html', status=500)
 
 
 def dashboard(request):
