@@ -1,41 +1,30 @@
 import os
-import requests
-from google_auth_oauthlib.flow import Flow
+import json
+from google_auth_oauthlib.flow import InstalledAppFlow
 
-# Define the path to your client secrets file and the scopes
-CLIENT_SECRETS_FILE = 'credentials.json'
+# Get the client secrets from the environment variable
+CLIENT_SECRETS_JSON = os.getenv('GOOGLE_CLIENT_SECRETS')
+
+if CLIENT_SECRETS_JSON is None:
+    print('Error: GOOGLE_CLIENT_SECRETS environment variable not set.')
+    exit(1)
+
+# Parse the JSON content
+CLIENT_SECRETS = json.loads(CLIENT_SECRETS_JSON)
+
+# Define the scopes
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 def generate_token():
     # Create an OAuth 2.0 flow object
-    flow = Flow.from_client_secrets_file(
-        CLIENT_SECRETS_FILE,
-        scopes=SCOPES,
-        redirect_uri=os.getenv('GOOGLE_REDIRECT_URI')  # Use Heroku environment variable
-    )
+    flow = InstalledAppFlow.from_client_config(CLIENT_SECRETS, SCOPES)
 
-    # Generate authorization URL
-    authorization_url, state = flow.authorization_url(
-        access_type='offline',
-        include_granted_scopes='true'
-    )
-    print('Authorization URL:', authorization_url)
-
-    # Instruct user to visit the URL and authorize the app
-    print('Please visit this URL and authorize the app.')
-    print('After authorization, you will be redirected to a URL with a code parameter.')
-    print('Please copy that code and enter it below.')
-
-    # Handle the redirect URI callback to get the authorization code
-    code = input('Enter the authorization code: ')
-
-    # Exchange the authorization code for tokens
-    flow.fetch_token(code=code)
+    # Run the local server to handle the OAuth callback
+    creds = flow.run_local_server(port=8080, open_browser=True)  # Ensure the port matches
 
     # Save the credentials to a file
-    credentials = flow.credentials
     with open('token.json', 'w') as token_file:
-        token_file.write(credentials.to_json())
+        token_file.write(creds.to_json())
 
     print('Token has been saved to token.json.')
 
