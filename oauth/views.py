@@ -110,7 +110,7 @@ def oauth_callback(request):
     request.session['refresh_token'] = response_data.get('refresh_token')  # Store refresh token if available
     
     # Redirect to the dashboard
-    return redirect(reverse('dashboard:dashboard'))
+    return redirect('/')
 
 
 
