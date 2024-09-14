@@ -24,45 +24,26 @@ def error_view(request):
 
 
 def dashboard(request):
-    if not request.user.is_authenticated:
-        return HttpResponse("User must be logged in to access this page.", status=403)
-
+    """Dashboard view displaying unread emails."""
     try:
-        # Load credentials
-        credentials_data = load_credentials()
-        creds = create_credentials(credentials_data)
-        logger.debug(f"Credentials loaded: {creds}")
-
-        # Refresh the credentials if needed
-        if creds and creds.expired and creds.refresh_token:
-            logger.debug("Refreshing credentials...")
-            creds = refresh_credentials(creds)
-        elif creds.expired and not creds.refresh_token:
-            logger.warning("Token expired and no refresh token available. Redirecting to OAuth login.")
-            return redirect(reverse('oauth:oauth_login'))
-
+        # Retrieve credentials from the session
+        creds = Credentials.from_authorized_user_info(request.session.get('credentials'))
+        
         # Fetch unread emails
-        unread_emails, auth_url = get_unread_emails(creds)
-
-        if auth_url:
-            return redirect(auth_url)
-
-        # Render dashboard with unread emails
-        context = {
-            'unread_emails': unread_emails,
-            'unread_email_count': len(unread_emails),
-        }
-        return render(request, "dashboard/dashboard.html", context)
-
-    except RefreshError as refresh_error:
-        logger.error(f"Google token refresh error: {refresh_error}")
-        return redirect(reverse('oauth:oauth_login'))  # Redirect to re-authentication
-
+        unread_emails, error = get_unread_emails(creds)
+        
+        if error:
+            # Handle the error (e.g., display an error page or message)
+            logger.error(f"Error in dashboard view: {error}")
+            return HttpResponseRedirect(reverse('dashboard:error_view'))
+        
+        # Render the dashboard with unread emails
+        context = {'unread_emails': unread_emails}
+        return render(request, 'dashboard.html', context)
+    
     except Exception as e:
-        logger.error(f"An unexpected error occurred: {e}")
-        return redirect(reverse('error_view'))  # Redirect to a dedicated error page
-
-
+        logger.error(f"Unexpected error in dashboard view: {e}")
+        return HttpResponseRedirect(reverse('dashboard:error_view'))
 
 
 def dashboard_searched(request):

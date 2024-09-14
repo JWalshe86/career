@@ -50,19 +50,25 @@ def refresh_credentials(creds):
 def get_unread_emails(creds):
     """Fetch unread emails using Gmail API."""
     try:
+        # Build the Gmail service
         service = build('gmail', 'v1', credentials=creds)
         logger.debug("Gmail API service built successfully.")
 
-        query = 'is:unread -category:social -category:promotions -from:no-reply@usebubbles.com ' \
-                '-from:chandeep@2toucans.com -from:info@email.meetup.com ' \
-                '-from:craig@itcareerswitch.co.uk -from:no-reply@swagapp.com ' \
-                '-from:no-reply@fathom.video -from:mailer@jobleads.com ' \
-                '-from:careerservice@email.jobleads.com'
+        # Define the query to search for unread emails
+        query = (
+            'is:unread -category:social -category:promotions '
+            '-from:no-reply@usebubbles.com -from:chandeep@2toucans.com '
+            '-from:info@email.meetup.com -from:craig@itcareerswitch.co.uk '
+            '-from:no-reply@swagapp.com -from:no-reply@fathom.video '
+            '-from:mailer@jobleads.com -from:careerservice@email.jobleads.com'
+        )
         logger.debug(f"Query built: {query}")
 
+        # Execute the query to get messages
         results = service.users().messages().list(userId='me', q=query).execute()
         logger.debug(f"Gmail API response: {results}")
 
+        # Fetch individual messages
         messages = results.get('messages', [])
         logger.debug(f"Messages found: {len(messages)}")
 
@@ -79,37 +85,9 @@ def get_unread_emails(creds):
 
     except Exception as e:
         logger.error(f"Error fetching unread emails: {e}")
+        # Return an empty list and the error message
         return [], str(e)
 
-def parse_messages(messages, service):
-    """Parse email messages to extract relevant details."""
-    emails = []
-    if not messages:
-        emails.append({'date': '', 'sender': '', 'snippet': 'No unread messages found.'})
-    else:
-        for message in messages:
-            try:
-                msg = service.users().messages().get(userId='me', id=message['id']).execute()
-                headers = msg.get('payload', {}).get('headers', [])
-                
-                subject = next((header['value'] for header in headers if header['name'] == 'Subject'), 'No Subject')
-                date = next((header['value'] for header in headers if header['name'] == 'Date'), 'No Date')
-                sender = next((header['value'] for header in headers if header['name'] == 'From'), 'No Sender')
-                snippet = msg.get('snippet', '')
-
-                logger.debug(f"Email details - Subject: {subject}, Date: {date}, Sender: {sender}, Snippet: {snippet}")
-
-                emails.append({'date': date, 'sender': sender, 'snippet': snippet})
-            except Exception as e:
-                logger.error(f"Error parsing message with id {message['id']}: {e}")
-    return emails
-
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-import logging
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 def display_emails(request):
     """Render the section of the main dashboard showing unread emails."""
