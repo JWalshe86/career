@@ -1,15 +1,10 @@
 # jobs/context_processors.py
 from emails.views import get_unread_emails
 
+# jobs/context_processors.py
+# No longer import get_unread_emails
 def unread_email_count(request):
-    try:
-        email_subjects, _ = get_unread_emails(request.user)  # If needed
-        unread_email_count = len(email_subjects) if email_subjects else 0
-        return {
-            'unread_email_count': unread_email_count,
-        }
-    except Exception as e:
-        return {
-            'unread_email_count': 0,
-        }
+    return {
+        'unread_email_count': 0,  # Default to 0 if needed
+    }
 

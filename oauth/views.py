@@ -11,14 +11,23 @@ from google.auth.exceptions import GoogleAuthError
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
-from .oauth_utils import load_credentials_from_db, save_credentials_to_db, get_unread_emails, refresh_tokens
-from emails.views import get_unread_emails
+from .oauth_utils import save_credentials_to_db, refresh_tokens
+from emails.utils import get_unread_emails
 from oauthlib.oauth2 import WebApplicationClient
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+
+
+import os
+from django.shortcuts import redirect
+from django.conf import settings
+from google_auth_oauthlib.flow import Flow
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def oauth_login(request):
@@ -31,54 +40,42 @@ def oauth_login(request):
     Returns:
         HttpResponse: Redirect response to the authorization URL or error page on failure.
     """
-    logger.debug("Starting OAuth login process")
-
-    client_config = {
-        "web": {
-            "client_id": settings.GOOGLE_CLIENT_ID,
-            "project_id": "johnsite-433520",
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            "client_secret": settings.GOOGLE_CLIENT_SECRET,
-            "redirect_uris": [settings.GOOGLE_REDIRECT_URI]
-        }
-    }
-
-    redirect_uri = settings.GOOGLE_REDIRECT_URI
-
-    logger.debug(f"Client config: {client_config}")
-    logger.debug(f"Redirect URI: {redirect_uri}")
-
     try:
-        flow = Flow.from_client_config(
-            client_config,
-            scopes=["https://www.googleapis.com/auth/gmail.readonly"],
-            redirect_uri=redirect_uri
+        # Use the credentials.json file and the specific scopes for authorization
+        flow = Flow.from_client_secrets_file(
+            os.path.join(settings.BASE_DIR, 'credentials.json'),
+            scopes=[
+                'https://www.googleapis.com/auth/gmail.readonly',
+                'https://www.googleapis.com/auth/cloud-platform'
+            ],
+            redirect_uri=request.build_absolute_uri('/oauth/callback/')
         )
 
-        logger.debug("OAuth Flow object created successfully")
-
+        # Get the authorization URL
         authorization_url, state = flow.authorization_url(
             access_type='offline',
-            include_granted_scopes='true'
+            include_granted_scopes='false',  # Set to 'false' to avoid extra scopes
+            prompt='consent'
         )
 
-        logger.debug(f"Authorization URL: {authorization_url}")
-        logger.debug(f"State: {state}")
+        # Save the state in session for callback verification
+        request.session['oauth_state'] = state
 
-        return HttpResponseRedirect(reverse('dashboard:error_view'))
+        # Redirect the user to the authorization URL
+        return redirect(authorization_url)
+
     except Exception as e:
-        logger.error(f"Error during OAuth login process: {e}")
-          # Redirect to a dedicated error page
-        return HttpResponseRedirect(reverse('dashboard:error_view'))
+        # Log the error and redirect to the OAuth login again
+        logger.error(f"Error during OAuth login: {str(e)}")
+        return redirect('oauth:oauth_login')
 
 
-import logging
 import requests
+from django.shortcuts import redirect
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +97,7 @@ def oauth_callback(request):
         return HttpResponse('Authorization code missing.', status=400)
 
     token_url = 'https://oauth2.googleapis.com/token'
-    redirect_uri = settings.GOOGLE_REDIRECT_URI
+    redirect_uri = request.build_absolute_uri('/oauth/callback/')  # Ensure redirect URI is dynamic
     logger.info("Redirect URI used: %s", redirect_uri)
     
     data = {
@@ -110,8 +107,9 @@ def oauth_callback(request):
         'redirect_uri': redirect_uri,
         'grant_type': 'authorization_code'
     }
-    
+
     try:
+        # Send request to Google's OAuth server
         response = requests.post(token_url, data=data)
         response_data = response.json()
         
@@ -121,10 +119,16 @@ def oauth_callback(request):
             logger.error("Failed to get access token: %s", response_data)
             return HttpResponse('Failed to get access token.', status=400)
 
-        # Store the access token in the session
+        # Store the access token and refresh token in the session
         request.session['access_token'] = response_data['access_token']
         request.session['refresh_token'] = response_data.get('refresh_token')  # Store refresh token if available
-        
+
+        # Save the token data to token.json
+        with open('token.json', 'w') as token_file:
+            json.dump(response_data, token_file)
+
+        logger.info("OAuth credentials saved to token.json successfully.")
+
         # Redirect to the dashboard
         return HttpResponseRedirect(reverse('dashboard:dashboard'))
     except requests.RequestException as req_err:
@@ -132,9 +136,7 @@ def oauth_callback(request):
         return HttpResponseRedirect(reverse('dashboard:error_view'))
     except Exception as e:
         logger.error(f"Error during token exchange: {e}")
-        return HttpResponseRedirect(reverse('dashboard:error_view'))  # Redirect to a dedicated error page
-
-
+        return HttpResponseRedirect(reverse('dashboard:error_view'))
 
 def exchange_code_for_tokens(auth_code):
     """

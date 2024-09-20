@@ -1,12 +1,16 @@
 import os
 import json
 from google_auth_oauthlib.flow import InstalledAppFlow
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Get the client secrets from the environment variable
-CLIENT_SECRETS_JSON = os.getenv('GOOGLE_CLIENT_SECRETS')
+CLIENT_SECRETS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON')
 
 if CLIENT_SECRETS_JSON is None:
-    print('Error: GOOGLE_CLIENT_SECRETS environment variable not set.')
+    print('Error: GOOGLE_CREDENTIALS_JSON environment variable not set.')
     exit(1)
 
 # Parse the JSON content
@@ -20,7 +24,7 @@ def generate_token():
     flow = InstalledAppFlow.from_client_config(CLIENT_SECRETS, SCOPES)
 
     # Run the local server to handle the OAuth callback
-    creds = flow.run_local_server(port=8080, open_browser=True)  # Ensure the port matches
+    creds = flow.run_local_server(port=8080, open_browser=True)
 
     # Save the credentials to a file
     with open('token.json', 'w') as token_file:

@@ -1,50 +1,103 @@
 import os
 import json
-from django.http import HttpResponseRedirect
 import logging
+from django.http import HttpResponseRedirect
+from django.contrib import messages  # Add this import
 from django.shortcuts import render, redirect
-from django.conf import settings
 from django.urls import reverse
-from tasks.models import Task
-from jobs.models import Jobsearch
-from django.http import HttpResponse
-from emails.views import get_unread_emails, load_credentials, create_credentials, refresh_credentials
-from google.auth.exceptions import GoogleAuthError, RefreshError
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Count, Q
+from tasks.models import Task
+from jobs.models import Jobsearch
 from tasks.forms import TaskForm
+from emails.views import get_unread_emails
+from google.auth.transport.requests import Request
+from django.shortcuts import render, redirect
+from django.conf import settings
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 
 logger = logging.getLogger(__name__)
 
-
 def error_view(request):
+    """Render error page."""
     return render(request, 'dashboard/error.html', status=500)
 
 
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from django.utils.functional import SimpleLazyObject
+from django.shortcuts import render, redirect
+import logging
+
+logger = logging.getLogger(__name__)
+
+import os
+import json
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from django.shortcuts import render, redirect
+from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
+
 def dashboard(request):
-    """Dashboard view displaying unread emails."""
     try:
-        # Retrieve credentials from the session
-        creds = Credentials.from_authorized_user_info(request.session.get('credentials'))
+        # Load credentials directly from token.json
+        token_file = 'token.json'
         
-        # Fetch unread emails
+        if not os.path.exists(token_file):
+            logger.error("Token file not found.")
+            return redirect('dashboard:error_view')
+
+        with open(token_file, 'r') as file:
+            token_data = json.load(file)
+
+        client_id = settings.GOOGLE_CLIENT_ID
+        client_secret = settings.GOOGLE_CLIENT_SECRET
+
+        if 'access_token' not in token_data or not client_id or not client_secret:
+            logger.error("Missing fields in token data.")
+            return redirect('dashboard:error_view')
+
+        creds = Credentials(
+            token=token_data['access_token'],
+            refresh_token=token_data.get('refresh_token'),
+            token_uri='https://oauth2.googleapis.com/token',
+            client_id=client_id,
+            client_secret=client_secret,
+            scopes=['https://www.googleapis.com/auth/gmail.readonly']
+        )
+
+        logger.debug(f"Loaded credentials: {creds}")
+
+        # Refresh credentials if expired
+        if creds.expired and creds.refresh_token:
+            logger.debug("Credentials expired, attempting refresh.")
+            creds.refresh(Request())
+            logger.debug("Credentials refreshed successfully.")
+
+        # Log type of credentials before calling get_unread_emails
+        logger.debug(f"Dashboard view: creds being passed to get_unread_emails {type(creds)}")
+
+        # Fetch unread emails and pass verified creds object
         unread_emails, error = get_unread_emails(creds)
-        
         if error:
-            # Handle the error (e.g., display an error page or message)
-            logger.error(f"Error in dashboard view: {error}")
-            return HttpResponseRedirect(reverse('dashboard:error_view'))
-        
-        # Render the dashboard with unread emails
-        context = {'unread_emails': unread_emails}
-        return render(request, 'dashboard.html', context)
-    
+            logger.error(f"Error fetching unread emails: {error}")
+            return redirect('dashboard:error_view')
+
+        # Log the number of unread emails instead of the full list
+        logger.debug(f"Number of unread emails retrieved: {len(unread_emails)}")
+
+        # Render the dashboard template with unread emails
+        return render(request, 'dashboard/dashboard.html', {'unread_emails': unread_emails})
+
     except Exception as e:
-        logger.error(f"Unexpected error in dashboard view: {e}")
-        return HttpResponseRedirect(reverse('dashboard:error_view'))
+        logger.error(f"Unexpected error in dashboard view: {e}", exc_info=True)
+        return redirect('dashboard:error_view')
 
 
 def dashboard_searched(request):
@@ -88,3 +141,4 @@ def dashboard_searched(request):
         logger.debug(f"Jobs contacted in the last {period}: {jobs}")
 
     return render(request, "dashboard/dashboard_searched.html", context)
+

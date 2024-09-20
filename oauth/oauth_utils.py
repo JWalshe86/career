@@ -12,37 +12,37 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 # Setup logging
 logger = logging.getLogger(__name__)
 
-def load_credentials_from_db(user):
-    """
-    Load credentials from the database for a given user.
+# def load_credentials_from_db(user):
+#     """
+#     Load credentials from the database for a given user.
     
-    Args:
-        user (User): The user object to load credentials for.
+#     Args:
+#         user (User): The user object to load credentials for.
     
-    Returns:
-        Credentials: Loaded credentials if available and not expired, otherwise None.
-    """
-    try:
-        token_record = OAuthToken.objects.get(user=user)
-        if token_record.expiry < timezone.now():
-            # Token is expired
-            return None
+#     Returns:
+#         Credentials: Loaded credentials if available and not expired, otherwise None.
+#     """
+#     try:
+#         token_record = OAuthToken.objects.get(user=user)
+#         if token_record.expiry < timezone.now():
+#             # Token is expired
+#             return None
 
-        creds = Credentials(
-            token=token_record.access_token,
-            refresh_token=token_record.refresh_token,
-            token_uri=token_record.token_uri,
-            client_id=token_record.client_id,
-            client_secret=token_record.client_secret,
-            scopes=token_record.scopes
-        )
-        return creds
-    except OAuthToken.DoesNotExist:
-        # No token found
-        return None
-    except Exception as e:
-        logger.error(f"Error loading credentials from database: {e}")
-        return None
+#         creds = Credentials(
+#             token=token_record.access_token,
+#             refresh_token=token_record.refresh_token,
+#             token_uri=token_record.token_uri,
+#             client_id=token_record.client_id,
+#             client_secret=token_record.client_secret,
+#             scopes=token_record.scopes
+#         )
+#         return creds
+#     except OAuthToken.DoesNotExist:
+#         # No token found
+#         return None
+#     except Exception as e:
+#         logger.error(f"Error loading credentials from database: {e}")
+#         return None
 
 def save_credentials_to_db(user, creds):
     """
@@ -66,79 +66,6 @@ def save_credentials_to_db(user, creds):
     except Exception as e:
         logger.error(f"Error saving credentials to database: {e}")
 
-def get_unread_emails(auth_code=None, user=None):
-    """
-    Fetch unread emails from Gmail.
-    
-    Args:
-        auth_code (str, optional): The authorization code received from the OAuth2 flow.
-        user (User, optional): The user object to load credentials for.
-    
-    Returns:
-        tuple: A tuple containing a list of unread emails and an authorization URL if needed.
-    """
-    creds = None
-    auth_url = None
-
-    if auth_code:
-        try:
-            creds = exchange_code_for_tokens(auth_code)
-        except Exception as e:
-            logger.error(f"Error handling authorization code: {e}")
-            return [], None
-
-    if creds:
-        creds = refresh_tokens(creds, user)
-        if not creds:
-            auth_url = get_oauth2_authorization_url()
-            return [], auth_url
-    else:
-        creds = load_credentials_from_db(user)  # Make sure to pass the user object here
-        if creds:
-            creds = refresh_tokens(creds, user)
-            if not creds:
-                auth_url = get_oauth2_authorization_url()
-                return [], auth_url
-        else:
-            logger.debug("No valid credentials found. Redirecting to authorization URL.")
-            auth_url = get_oauth2_authorization_url()
-            return [], auth_url
-
-    try:
-        service = build("gmail", "v1", credentials=creds)
-        excluded_senders = [
-            "no-reply@usebubbles.com",
-            "chandeep@2toucans.com",
-            "craig@itcareerswitch.co.uk",
-            "no-reply@swagapp.com",
-            "no-reply@fathom.video",
-            "mailer@jobleads.com",
-            "careerservice@email.jobleads.com"
-        ]
-        query = "is:unread -category:social -category:promotions"
-        for sender in excluded_senders:
-            query += f" -from:{sender}"
-        results = service.users().messages().list(userId="me", q=query).execute()
-        messages = results.get('messages', [])
-
-        unread_emails = []
-        for message in messages:
-            msg = service.users().messages().get(userId="me", id=message['id']).execute()
-            snippet = msg['snippet']
-            email_data = {
-                'id': message['id'],
-                'snippet': snippet,
-                'sender': next(header['value'] for header in msg['payload']['headers'] if header['name'] == 'From'),
-                'subject': next(header['value'] for header in msg['payload']['headers'] if header['name'] == 'Subject'),
-                'highlight': 'highlight' if 'unfortunately' in snippet.lower() else ''
-            }
-            unread_emails.append(email_data)
-
-        logger.info(f"Processed unread emails: {unread_emails}")
-        return unread_emails, None
-    except Exception as e:
-        logger.error(f"An error occurred while fetching emails: {e}")
-        return [], None
 
 def exchange_code_for_tokens(auth_code):
     """

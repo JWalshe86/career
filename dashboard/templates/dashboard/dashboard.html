@@ -1,18 +1,45 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <style>
+        .messages {
+            list-style: none;
+            padding: 0;
+        }
+        .messages li {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .messages .error {
+            color: red;
+            background-color: #fdd;
+        }
+        .messages .success {
+            color: green;
+            background-color: #dfd;
+        }
+    </style>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
   <h1>Dashboard</h1>
 
 <!-- Include Display Emails section -->
 <div class="display-emails">
     <h2>Display Emails</h2>
-    {% if email_subjects %}
-        <!-- Display email subjects here -->
-        {% for email in email_subjects %}
+    {% if unread_emails %}
+        {% for email in unread_emails %}
             <div class="email-item">
                 <p>Subject: {{ email.subject }}</p>
                 <p>From: {{ email.sender }}</p>
-                <!-- Other email details -->
+                <p>Snippet: {{ email.snippet }}</p>
             </div>
         {% endfor %}
     {% else %}

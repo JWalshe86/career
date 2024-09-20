@@ -95,23 +95,38 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+
+import logging
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname}: {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
-            'level': 'INFO',
             'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
     },
     'loggers': {
-        'django.db.backends': {
-            'handlers': ['console'],
-            'level': 'WARNING',  # Change this to 'ERROR' to suppress all SQL queries
-        },
         'django': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'INFO',  # Adjust this level as needed
+            'propagate': True,
+        },
+        'googleapiclient.discovery': {
+            'level': 'WARNING',  # Suppress DEBUG messages from this logger
+            'handlers': ['console'],
+            'propagate': False,
         },
     },
 }
@@ -126,7 +141,6 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'career.middleware.custom_error_middleware.CustomErrorMiddleware',  # Custom middleware
     'django.contrib.messages.middleware.MessageMiddleware',
 ]
 
