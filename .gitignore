@@ -3,6 +3,7 @@ core.mongo*
 core.python*
 documents
 env.py
+new_venv
 .venv
 career_venv/
 .env
@@ -16,5 +17,6 @@ credentials.json
 token.json
 *migrations
 None
+service-account-file.json
 token.json
 .env
