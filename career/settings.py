@@ -80,12 +80,12 @@ if HEROKU:
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': config('MYSQL_DB_NAME', default='test_db'),
-            'USER': config('MYSQL_DB_USER', default='root'),
-            'PASSWORD': config('MYSQL_DB_PASSWORD', default='Sunshine7!'),
-            'HOST': config('MYSQL_DB_HOST', default='localhost'),
-            'PORT': config('MYSQL_DB_PORT', default='3306'),
+            'ENGINE': 'django.db.backends.postgresql',  # Change to PostgreSQL
+            'NAME': config('POSTGRES_DB_NAME', default='career_db'),  # Update with your DB name
+            'USER': config('POSTGRES_DB_USER', default='johnwalshe'),  # Update with your user
+            'PASSWORD': config('POSTGRES_DB_PASSWORD', default='Sunshine7!'),  # Keep your password
+            'HOST': config('POSTGRES_DB_HOST', default='localhost'),  # Keep as localhost
+            'PORT': config('POSTGRES_DB_PORT', default='5432'),  # Default PostgreSQL port
         }
     }
 
