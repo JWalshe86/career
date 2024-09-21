@@ -15,7 +15,6 @@ node_modules/
 creds.json
 credentials.json
 token.json
-*migrations
 None
 service-account-file.json
 token.json
