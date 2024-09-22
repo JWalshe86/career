@@ -29,6 +29,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+from google_auth_oauthlib.flow import Flow
+import os
+from django.conf import settings
+from django.shortcuts import redirect
+import logging
+
+logger = logging.getLogger(__name__)
+
 def oauth_login(request):
     """
     Handle OAuth2 login by redirecting to the authorization URL.
@@ -40,9 +48,22 @@ def oauth_login(request):
         HttpResponse: Redirect response to the authorization URL or error page on failure.
     """
     try:
-        # Use the credentials.json file and the specific scopes for authorization
-        flow = Flow.from_client_secrets_file(
-            os.path.join(settings.BASE_DIR, 'credentials.json'),
+        # Dynamically build the OAuth2 flow using client secrets from environment variables
+        client_config = {
+            "web": {
+                "client_id": settings.GOOGLE_CLIENT_ID,
+                "project_id": "your-project-id",  # Optional, can be hardcoded or from settings
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_secret": settings.GOOGLE_CLIENT_SECRET,
+                "redirect_uris": [settings.GOOGLE_REDIRECT_URI]
+            }
+        }
+
+        # Initialize the OAuth 2.0 flow using the environment variables
+        flow = Flow.from_client_config(
+            client_config,
             scopes=[
                 'https://www.googleapis.com/auth/gmail.readonly',
                 'https://www.googleapis.com/auth/cloud-platform'
@@ -64,9 +85,9 @@ def oauth_login(request):
         return redirect(authorization_url)
 
     except Exception as e:
-        # Log the error and redirect to the OAuth login again
+        # Log the error and redirect to an error page
         logger.error(f"Error during OAuth login: {str(e)}")
-        return redirect('oauth:oauth_login')
+        return redirect('/dashboard/error/')  # Change this as per your needs
 
 
 import requests
