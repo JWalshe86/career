@@ -68,7 +68,7 @@ def oauth_login(request):
                 'https://www.googleapis.com/auth/gmail.readonly',
                 'https://www.googleapis.com/auth/cloud-platform'
             ],
-            redirect_uri=request.build_absolute_uri('/oauth/callback/')
+            redirect_uri=settings.GOOGLE_REDIRECT_URI
         )
 
         # Get the authorization URL
