@@ -98,6 +98,10 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 import logging
 
+# settings.py
+
+import logging
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -107,26 +111,24 @@ LOGGING = {
             'style': '{',
         },
         'simple': {
-            'format': '{levelname}: {message}',
+            'format': '{levelname} {message}',
             'style': '{',
         },
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+            'formatter': 'verbose',  # Use verbose formatter for more detail
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'INFO',  # Adjust this level as needed
-            'propagate': True,
+            'level': 'DEBUG',
         },
-        'googleapiclient.discovery': {
-            'level': 'WARNING',  # Suppress DEBUG messages from this logger
+        'emails.utils': {  # Your module name for specific logging
             'handlers': ['console'],
-            'propagate': False,
+            'level': 'DEBUG',
         },
     },
 }
