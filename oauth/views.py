@@ -11,7 +11,6 @@ from google.auth.exceptions import GoogleAuthError
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
-from .oauth_utils import save_credentials_to_db, refresh_tokens
 from emails.utils import get_unread_emails
 from oauthlib.oauth2 import WebApplicationClient
 
