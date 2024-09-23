@@ -113,8 +113,21 @@ def oauth_callback(request):
         return HttpResponse('Authorization code missing.', status=400)
 
     token_url = 'https://oauth2.googleapis.com/token'
-    redirect_uri = request.build_absolute_uri('/oauth/callback/')  # Ensure redirect URI is dynamic
+
+    # Expected redirect URI from settings
+    expected_redirect_uri = settings.GOOGLE_REDIRECT_URI
+    logger.info("Expected redirect URI: %s", expected_redirect_uri)
+
+    # Ensure redirect URI is always HTTPS
+    scheme = request.scheme
+    redirect_uri = request.build_absolute_uri('/oauth/callback/')
+    if scheme != 'https':
+        redirect_uri = redirect_uri.replace('http://', 'https://')
+
     logger.info("Redirect URI used: %s", redirect_uri)
+
+    # Log the received redirect URI
+    logger.info("Received redirect URI: %s", redirect_uri)
 
     data = {
         'code': code,
