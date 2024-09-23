@@ -1,4 +1,5 @@
 import os
+import django
 import json
 import logging
 import requests
@@ -13,8 +14,16 @@ from django.contrib.auth.models import User
 # Setup logging
 logger = logging.getLogger(__name__)
 
+# Set up Django environment
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'career.settings')
+django.setup()
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# Function to get user by username
 def get_user(username):
-    """Retrieve a user instance by username."""
     logger.debug(f"Fetching user: {username}")
     try:
         user = User.objects.get(username=username)
@@ -24,9 +33,30 @@ def get_user(username):
         logger.error(f"User '{username}' not found.")
         return None
 
+# Function to load credentials
+def load_credentials(user):
+    try:
+        token_record = OAuthToken.objects.get(user=user)
+        creds = Credentials(
+            token=token_record.access_token,
+            refresh_token=token_record.refresh_token,
+            token_uri='https://oauth2.googleapis.com/token',
+            client_id='your_client_id',  # Replace with actual client ID
+            client_secret='your_client_secret',  # Replace with actual client secret
+            scopes=['your_scopes'],  # Replace with actual scopes
+            expiry=token_record.expiry
+        )
+        logger.info("Credentials loaded from database.")
+        return creds
+    except OAuthToken.DoesNotExist:
+        logger.error("OAuthToken record not found for user.")
+        return None
+    except Exception as e:
+        logger.error(f"Error loading credentials from database: {e}")
+        return None
 
+# Function to fetch unread emails
 def get_unread_emails(creds):
-    """Fetch unread emails using the provided credentials."""
     try:
         logger.debug(f"Received creds of type: {type(creds)}")
         if not isinstance(creds, Credentials):
@@ -60,6 +90,39 @@ def get_unread_emails(creds):
     except Exception as e:
         logger.error(f"Error fetching unread emails: {e}", exc_info=True)
         return None, str(e)
+
+# OAuth Flow Example
+def handle_oauth_callback(auth_code, username):
+    """Handle the OAuth callback to exchange the auth code for tokens and fetch unread emails."""
+    user = get_user(username)
+    if not user:
+        logger.error(f"User '{username}' not found.")
+        return
+
+    # Exchange auth code for tokens (you need to implement this)
+    creds = exchange_code_for_tokens(auth_code)
+    if creds:
+        # Save credentials to database
+        save_credentials_to_db(user, creds)
+        
+        # Fetch unread emails
+        unread_emails, error = get_unread_emails(creds)
+        if error:
+            logger.error(f"Error fetching unread emails: {error}")
+        else:
+            logger.info("Unread Emails:", unread_emails)
+    else:
+        logger.error("Failed to obtain credentials.")
+
+# Add the exchange_code_for_tokens and save_credentials_to_db functions
+# ...
+
+# Entry point if needed
+if __name__ == "__main__":
+    # Simulate handling an OAuth callback
+    handle_oauth_callback('your_auth_code', 'johnwalshe')  # Change the username as needed
+
+
 
 def exchange_code_for_tokens(auth_code):
     """Exchange the authorization code for tokens."""
@@ -128,54 +191,8 @@ def get_oauth2_authorization_url():
         raise
 
 def save_credentials(user, creds):
-    """Save credentials to either a local file or the database depending on the environment."""
-    if settings.DEBUG:
-        save_credentials_to_file(creds)
-    else:
-        save_credentials_to_db(user, creds)
-
-def load_credentials(user):
-    """Load credentials either from a local file or from the database depending on the environment."""
-    if settings.DEBUG:
-        return load_credentials_from_file()
-    else:
-        return load_credentials_from_db(user)
-
-def save_credentials_to_file(creds):
-    """Save credentials to a local token.json file."""
-    token_data = {
-        'token': creds.token,
-        'refresh_token': creds.refresh_token,
-        'token_uri': creds.token_uri,
-        'client_id': creds.client_id,
-        'client_secret': creds.client_secret,
-        'scopes': creds.scopes,
-        'expiry': creds.expiry.isoformat() if creds.expiry else None
-    }
-    with open('token.json', 'w') as token_file:
-        json.dump(token_data, token_file)
-    logger.info("Credentials saved to token.json locally.")
-
-
-def load_credentials_from_file():
-    """Load credentials from a local token.json file."""
-    if os.path.exists('token.json'):
-        with open('token.json', 'r') as token_file:
-            token_data = json.load(token_file)
-            creds = Credentials(
-                token=token_data['access_token'],
-                refresh_token=token_data.get('refresh_token'),  # Use .get to avoid KeyError
-                token_uri='https://oauth2.googleapis.com/token',  # Set a default value
-                client_id=settings.GOOGLE_CLIENT_ID,
-                client_secret=settings.GOOGLE_CLIENT_SECRET,
-                scopes=settings.SCOPES,
-                expiry=None  # Set to None if you don't have expiry info
-            )
-            logger.info("Credentials loaded from token.json.")
-            return creds
-    else:
-        logger.error("token.json file not found.")
-        return None
+    """Save credentials to the database for a given user."""
+    save_credentials_to_db(user, creds)
 
 
 def save_credentials_to_db(user, creds):
@@ -187,12 +204,14 @@ def save_credentials_to_db(user, creds):
         token_record.token_uri = creds.token_uri
         token_record.client_id = creds.client_id
         token_record.client_secret = creds.client_secret
-        token_record.scopes = creds.scopes
-        token_record.expiry = creds.expiry
+        token_record.scopes = ','.join(creds.scopes)  # Store scopes as a comma-separated string
+        token_record.expiry = creds.expiry  # Ensure this is in a compatible format
         token_record.save()
         logger.info("Credentials saved to database.")
     except Exception as e:
         logger.error(f"Error saving credentials to database: {e}")
+
+
 
 def load_credentials_from_db(user):
     """Load credentials from the database for a given user."""

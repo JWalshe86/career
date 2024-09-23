@@ -99,18 +99,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+from django.utils import timezone
+from datetime import timedelta
+from .models import OAuthToken
+
 def oauth_callback(request):
-    """
-    Handle the OAuth2 callback from Google and exchange the authorization code for an access token.
-    
-    Args:
-        request (HttpRequest): The incoming HTTP request.
-    
-    Returns:
-        HttpResponse: Redirect to the dashboard or error page on failure.
-    """
     logger.info("OAuth callback view accessed")
-    
+
     code = request.GET.get('code')
     if not code:
         logger.error("Authorization code missing")
@@ -119,7 +115,7 @@ def oauth_callback(request):
     token_url = 'https://oauth2.googleapis.com/token'
     redirect_uri = request.build_absolute_uri('/oauth/callback/')  # Ensure redirect URI is dynamic
     logger.info("Redirect URI used: %s", redirect_uri)
-    
+
     data = {
         'code': code,
         'client_id': settings.GOOGLE_CLIENT_ID,
@@ -132,31 +128,41 @@ def oauth_callback(request):
         # Send request to Google's OAuth server
         response = requests.post(token_url, data=data)
         response_data = response.json()
-        
+
         logger.info("OAuth token response: %s", response_data)
-        
+
         if 'access_token' not in response_data:
             logger.error("Failed to get access token: %s", response_data)
             return HttpResponse('Failed to get access token.', status=400)
 
-        # Store the access token and refresh token in the session
-        request.session['access_token'] = response_data['access_token']
-        request.session['refresh_token'] = response_data.get('refresh_token')  # Store refresh token if available
+        # Save to the database
+        user = request.user  # Ensure the user is authenticated
 
-        # Save the token data to token.json
-        with open('token.json', 'w') as token_file:
-            json.dump(response_data, token_file)
+        expiry_time = timezone.now() + timedelta(seconds=response_data.get('expires_in', 3600))
 
-        logger.info("OAuth credentials saved to token.json successfully.")
+        # Create or update the OAuthToken for the user
+        OAuthToken.objects.update_or_create(
+            user=user,
+            defaults={
+                'access_token': response_data['access_token'],
+                'refresh_token': response_data.get('refresh_token'),
+                'token_uri': 'https://oauth2.googleapis.com/token',  # Static, as it doesn't change
+                'client_id': settings.GOOGLE_CLIENT_ID,
+                'client_secret': settings.GOOGLE_CLIENT_SECRET,
+                'scopes': response_data.get('scope', []),  # Ensure scopes are saved as a list
+                'expiry': expiry_time
+            }
+        )
+
+        logger.info("OAuth credentials saved to database successfully.")
 
         # Redirect to the dashboard
         return HttpResponseRedirect(reverse('dashboard:dashboard'))
-    except requests.RequestException as req_err:
-        logger.error(f"Request error during token exchange: {req_err}")
-        return HttpResponseRedirect(reverse('dashboard:error_view'))
+
     except Exception as e:
         logger.error(f"Error during token exchange: {e}")
         return HttpResponseRedirect(reverse('dashboard:error_view'))
+
 
 def exchange_code_for_tokens(auth_code):
     """

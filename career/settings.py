@@ -102,36 +102,37 @@ import logging
 
 import logging
 
+
+class MtimeFilter(logging.Filter):
+    def filter(self, record):
+        return 'mtime' not in record.getMessage()
+
+import logging
+
+# Other settings...
+
+# Configure logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
-        },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',  # Use verbose formatter for more detail
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
-        'emails.utils': {  # Your module name for specific logging
+        'django.contrib.auth': {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
     },
 }
+
+
 
 # Middleware
 MIDDLEWARE = [
