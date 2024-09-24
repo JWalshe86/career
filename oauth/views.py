@@ -37,13 +37,20 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+from django.conf import settings
+from django.shortcuts import redirect
+from google_auth_oauthlib.flow import Flow
+import logging
+
+logger = logging.getLogger(__name__)
+
 def oauth_login(request):
     """
     Handle OAuth2 login by redirecting to the authorization URL.
-    
+
     Args:
         request (HttpRequest): The incoming HTTP request.
-    
+
     Returns:
         HttpResponse: Redirect response to the authorization URL or error page on failure.
     """
@@ -52,23 +59,23 @@ def oauth_login(request):
         client_config = {
             "web": {
                 "client_id": settings.GOOGLE_CLIENT_ID,
-                "project_id": "your-project-id",  # Optional, can be hardcoded or from settings
+                "project_id": "johnsite-433520",  # Optional, can be hardcoded or from settings
                 "auth_uri": "https://accounts.google.com/o/oauth2/auth",
                 "token_uri": "https://oauth2.googleapis.com/token",
                 "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
                 "client_secret": settings.GOOGLE_CLIENT_SECRET,
-                "redirect_uris": [settings.GOOGLE_REDIRECT_URI]
+                "redirect_uris": [settings.GOOGLE_REDIRECT_URI]  # Use the dynamic redirect URI
             }
         }
 
-        # Initialize the OAuth 2.0 flow using the environment variables
+        # Initialize the OAuth 2.0 flow using the client configuration
         flow = Flow.from_client_config(
             client_config,
             scopes=[
                 'https://www.googleapis.com/auth/gmail.readonly',
                 'https://www.googleapis.com/auth/cloud-platform'
             ],
-            redirect_uri=settings.GOOGLE_REDIRECT_URI
+            redirect_uri=settings.GOOGLE_REDIRECT_URI  # This is dynamic
         )
 
         # Get the authorization URL
@@ -88,7 +95,6 @@ def oauth_login(request):
         # Log the error and redirect to an error page
         logger.error(f"Error during OAuth login: {str(e)}")
         return redirect('/dashboard/error/')  # Change this as per your needs
-
 
 import requests
 from django.shortcuts import redirect
@@ -118,13 +124,16 @@ def oauth_callback(request):
     expected_redirect_uri = settings.GOOGLE_REDIRECT_URI
     logger.info("Expected redirect URI: %s", expected_redirect_uri)
 
-    # Ensure redirect URI is always HTTPS
+    # Build the redirect URI based on the request's scheme
     scheme = request.scheme
     redirect_uri = request.build_absolute_uri('/oauth/callback/')
-    if scheme != 'https':
-        redirect_uri = redirect_uri.replace('http://', 'https://')
 
+    # Log the used redirect URI
     logger.info("Redirect URI used: %s", redirect_uri)
+
+    # Ensure redirect URI matches expected format
+    if scheme == 'http':
+        redirect_uri = redirect_uri.replace('http://', 'https://')
 
     # Log the received redirect URI
     logger.info("Received redirect URI: %s", redirect_uri)
@@ -133,7 +142,7 @@ def oauth_callback(request):
         'code': code,
         'client_id': settings.GOOGLE_CLIENT_ID,
         'client_secret': settings.GOOGLE_CLIENT_SECRET,
-        'redirect_uri': redirect_uri,
+        'redirect_uri': expected_redirect_uri,  # Use expected redirect URI from settings
         'grant_type': 'authorization_code'
     }
 
@@ -175,7 +184,6 @@ def oauth_callback(request):
     except Exception as e:
         logger.error(f"Error during token exchange: {e}")
         return HttpResponseRedirect(reverse('dashboard:error_view'))
-
 
 def exchange_code_for_tokens(auth_code):
     """
