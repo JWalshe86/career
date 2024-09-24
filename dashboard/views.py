@@ -1,59 +1,33 @@
 import os
 import json
 import logging
+from datetime import timedelta
+
+from django.conf import settings
+from django.contrib import messages
+from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
-from django.contrib import messages  # Add this import
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils import timezone
-from datetime import timedelta
-from django.db.models import Count, Q
-from tasks.models import Task
-from jobs.models import Jobsearch
-from tasks.forms import TaskForm
-from emails.views import get_unread_emails
-from google.auth.transport.requests import Request
-from django.shortcuts import render, redirect
-from django.conf import settings
+
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
+from oauth.models import OAuthToken
+from tasks.forms import TaskForm
+from tasks.models import Task
+from jobs.models import Jobsearch
+from emails.views import get_unread_emails
+
+# Setup logger
 logger = logging.getLogger(__name__)
 
 def error_view(request):
     """Render error page."""
     return render(request, 'dashboard/error.html', status=500)
 
-
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from django.utils.functional import SimpleLazyObject
-from django.shortcuts import render, redirect
-import logging
-
-logger = logging.getLogger(__name__)
-
-import os
-import json
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-from django.shortcuts import render, redirect
-from django.conf import settings
-import logging
-
-logger = logging.getLogger(__name__)
-
-import os
-import json
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-from django.conf import settings
-from django.utils import timezone
-from oauth.models import OAuthToken
-import logging
-
-logger = logging.getLogger(__name__)
 
 def dashboard(request):
     try:
@@ -75,7 +49,10 @@ def dashboard(request):
             scopes=token_data.scopes.split(',')  # Ensure scopes are a list
         )
 
-        # Refresh credentials if expired
+        # Log the expiry time for debugging
+        logger.debug(f"Access token expiry time: {creds.expiry}")
+
+        # Check if the credentials are expired
         if creds.expired and creds.refresh_token:
             logger.debug("Credentials expired, attempting refresh.")
             creds.refresh(Request())
@@ -86,6 +63,8 @@ def dashboard(request):
             token_data.expiry = creds.expiry if creds.expiry else timezone.now()
             token_data.save()
             logger.debug("Refreshed token saved to the database.")
+        else:
+            logger.debug("Credentials are still valid.")
 
         # Fetch unread emails with the credentials
         unread_emails, error = get_unread_emails(creds)
@@ -99,6 +78,7 @@ def dashboard(request):
     except Exception as e:
         logger.error(f"Unexpected error in dashboard view: {e}", exc_info=True)
         return redirect('dashboard:error_view')
+
 
 
 def dashboard_searched(request):

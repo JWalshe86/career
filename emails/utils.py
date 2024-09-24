@@ -195,22 +195,40 @@ def save_credentials(user, creds):
     save_credentials_to_db(user, creds)
 
 
+from django.utils import timezone
+from datetime import datetime
+import pytz  # Ensure you have pytz installed
+
 def save_credentials_to_db(user, creds):
     """Save credentials to the database for a given user."""
     try:
+        # Create or get the existing OAuthToken record for the user
         token_record, created = OAuthToken.objects.get_or_create(user=user)
+        
+        # Save the token details
         token_record.access_token = creds.token
         token_record.refresh_token = creds.refresh_token
         token_record.token_uri = creds.token_uri
         token_record.client_id = creds.client_id
         token_record.client_secret = creds.client_secret
         token_record.scopes = ','.join(creds.scopes)  # Store scopes as a comma-separated string
-        token_record.expiry = creds.expiry  # Ensure this is in a compatible format
+
+        # Define your timezone (adjust as necessary)
+        your_timezone = pytz.timezone('UTC')  # Change 'UTC' to your desired timezone if needed
+        
+        # Check if expiry is set correctly
+        if creds.expiry:
+            # Create a timezone-aware expiry datetime
+            token_record.expiry = timezone.make_aware(creds.expiry)  # Ensure expiry is timezone-aware
+        else:
+            # If no expiry is set, default to 1 hour from now
+            token_record.expiry = timezone.now() + timezone.timedelta(seconds=3600)
+
+        # Save the token record to the database
         token_record.save()
         logger.info("Credentials saved to database.")
     except Exception as e:
         logger.error(f"Error saving credentials to database: {e}")
-
 
 
 def load_credentials_from_db(user):

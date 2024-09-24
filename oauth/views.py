@@ -2,10 +2,15 @@ import os
 import json
 import logging
 import requests
+from datetime import timedelta
+
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.conf import settings
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from django.utils import timezone
+from oauth.models import OAuthToken
+
 from google_auth_oauthlib.flow import InstalledAppFlow, Flow
 from google.auth.exceptions import GoogleAuthError
 from google.oauth2.credentials import Credentials
@@ -18,31 +23,6 @@ from oauthlib.oauth2 import WebApplicationClient
 logger = logging.getLogger(__name__)
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
-
-
-import os
-from django.shortcuts import redirect
-from django.conf import settings
-from google_auth_oauthlib.flow import Flow
-import logging
-
-logger = logging.getLogger(__name__)
-
-
-from google_auth_oauthlib.flow import Flow
-import os
-from django.conf import settings
-from django.shortcuts import redirect
-import logging
-
-logger = logging.getLogger(__name__)
-
-from django.conf import settings
-from django.shortcuts import redirect
-from google_auth_oauthlib.flow import Flow
-import logging
-
-logger = logging.getLogger(__name__)
 
 def oauth_login(request):
     """
@@ -71,10 +51,7 @@ def oauth_login(request):
         # Initialize the OAuth 2.0 flow using the client configuration
         flow = Flow.from_client_config(
             client_config,
-            scopes=[
-                'https://www.googleapis.com/auth/gmail.readonly',
-                'https://www.googleapis.com/auth/cloud-platform'
-            ],
+            scopes=SCOPES + ['https://www.googleapis.com/auth/cloud-platform'],
             redirect_uri=settings.GOOGLE_REDIRECT_URI  # This is dynamic
         )
 
@@ -96,19 +73,10 @@ def oauth_login(request):
         logger.error(f"Error during OAuth login: {str(e)}")
         return redirect('/dashboard/error/')  # Change this as per your needs
 
-import requests
-from django.shortcuts import redirect
-from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
-import logging
-
-logger = logging.getLogger(__name__)
-
-
 from django.utils import timezone
 from datetime import timedelta
-from .models import OAuthToken
+from django.shortcuts import HttpResponseRedirect, reverse
+import requests
 
 def oauth_callback(request):
     logger.info("OAuth callback view accessed")
@@ -160,7 +128,9 @@ def oauth_callback(request):
         # Save to the database
         user = request.user  # Ensure the user is authenticated
 
-        expiry_time = timezone.now() + timedelta(seconds=response_data.get('expires_in', 3600))
+        # Create a timezone-aware expiry datetime
+        expires_in = response_data.get('expires_in', 3600)
+        expiry_time = timezone.now() + timedelta(seconds=expires_in)
 
         # Create or update the OAuthToken for the user
         OAuthToken.objects.update_or_create(
@@ -168,11 +138,11 @@ def oauth_callback(request):
             defaults={
                 'access_token': response_data['access_token'],
                 'refresh_token': response_data.get('refresh_token'),
-                'token_uri': 'https://oauth2.googleapis.com/token',  # Static, as it doesn't change
+                'token_uri': token_url,  # Static, as it doesn't change
                 'client_id': settings.GOOGLE_CLIENT_ID,
                 'client_secret': settings.GOOGLE_CLIENT_SECRET,
-                'scopes': response_data.get('scope', []),  # Ensure scopes are saved as a list
-                'expiry': expiry_time
+                'scopes': response_data.get('scope', ''),  # Ensure scopes are saved as a string
+                'expiry': expiry_time  # Use the aware datetime here
             }
         )
 
@@ -188,13 +158,13 @@ def oauth_callback(request):
 def exchange_code_for_tokens(auth_code):
     """
     Exchange the authorization code for tokens.
-    
+
     Args:
         auth_code (str): The authorization code received from the OAuth2 flow.
-    
+
     Returns:
         dict: Tokens obtained from the exchange.
-    
+
     Raises:
         Exception: If there is an error exchanging the code for tokens.
     """
@@ -202,11 +172,11 @@ def exchange_code_for_tokens(auth_code):
         redirect_uri = settings.GOOGLE_REDIRECT_URI
         client_id = settings.GOOGLE_CLIENT_ID
         client_secret = settings.GOOGLE_CLIENT_SECRET
-        
+
         # Log details of the request for debugging
-        print(f"Using Redirect URI: {redirect_uri}")
-        print(f"Authorization Code: {auth_code}")
-        print(f"Client ID: {client_id}")
+        logger.debug(f"Using Redirect URI: {redirect_uri}")
+        logger.debug(f"Authorization Code: {auth_code}")
+        logger.debug(f"Client ID: {client_id}")
 
         # Request tokens from Google
         response = requests.post(
@@ -221,36 +191,35 @@ def exchange_code_for_tokens(auth_code):
         )
 
         # Log response for debugging
-        print(f"Token exchange response: {response.status_code} - {response.text}")
+        logger.debug(f"Token exchange response: {response.status_code} - {response.text}")
 
         if response.status_code != 200:
             tokens = response.json()
             if 'error' in tokens:
                 error = tokens.get('error')
                 error_description = tokens.get('error_description', 'No error description')
-                print(f"Error in token response: {error} - {error_description}")
-                
+                logger.error(f"Error in token response: {error} - {error_description}")
+
                 if error == 'invalid_grant':
-                    print("The authorization code may be invalid or expired.")
+                    logger.warning("The authorization code may be invalid or expired.")
                 raise Exception("Error exchanging code for tokens")
-        
+
         return response.json()
 
     except requests.RequestException as req_err:
-        print(f"Request error during token exchange: {req_err}")
+        logger.error(f"Request error during token exchange: {req_err}")
         raise
     except Exception as e:
-        print(f"Error during token exchange: {e}")
+        logger.error(f"Error during token exchange: {e}")
         raise
-
 
 def env_vars(request):
     """
     Return environment variables as JSON response.
-    
+
     Args:
         request (HttpRequest): The incoming HTTP request.
-    
+
     Returns:
         JsonResponse: JSON response containing environment variables.
     """
@@ -266,13 +235,13 @@ def env_vars(request):
 def check_auth_code_validity(auth_code):
     """
     Check the validity of an authorization code by attempting to exchange it for tokens.
-    
+
     Args:
         auth_code (str): The authorization code to check.
-    
+
     Returns:
         dict: The response from the token exchange request.
-    
+
     Raises:
         Exception: If the code is invalid or expired.
     """
@@ -293,27 +262,28 @@ def check_auth_code_validity(auth_code):
             }
         )
 
-        # Print response for debugging
-        print(f"Token exchange response: {response.status_code} - {response.text}")
+        # Log response for debugging
+        logger.debug(f"Token exchange response: {response.status_code} - {response.text}")
 
         if response.status_code != 200:
             tokens = response.json()
             if 'error' in tokens:
                 error = tokens.get('error')
                 error_description = tokens.get('error_description', 'No error description')
-                print(f"Error in token response: {error} - {error_description}")
+                logger.error(f"Error in token response: {error} - {error_description}")
+                
                 if error == 'invalid_grant':
-                    print("The authorization code may be invalid or expired.")
+                    logger.warning("The authorization code may be invalid or expired.")
                 elif error == 'redirect_uri_mismatch':
-                    print("The redirect URI does not match what is registered in the Google API Console.")
+                    logger.warning("The redirect URI does not match what is registered in the Google API Console.")
                 raise Exception("Error exchanging code for tokens")
-        
+
         return response.json()
 
     except requests.RequestException as req_err:
-        print(f"Request error during token exchange: {req_err}")
+        logger.error(f"Request error during token exchange: {req_err}")
         raise
     except Exception as e:
-        print(f"Error during token exchange: {e}")
+        logger.error(f"Error during token exchange: {e}")
         raise
 
