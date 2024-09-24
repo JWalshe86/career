@@ -29,16 +29,70 @@ def error_view(request):
     return render(request, 'dashboard/error.html', status=500)
 
 
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from django.utils import timezone
+import logging
+
+# Assuming you have a logger configured
+logger = logging.getLogger(__name__)
+
+
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from django.utils import timezone
+import logging
+
+# Assuming you have a logger configured
+logger = logging.getLogger(__name__)
+
+
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from django.utils import timezone
+import logging
+
+# Logger configuration
+logger = logging.getLogger(__name__)
+
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from django.utils import timezone
+import logging
+
+# Logger configuration
+logger = logging.getLogger(__name__)
+
+def get_utc_now():
+    """Return the current time as an aware datetime."""
+    return timezone.now()
+
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from django.utils import timezone
+import logging
+
+# Logger configuration
+logger = logging.getLogger(__name__)
+
+def get_utc_now():
+    """Return the current time as an aware datetime."""
+    return timezone.now()
+
+from django.utils import timezone
+
 def dashboard(request):
     try:
-        user = request.user  # Assuming the user is authenticated
+        user = request.user
         token_data = OAuthToken.objects.filter(user=user).first()
 
         if not token_data:
             logger.error("No token data found in the database.")
             return redirect('dashboard:error_view')
 
-        logger.debug(f"Token data fetched from database: {token_data}")
+        # Ensure the expiry time is aware
+        if token_data.expiry and timezone.is_naive(token_data.expiry):
+            token_data.expiry = timezone.make_aware(token_data.expiry)
 
         creds = Credentials(
             token=token_data.access_token,
@@ -46,27 +100,29 @@ def dashboard(request):
             token_uri=token_data.token_uri,
             client_id=token_data.client_id,
             client_secret=token_data.client_secret,
-            scopes=token_data.scopes.split(',')  # Ensure scopes are a list
+            scopes=token_data.scopes.split(','),
         )
 
-        # Log the expiry time for debugging
-        logger.debug(f"Access token expiry time: {creds.expiry}")
+        # Ensure creds.expiry is aware
+        if creds.expiry and timezone.is_naive(creds.expiry):
+            creds.expiry = timezone.make_aware(creds.expiry)
 
-        # Check if the credentials are expired
-        if creds.expired and creds.refresh_token:
-            logger.debug("Credentials expired, attempting refresh.")
-            creds.refresh(Request())
-            logger.debug("Credentials refreshed successfully.")
+        current_time = timezone.now()  # Ensure current time is aware
 
-            # Update the token in the database after refreshing
-            token_data.access_token = creds.token
-            token_data.expiry = creds.expiry if creds.expiry else timezone.now()
-            token_data.save()
-            logger.debug("Refreshed token saved to the database.")
-        else:
-            logger.debug("Credentials are still valid.")
+        # Check if the credentials are expired or about to expire
+        if creds.expiry is None or creds.expiry < current_time:
+            if creds.refresh_token:
+                logger.debug("Refreshing token.")
+                creds.refresh(Request())
+                token_data.access_token = creds.token
+                token_data.expiry = creds.expiry if creds.expiry else current_time
+                token_data.save()
+                logger.debug("Refreshed token saved to the database.")
+            else:
+                logger.error("No refresh token available; cannot refresh credentials.")
+                return redirect('dashboard:error_view')
 
-        # Fetch unread emails with the credentials
+        # Fetch unread emails
         unread_emails, error = get_unread_emails(creds)
         if error:
             logger.error(f"Error fetching unread emails: {error}")
@@ -78,8 +134,6 @@ def dashboard(request):
     except Exception as e:
         logger.error(f"Unexpected error in dashboard view: {e}", exc_info=True)
         return redirect('dashboard:error_view')
-
-
 
 def dashboard_searched(request):
     """Render dashboard with searched jobs."""

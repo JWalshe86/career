@@ -112,22 +112,31 @@ import logging
 # Other settings...
 
 # Configure logging
+# settings.py
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'INFO',  # Set to INFO to limit Django's logging
         },
-        'django.contrib.auth': {
+        'googleapiclient.discovery': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'WARNING',  # Change this to WARNING to suppress DEBUG logs
         },
     },
 }

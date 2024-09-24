@@ -55,15 +55,33 @@ def load_credentials(user):
         logger.error(f"Error loading credentials from database: {e}")
         return None
 
+from googleapiclient.discovery import build
+from google.auth.transport.requests import Request
+from django.utils import timezone
+
 # Function to fetch unread emails
 def get_unread_emails(creds):
     try:
         logger.debug(f"Received creds of type: {type(creds)}")
+        
+        # Ensure creds is an instance of Credentials
         if not isinstance(creds, Credentials):
             logger.error(f"Invalid credentials object type: {type(creds)}")
             raise TypeError("Invalid credentials object type")
 
+        # Ensure the credentials are valid and not expired
+        if not creds.valid:
+            logger.warning("Credentials are invalid; attempting refresh.")
+            if creds.expired and creds.refresh_token:
+                creds.refresh(Request())  # Refresh the credentials
+                logger.debug("Credentials refreshed successfully.")
+            else:
+                logger.error("Credentials are expired and no refresh token is available.")
+                return None, "Credentials are invalid or expired."
+
         service = build('gmail', 'v1', credentials=creds)
+
+        # Fetch unread emails
         results = service.users().messages().list(userId='me', labelIds=['INBOX'], q='is:unread').execute()
         messages = results.get('messages', [])
 

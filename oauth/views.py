@@ -88,67 +88,45 @@ def oauth_callback(request):
 
     token_url = 'https://oauth2.googleapis.com/token'
 
-    # Expected redirect URI from settings
-    expected_redirect_uri = settings.GOOGLE_REDIRECT_URI
-    logger.info("Expected redirect URI: %s", expected_redirect_uri)
-
-    # Build the redirect URI based on the request's scheme
-    scheme = request.scheme
-    redirect_uri = request.build_absolute_uri('/oauth/callback/')
-
-    # Log the used redirect URI
-    logger.info("Redirect URI used: %s", redirect_uri)
-
-    # Ensure redirect URI matches expected format
-    if scheme == 'http':
-        redirect_uri = redirect_uri.replace('http://', 'https://')
-
-    # Log the received redirect URI
-    logger.info("Received redirect URI: %s", redirect_uri)
-
     data = {
         'code': code,
         'client_id': settings.GOOGLE_CLIENT_ID,
         'client_secret': settings.GOOGLE_CLIENT_SECRET,
-        'redirect_uri': expected_redirect_uri,  # Use expected redirect URI from settings
+        'redirect_uri': settings.GOOGLE_REDIRECT_URI,
         'grant_type': 'authorization_code'
     }
 
     try:
-        # Send request to Google's OAuth server
         response = requests.post(token_url, data=data)
         response_data = response.json()
 
         logger.info("OAuth token response: %s", response_data)
 
-        if 'access_token' not in response_data:
-            logger.error("Failed to get access token: %s", response_data)
+        if 'access_token' not in response_data or 'expires_in' not in response_data:
+            logger.error("Failed to get access token or expires_in missing: %s", response_data)
             return HttpResponse('Failed to get access token.', status=400)
 
-        # Save to the database
-        user = request.user  # Ensure the user is authenticated
+        user = request.user
 
-        # Create a timezone-aware expiry datetime
+        # Set the expiry based on expires_in from the response
         expires_in = response_data.get('expires_in', 3600)
         expiry_time = timezone.now() + timedelta(seconds=expires_in)
 
-        # Create or update the OAuthToken for the user
         OAuthToken.objects.update_or_create(
             user=user,
             defaults={
                 'access_token': response_data['access_token'],
                 'refresh_token': response_data.get('refresh_token'),
-                'token_uri': token_url,  # Static, as it doesn't change
+                'token_uri': token_url,
                 'client_id': settings.GOOGLE_CLIENT_ID,
                 'client_secret': settings.GOOGLE_CLIENT_SECRET,
-                'scopes': response_data.get('scope', ''),  # Ensure scopes are saved as a string
-                'expiry': expiry_time  # Use the aware datetime here
+                'scopes': response_data.get('scope', ''),
+                'expiry': expiry_time  # Ensure this is set correctly
             }
         )
 
         logger.info("OAuth credentials saved to database successfully.")
 
-        # Redirect to the dashboard
         return HttpResponseRedirect(reverse('dashboard:dashboard'))
 
     except Exception as e:
