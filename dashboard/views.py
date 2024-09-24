@@ -57,78 +57,35 @@ logger = logging.getLogger(__name__)
 
 def dashboard(request):
     try:
-        # Check if running on Heroku (assumes an env var like `ON_HEROKU` or other identifier)
-        on_heroku = os.getenv('ON_HEROKU', False)
-        
-        if on_heroku:  # Running on Heroku, use the database
-            user = request.user  # Assuming the user is authenticated
-            token_data = OAuthToken.objects.filter(user=user).first()
+        user = request.user  # Assuming the user is authenticated
+        token_data = OAuthToken.objects.filter(user=user).first()
 
-            if not token_data:
-                logger.error("No token data found in the database.")
-                return redirect('dashboard:error_view')
+        if not token_data:
+            logger.error("No token data found in the database.")
+            return redirect('dashboard:error_view')
 
-            logger.debug(f"Token data fetched from database: {token_data}")
+        logger.debug(f"Token data fetched from database: {token_data}")
 
-            creds = Credentials(
-                token=token_data.access_token,
-                refresh_token=token_data.refresh_token,
-                token_uri=token_data.token_uri,
-                client_id=token_data.client_id,
-                client_secret=token_data.client_secret,
-                scopes=token_data.scopes
-            )
+        creds = Credentials(
+            token=token_data.access_token,
+            refresh_token=token_data.refresh_token,
+            token_uri=token_data.token_uri,
+            client_id=token_data.client_id,
+            client_secret=token_data.client_secret,
+            scopes=token_data.scopes.split(',')  # Ensure scopes are a list
+        )
 
-            # Refresh credentials if expired
-            if creds.expired and creds.refresh_token:
-                logger.debug("Credentials expired, attempting refresh.")
-                creds.refresh(Request())
-                logger.debug("Credentials refreshed successfully.")
+        # Refresh credentials if expired
+        if creds.expired and creds.refresh_token:
+            logger.debug("Credentials expired, attempting refresh.")
+            creds.refresh(Request())
+            logger.debug("Credentials refreshed successfully.")
 
-                # Update the token in the database after refreshing
-                token_data.access_token = creds.token
-                token_data.expiry = creds.expiry if creds.expiry else timezone.now()
-                token_data.save()
-                logger.debug("Refreshed token saved to the database.")
-
-        else:  # Running locally, use token.json file
-            token_file = 'token.json'
-            
-            if not os.path.exists(token_file):
-                logger.error("Token file not found.")
-                return redirect('dashboard:error_view')
-
-            with open(token_file, 'r') as file:
-                token_data = json.load(file)
-
-            client_id = settings.GOOGLE_CLIENT_ID
-            client_secret = settings.GOOGLE_CLIENT_SECRET
-
-            if 'access_token' not in token_data or not client_id or not client_secret:
-                logger.error("Missing fields in token data.")
-                return redirect('dashboard:error_view')
-
-            creds = Credentials(
-                token=token_data['access_token'],
-                refresh_token=token_data.get('refresh_token'),
-                token_uri='https://oauth2.googleapis.com/token',
-                client_id=client_id,
-                client_secret=client_secret,
-                scopes=['https://www.googleapis.com/auth/gmail.readonly']
-            )
-
-            # Refresh credentials if expired
-            if creds.expired and creds.refresh_token:
-                logger.debug("Credentials expired, attempting refresh.")
-                creds.refresh(Request())
-                logger.debug("Credentials refreshed successfully.")
-
-                # Update token.json with the new token if refreshed
-                token_data['access_token'] = creds.token
-                token_data['expiry'] = creds.expiry.isoformat() if creds.expiry else None
-                with open(token_file, 'w') as file:
-                    json.dump(token_data, file)
-                logger.debug("Refreshed token saved to token.json.")
+            # Update the token in the database after refreshing
+            token_data.access_token = creds.token
+            token_data.expiry = creds.expiry if creds.expiry else timezone.now()
+            token_data.save()
+            logger.debug("Refreshed token saved to the database.")
 
         # Fetch unread emails with the credentials
         unread_emails, error = get_unread_emails(creds)

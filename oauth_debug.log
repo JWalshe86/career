@@ -1,0 +1,126 @@
+INFO 2024-09-24 09:38:33,049 views OAuth callback view accessed
+INFO 2024-09-24 09:38:33,050 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:38:33,051 views Redirect URI used: https://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:38:33,051 views Received redirect URI: https://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:38:33,223 views OAuth token response: {'error': 'invalid_grant', 'error_description': 'Bad Request'}
+ERROR 2024-09-24 09:38:33,224 views Failed to get access token: {'error': 'invalid_grant', 'error_description': 'Bad Request'}
+INFO 2024-09-24 09:41:00,733 views OAuth callback view accessed
+INFO 2024-09-24 09:41:00,778 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:41:00,788 views Redirect URI used: https://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:41:00,788 views Received redirect URI: https://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:41:01,611 views OAuth token response: {'error': 'redirect_uri_mismatch', 'error_description': 'Bad Request'}
+ERROR 2024-09-24 09:41:01,612 views Failed to get access token: {'error': 'redirect_uri_mismatch', 'error_description': 'Bad Request'}
+INFO 2024-09-24 09:41:32,102 views OAuth callback view accessed
+INFO 2024-09-24 09:41:32,103 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:41:32,103 views Redirect URI used: https://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:41:32,103 views Received redirect URI: https://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:41:32,285 views OAuth token response: {'error': 'redirect_uri_mismatch', 'error_description': 'Bad Request'}
+ERROR 2024-09-24 09:41:32,285 views Failed to get access token: {'error': 'redirect_uri_mismatch', 'error_description': 'Bad Request'}
+INFO 2024-09-24 09:49:31,389 views OAuth callback view accessed
+INFO 2024-09-24 09:49:31,390 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:49:31,391 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:49:31,624 views OAuth token response: {'access_token': 'ya29.a0AcM612x6XiYbHvLTh28xqWTgx7qDHa0vyYtMvBYVfAkVFDBtFKbFIKxcFk32KGe-H47JHrVK17Sd75ouTYHojhlk5-cUTaRgZBDaELCoxhFdi09om33xmCTUTBFi87n-txDeXVyvHrg223gPyEPbXZreWSg5gmkI1OOWTCWzaCgYKASsSARESFQHGX2MiX0eBOEqsddWfyHWHNNprfA0175', 'expires_in': 3599, 'refresh_token': '1//099GAZEexBNaZCgYIARAAGAkSNwF-L9IrKNF1Xz-SpFkZJX_rYgZP3eeF25NymUEq4rLIAaJLzCMsFL2q_axbvsKjZx4u0L_1DNY', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 09:49:31,677 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 09:50:01,587 views OAuth callback view accessed
+INFO 2024-09-24 09:50:01,588 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:50:01,588 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:50:01,831 views OAuth token response: {'access_token': 'ya29.a0AcM612zEwX5BgNJr-ntOQlXqsS8rfr64B9Li43ZDKL82GXtZDzd7VcAzqLSgEgKxo3xonubezaxIVoPsdPEdWPLvVR-60NFz2Apmhpi5K30EfSfIiUqLXvBoaew6XTQdomTqa9WHKIX--3bugIxyOLS0mokVwKcC8TWi-LF-aCgYKAToSARESFQHGX2MiILRwYUX8P8nBwY4u8O0tTg0175', 'expires_in': 3599, 'refresh_token': '1//09vxn56Dc8CWFCgYIARAAGAkSNwF-L9IrcQiVxVMY28xVC1MRFZBXcMJJVl5q5Brhr2PIjUJxaEXVIpTznPa92x-clO-OhpTvwOw', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 09:50:01,872 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 09:57:56,133 views OAuth callback view accessed
+INFO 2024-09-24 09:57:56,144 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:57:56,144 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:57:56,415 views OAuth token response: {'access_token': 'ya29.a0AcM612wAENjwt6iJcZub3bCND13gwFZ0uquGGKyDGbAg4tZi09FIx3QjBwfgg963aRUJ3uaVAxHpDMBDt37F6HqHQnLgriNxtYJp4fWazNUAFYB0K5GojjflmMNQNovok_Y__S_EzEjlM9v7V7XxkhtbiFnHvRfeqXv46GvRaCgYKARsSARESFQHGX2MiMT-FmRuQwVXiBNBvgYHKEA0175', 'expires_in': 3599, 'refresh_token': '1//092rpSj_xvuZuCgYIARAAGAkSNwF-L9IrQZbF9Z-TjHNx26lT3rn5rkImlEzrOqXi4lX3nGKWNqDo_cHrtp0aRoOY5mpwbXRQ_1M', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 09:57:56,465 views OAuth credentials saved to database successfully.
+ERROR 2024-09-24 09:57:56,465 views Error during token exchange: name 'HttpResponseRedirect' is not defined
+INFO 2024-09-24 09:59:09,345 views OAuth callback view accessed
+INFO 2024-09-24 09:59:09,348 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:59:09,349 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:59:09,584 views OAuth token response: {'error': 'invalid_grant', 'error_description': 'Bad Request'}
+ERROR 2024-09-24 09:59:09,585 views Failed to get access token: {'error': 'invalid_grant', 'error_description': 'Bad Request'}
+INFO 2024-09-24 09:59:30,803 views OAuth callback view accessed
+INFO 2024-09-24 09:59:30,804 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:59:30,805 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:59:30,986 views OAuth token response: {'access_token': 'ya29.a0AcM612ywT13tbSEVQTD7jau8brvSmdtJH3ujafrrJAJ8nruEr-WqVVv_2eLJhBryCwAicYu8iHTg__6CvTQZC2xCsxm8s3r6yceTF4BdFU3hxTh_D53V75wmbBSSjyIMiyE5QyJNFHQCc44cbFuZnhzCTZxid-e-8rvtR8c9aCgYKATkSARESFQHGX2MiUIn-EH5AB8Y2Qn4a2yyrAA0175', 'expires_in': 3599, 'refresh_token': '1//09EObSIXvIn3sCgYIARAAGAkSNwF-L9IrIiJtyur8oomsdNKblfEkeMVCM_utyoMWsLTRghyJUf7sqRZoNWh_B9-7afFo3K1XuVY', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 09:59:31,033 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 09:59:39,304 views OAuth callback view accessed
+INFO 2024-09-24 09:59:39,304 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:59:39,304 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:59:39,534 views OAuth token response: {'access_token': 'ya29.a0AcM612xgTh5OrN8PjssRNW4HKGTctPUpmbdFn4XhwIz_6Cf7qa49xEEuy90pFKEmfe12s3YRkv0YAt6Q4fWwcpypm8E1TCAzVXDLmpBtZy8eGpat7To36LDAntP9Aoe4_q0902vpy6Cut_3Fa8uC5UYhAhEc1W_PNLomVLVFaCgYKAVcSARESFQHGX2Mi4PRtVhFf96XcrNb3y_G_mg0175', 'expires_in': 3599, 'refresh_token': '1//09AEMQt__NGt2CgYIARAAGAkSNwF-L9IrBEhryo3i4h-Dd61Q4ETLhAg4_l3cW1HwcYkInRMEw_PBRRyhStfMl98MTSW4RePqRPo', 'scope': 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/cloud-platform', 'token_type': 'Bearer'}
+INFO 2024-09-24 09:59:39,578 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 09:59:53,522 views OAuth callback view accessed
+INFO 2024-09-24 09:59:53,523 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:59:53,523 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 09:59:53,718 views OAuth token response: {'access_token': 'ya29.a0AcM612xH6F_Avf7xOMns1rVCQ0VjEbJVAgD4jBESUPpwgKuQLKj_FMxbW62VOMTLCZn2JKbWqYmJpqo89G9OQVd8i35B3Vw6ECs-c5uEclQGsXLgNA23BnRvHKxyDwFHgG0ux4mntxY4N7P4RJoBdfXhpir9wcWUVIF4YLQSaCgYKASgSARESFQHGX2MiYEorTS2EF2NMvcUmeADS5g0175', 'expires_in': 3599, 'refresh_token': '1//09SKuFzsZnBB9CgYIARAAGAkSNwF-L9IrDXUFhJMkYstd0qk9Jq1yZaLnH9PN1TUqbT3FZmwcAPcLFUf8DwOmddD5hMxv1HJK9kc', 'scope': 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/cloud-platform', 'token_type': 'Bearer'}
+INFO 2024-09-24 09:59:53,763 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:09:57,724 views OAuth callback view accessed
+INFO 2024-09-24 10:09:57,728 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:09:57,729 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:09:58,004 views OAuth token response: {'access_token': 'ya29.a0AcM612x8h9nAMaKoJsl24qlsxBY2JDlnmaGat8cTFw-Klxx-h0FClmh6HjGLF-MJpB8nBaUs9-xYDMRH7CBPpJVPe1b5Grjm7_SfbEg63gpexeH2bYwmAd9IaDfkk0hCtYa5BA5thW2jPzlrGnlewt89FN2mQ5ank2WY4vDDaCgYKAfgSARESFQHGX2Mic2-dknFKzmGAbybtaBdNjw0175', 'expires_in': 3599, 'refresh_token': '1//09N_DnsuEaxHYCgYIARAAGAkSNwF-L9IrM7uwO4UrZ8r3ua4rsvNNmYRorX1A3g0zCFopxxr9B_xFE6TwrbTlkWUVmsViNww9xbQ', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:09:58,060 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:14:06,860 views OAuth callback view accessed
+INFO 2024-09-24 10:14:06,865 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:14:06,866 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:14:07,091 views OAuth token response: {'access_token': 'ya29.a0AcM612zok69GpPhZu3-dLZBnZovkOksem8T5SZv8LlD99_O46Er_HLUZok92PR6QfJ9v-sOjTD6X0XBzDxfQFoqsgooXL0P_qTMAd6vhOHGW1fXfSLDqcd2ooq2GJvugGT1W386iEfjy26OTDoQZ-ENl48lAKh70zt7zRKpYaCgYKAQQSARESFQHGX2Mii43VRxeLOPXhfUJ8TdWCcA0175', 'expires_in': 3599, 'refresh_token': '1//09kz10hjXYRSrCgYIARAAGAkSNwF-L9IrTu5HKCUcUsNBwV2oAkFx5Eh8j7V24TmKk_dzkuRubFcEAlaY3vgkhcW97SNEueauC5s', 'scope': 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/cloud-platform', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:14:07,296 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:14:32,270 views OAuth callback view accessed
+INFO 2024-09-24 10:14:32,270 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:14:32,270 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:14:32,485 views OAuth token response: {'access_token': 'ya29.a0AcM612wccu5yfe2Znwh6LU0-QlwtOUaUorq0J15XkxgSb0CVEDEWoPPXMoDPazUrtxdPmCjLU59nUTtjky4jjUYLcnFnYTHKotuuBvXB3wF0PRcVJPbcN4px4w8zNSxI42DWvLP_1viVmTd-GudSfeA8thqkCgis3LiSjlZtaCgYKAXkSARESFQHGX2MiR3B3uEcWeyvyVXwrC3K8TA0175', 'expires_in': 3599, 'refresh_token': '1//09aqup7GiXNbMCgYIARAAGAkSNwF-L9IrHgp8y9h05Fw7nWZ8-_7GQLsgE3CtWirUcEW1NvrfOsa3YrXwtMXsaHba7wZoKAN_StI', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:14:32,526 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:23:53,976 views OAuth callback view accessed
+INFO 2024-09-24 10:23:53,979 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:23:53,980 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:23:54,228 views OAuth token response: {'access_token': 'ya29.a0AcM612zzwXDbx0HWerLQnZH42Mf5uUBct6bG4Z30c71Vp9OVHcLCCLTCcRkr75chjqLMuSjtwN-owdDZ9fQDQQ7ZJ_2QnynGVKNj05rr-spmMYTKrqUgMZyqttS9TRG_4BqK5mjHZZJeTkH-6UiwbaTRqMWljlG9vIPxYOsYaCgYKAcsSARESFQHGX2Miag5_C2RS7f7caS1MVE-1_A0175', 'expires_in': 3599, 'refresh_token': '1//09nwX44ky4X4BCgYIARAAGAkSNwF-L9IrACCKnHycM2YJvhGlmT2-zdp3oy4JESltAHe1dFrb2ILDID3K3ogoonLl9E93pBWYEmE', 'scope': 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/cloud-platform', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:23:54,291 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:26:35,934 views OAuth callback view accessed
+INFO 2024-09-24 10:26:35,935 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:26:35,935 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:26:36,525 views OAuth token response: {'access_token': 'ya29.a0AcM612wOxFdADTaHpw-_eVChTlLefoyL9yfymAgbC0w_H2YTEfWRWMUs5z7RBPLNc--xzcUcc_kXYYB2pPMcTg3Azq9txprtJ47SXpKQrB9wKFpuiaGz4V2zQvMxhDnxTV0H_cpeJvESfxJj6h9sT0EIetjNsavClhrOxAOSaCgYKAa4SARESFQHGX2Mi8mTUmOQQE6EpfCnyt2sidQ0175', 'expires_in': 3599, 'refresh_token': '1//09tRE0yyx2wl3CgYIARAAGAkSNwF-L9IrquIQ3x2k0Q1EeGlCOOmxi-pVQ_uTqB_hMWtb4iypkhx9nM9kkqWF5yP2blg7moKV8t8', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:26:36,689 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:30:24,041 views OAuth callback view accessed
+INFO 2024-09-24 10:30:24,042 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:30:24,042 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:30:24,270 views OAuth token response: {'access_token': 'ya29.a0AcM612yRNONCO6jZo-ZdskJTMt30HV-uYig7vb5yd3rhCwJJRoqYQwIq2z2-G3DJoKPHxG2bqHj4Ji_hBFFBCOoqBbkUBD6H-GfoPivksbkOO06l0cMXSHoNMh9AJYnA-cPC20P_tGEitpakbOc9tTXYefrSbhKGulmr3K93aCgYKAS0SARESFQHGX2MiwScvZ75vLsagEkKGGXY9bg0175', 'expires_in': 3599, 'refresh_token': '1//09i_w4Wr2naboCgYIARAAGAkSNwF-L9Ir7IKGR9XpZ5ytqGwgGqUmMJneOFInwNScSr3_c58DxZu8T7T9g0YLN1gdL55DIfVuI-Q', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:30:24,324 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:33:39,603 views OAuth callback view accessed
+INFO 2024-09-24 10:33:39,609 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:33:39,609 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:33:39,857 views OAuth token response: {'access_token': 'ya29.a0AcM612wS5SkTp-KMGOOH858e_Vtz54bFBunaDvU72-rTK7nmBUOhUcfOraRlt9PLzcSwV9OJKEUa7Q0mnhSuSy5LwpPYsVWfZcr2oQwUvC8L6zMH1-faXIQvRdExcyD29oGqucBh2Pn7tdlCoQumDT-igbkylh2dBmfrZ5XGaCgYKAUcSARESFQHGX2MiBy_p_6X70mlw-FB62yz9iA0175', 'expires_in': 3599, 'refresh_token': '1//09xlUE8Wn96WFCgYIARAAGAkSNwF-L9IrebxDLus9--Oq7wifeUUQBXxW9_5eHH0KHYaDI1H9NrxCsNn2I1mREGaAWiE5YDAQTxo', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:33:40,030 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:34:00,916 views OAuth callback view accessed
+INFO 2024-09-24 10:34:00,917 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:34:00,917 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:34:01,155 views OAuth token response: {'access_token': 'ya29.a0AcM612wJfBH78lpRdgqxc7htNWnNbzFKr3off_0gVaXziIStGmHwLCFcI9wC36KTQJKDrFqMXyvur0SzWG7jbjXxxx-w4mdUOQ0orUyBL-nAOAZNMJphptW9UZ9_TsRQkQnsgRyqltqNdW1VBoZW-hTx_o_6OvZKNMVyHReMaCgYKAfwSARESFQHGX2MicrkrYle41hwriMnck_Ar3Q0175', 'expires_in': 3599, 'refresh_token': '1//09zm0_SrVA21dCgYIARAAGAkSNwF-L9Ir6hrU-p-BwLRnriV9P79u9l7Te6AgMJnn8eBbBvncZU5EyTg1UW-J1xf4JAxaypedxXE', 'scope': 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/cloud-platform', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:34:01,206 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:37:25,684 views OAuth callback view accessed
+ERROR 2024-09-24 10:37:25,684 views Authorization code missing
+INFO 2024-09-24 10:37:43,335 views OAuth callback view accessed
+INFO 2024-09-24 10:37:43,336 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:37:43,336 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:37:43,576 views OAuth token response: {'access_token': 'ya29.a0AcM612xOu5Ezxg7UlkGglFYEI67bmo9nyaW2r14xrr7AZJMaSGtuXzfKSLWEqlrinpcMWfAPz3FEO8GNP0rnNpcVxYQ9NA9j3FXUPcMU24TMVKDS4901Zl_qkNW11haQhF0GQ-D-ZRPK0H6K1PeQSYO5QcCcrbXOcCR9aVhkaCgYKAQUSARESFQHGX2Mij1zD8LFWvEiV7xSzvm_y_A0175', 'expires_in': 3599, 'refresh_token': '1//09rsSRbT2vmSnCgYIARAAGAkSNwF-L9Ir8bGjB7N3724t5TbO008xEbnvFJWsEZ8DR5VysC3wA4yXheJt3q05RJ2n9TToB9u0cHs', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:37:43,621 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:39:12,897 views OAuth callback view accessed
+INFO 2024-09-24 10:39:12,897 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:39:12,898 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:39:13,130 views OAuth token response: {'access_token': 'ya29.a0AcM612xahc7I4ZH7nr-DcZYEdCesMQr0x8MB9uA-MA0Sf7J1YkAiUijv4-ugx0jxzEEyvVheNQ9HzOJxyffwSfwbqx3kyRoFiEfz89Rnya23tuEr11Cqid9QzdPHvLIkWLrss2xhdvBGCTKFRYauUtp5LCKYkf2nUcp073-PaCgYKAXQSARESFQHGX2MicJAg9Xkec7WRjQ4GZ1_83g0175', 'expires_in': 3599, 'refresh_token': '1//09TpJHXpYe_neCgYIARAAGAkSNwF-L9IrautzsytY4owYoODFCUxEoiCQQov0PSPKqAmUs_YfupUiFCEH3RqYk9rpk_g5QEDX8Hg', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:39:14,246 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:39:48,477 views OAuth callback view accessed
+INFO 2024-09-24 10:39:48,479 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:39:48,479 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:39:48,669 views OAuth token response: {'access_token': 'ya29.a0AcM612yOfsLLSpsYDaN6rpI9nsSgRMPWfckjPKa_aYK5NKUTC8zCbIfyfY2I-qGIfmoe7XXxt3A7QZjNQk8plTbBqNCFAucm1O9OzznLp2cYnLFP0zfZ1DjN5rGfLoSd0O3HWcnZ8hr-qD9DsKoRhyzWqBRvY7Lk6XBihNtKaCgYKAT8SARESFQHGX2MiS72zUMSDkNCv34DOcUALlg0175', 'expires_in': 3599, 'refresh_token': '1//09LUORsY_lcGACgYIARAAGAkSNwF-L9Iri6h2ZzoZqMEeB_E0PmUuCtBYxFzZGGenGk8mCFszUnbEaLN3_GgsgC_Y-7hjkVxPSHI', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:39:48,817 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:41:40,561 views OAuth callback view accessed
+INFO 2024-09-24 10:41:40,562 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:41:40,563 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:41:40,739 views OAuth token response: {'access_token': 'ya29.a0AcM612zOHKHxmgu7u5gEucHBXA-Wu5G8gHK9PbAxyegi1cIE4W4EoHp5-daJwEOz12CPn1yC0TM1cJnfFx-kLRhR5CRgv8YZ3AphR0Ntd5Z1FwFVl_rj3Z3bh-yWtijWrtPUMg1tWBrTKoJZ-rAmz3H-IuBzhAxXnUEhYSo9aCgYKARoSARESFQHGX2Mity0RePvOFaxNGjmxpwa0ng0175', 'expires_in': 3599, 'refresh_token': '1//09hisV9lkj_cUCgYIARAAGAkSNwF-L9IrGhyee1X85ApoDyBR-qzchVBvBBfFtN8nZpJ5QVIeueHkpiYE-JTBgVgezL0iMIHv-AI', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:41:41,771 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:43:35,196 views OAuth callback view accessed
+INFO 2024-09-24 10:43:35,196 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:43:35,197 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:43:35,464 views OAuth token response: {'access_token': 'ya29.a0AcM612zr0G3SCkrjmO3b9a9z2tqEPjcupNEljqGF3Z0PElcVa-CEiViV1-70Co8OD7jZidnY7i_MoqRdltueaaI3x_izZkovaGNDO7Xu4JLmYzKWDowuU_pkTPKZkLcJ3F72z6bhlE1TSKHF_Bt7o3yoQGFITNyN2Ai0nmIDaCgYKAcoSARESFQHGX2MiP-I7NNBZn1Hjw_yXDUSVkg0175', 'expires_in': 3599, 'refresh_token': '1//09STdZ9qNFCWHCgYIARAAGAkSNwF-L9IrdaNfgR0IZy5YJ9lZHIcAXB50iV9VhlPWHYPbVzlrI_UiQR6hBVVINJX4FeZbCCWF82M', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:43:35,922 views OAuth credentials saved to database successfully.
+INFO 2024-09-24 10:45:08,799 views OAuth callback view accessed
+INFO 2024-09-24 10:45:08,799 views Expected redirect URI: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:45:08,800 views Redirect URI used: http://localhost:9000/oauth/callback/
+INFO 2024-09-24 10:45:09,045 views OAuth token response: {'access_token': 'ya29.a0AcM612yXorac1fQn62KCwi_ydujiT0kSB3ujW9hVA9hmBukt4QW3HUmXBvCB-fXI4uAFBtsRVLDXZOI08KZNd3Zg1ukiRBl9rp__8o6tKNUobAhsUfCy0Nq9i-wouh58wCXUxHtY7LuC0dFsff8bbb7zk0PHzsPLZIf_BC_VaCgYKAaMSARESFQHGX2MimlyPkL-rsaVOf22o9ThJRg0175', 'expires_in': 3599, 'refresh_token': '1//09snIz4IBzq-NCgYIARAAGAkSNwF-L9IrFptiZA5B4x3OltSNwqWsNWuMxiSkFPAMVYb6t7POUTZWU1MoZLgFhHxm8Spo38K2czA', 'scope': 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/gmail.readonly', 'token_type': 'Bearer'}
+INFO 2024-09-24 10:45:09,577 views OAuth credentials saved to database successfully.
