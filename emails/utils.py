@@ -81,8 +81,13 @@ def get_unread_emails(creds):
 
         service = build('gmail', 'v1', credentials=creds)
 
-        # Fetch unread emails
-        results = service.users().messages().list(userId='me', labelIds=['INBOX'], q='is:unread').execute()
+        # Fetch unread emails excluding Promotions and Social categories
+        results = service.users().messages().list(
+            userId='me',
+            labelIds=['INBOX'],  # Only check the inbox
+            q='is:unread -category:promotions -category:social'  # Exclude promotions and social emails
+        ).execute()
+
         messages = results.get('messages', [])
 
         unread_emails = []
