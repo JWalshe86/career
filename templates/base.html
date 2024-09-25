@@ -5,18 +5,12 @@
     <meta charset="UTF-8">
     <title>Job Searches</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
+
     <!-- CSS links -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"> 
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    
-    <!-- JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-    <script src="{% static 'js/main.js' %}"></script>
 </head>
 <body data-bs-spy="scroll" data-bs-target=".navbar">
 
@@ -28,89 +22,84 @@
         </div>
     {% endfor %}
 
-
-   <!-- NAVBAR -->
-<nav class="navbar2 navbar-expand-lg navbar-dark static-top">
-    <div class="container">
-        <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav text-lg-center">
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{% url 'home' %}">Home</a>
-                </li>
-            </ul>
-            <!-- Jobsearch dropdown html -->
-            <div class="dropdown">
-                <button class="bg-dark navbar2 text-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                    Jobsearch
-                </button>
-                <ul class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuButton1">
+    <!-- NAVBAR -->
+    <nav class="navbar2 navbar-expand-lg navbar-dark static-top">
+        <div class="container">
+            <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav text-lg-center">
                     <li class="nav-item">
-                        <a class="dropdown-item text-white" href="#">Jobsearch Dashboard</a>
+                        <a class="nav-link text-white" href="{% url 'home' %}">Home</a>
+                    </li>
+                </ul>
+                <!-- Jobsearch dropdown -->
+                <div class="dropdown">
+                    <button class="bg-dark navbar2 text-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                        Jobsearch
+                    </button>
+                    <ul class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuButton1">
+                        <li class="nav-item">
+                            <a class="dropdown-item text-white" href="#">Jobsearch Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="dropdown-item text-white" href="{% url 'add_jobsearch' %}">Add Jobsearch</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="dropdown-item text-white" href="{% url 'job_search_view' %}">Jobs Searched</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Professional Links dropdown -->
+                <div class="dropdown">
+                    <button class="bg-dark navbar2 text-white dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                        Prof Links
+                    </button>
+                    <ul class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuButton2">
+                        <li class="nav-item">
+                            <a class="dropdown-item text-white" href="//www.linkedin.com/in/john-walshe86">LinkedIn</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="dropdown-item text-white" href="https://github.com/JWalshe86">Github</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="dropdown-item text-white" href="https://johnwalshecv-622b04707fbb.herokuapp.com/">CV</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="dropdown-item text-white" href="https://medium.com/@walshejohnnyw7">Medium</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Job Sites dropdown -->
+                <div class="dropdown">
+                    <button class="bg-dark navbar2 text-white dropdown-toggle" type="button" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">
+                        Job Sites
+                    </button>
+                    <ul class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuButton3">
+                        <li class="nav-item">
+                            <a class="dropdown-item text-white" href="https://www.freelancer.com/job-search/irish-freelance-web-hosting-jobs/2/">Ir Freelance</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Unread Emails Count and ChatGPT Link -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">
+                            <i class="bi bi-envelope"></i> 
+                            Unread Messages: <span class="badge bg-danger">{{ unread_email_count }}</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="dropdown-item text-white" href="{% url 'add_jobsearch' %}">Add Jobsearch</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="dropdown-item text-white" href="{% url 'job_search_view' %}">Jobs Searched</a>
+                        <a class="nav-link text-white" href="https://chat.openai.com" target="_blank">
+                            <i class="fas fa-robot"></i> ChatGPT
+                        </a>
                     </li>
                 </ul>
             </div>
-            <!-- Prof links dropdown html -->
-            <div class="dropdown">
-                <button class="bg-dark navbar2 text-white dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-                    Prof Links
-                </button>
-                <ul class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuButton2">
-                    <li class="nav-item">
-                        <a class="dropdown-item text-white" href="//www.linkedin.com/in/john-walshe86">LinkedIn</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="dropdown-item text-white" href="https://github.com/JWalshe86">Github</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="dropdown-item text-white" href="https://johnwalshecv-622b04707fbb.herokuapp.com/">CV</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="dropdown-item text-white" href="https://medium.com/@walshejohnnyw7">Medium</a>
-                    </li>
-                </ul>
-            </div>
-            <!-- Job sites links dropdown html -->
-            <div class="dropdown">
-                <button class="bg-dark navbar2 text-white dropdown-toggle" type="button" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">
-                    Job Sites
-                </button>
-                <ul class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuButton3">
-                    <li class="nav-item">
-                        <a class="dropdown-item text-white" href="https://www.freelancer.com/job-search/irish-freelance-web-hosting-jobs/2/">Ir Freelance</a>
-                    </li>
-                </ul>
-            </div>
-            <!-- Unread Emails Count and ChatGPT Link -->
-	<ul class="navbar-nav ms-auto">
-    <li class="nav-item">
-        <a class="nav-link text-white" href="#">
-            <i class="bi bi-envelope"></i> 
-            Unread Messages: <span class="badge bg-danger">{{ unread_email_count }}</span>
-        </a>
-    </li>
-    <!-- ChatGPT Link -->
-    <li class="nav-item">
-        <a class="nav-link text-white" href="https://chat.openai.com" target="_blank">
-            <i class="fas fa-robot"></i> ChatGPT
-        </a>
-    </li>
-</ul>
-
         </div>
-    </div>
-</nav>
- 
-
+    </nav>
 
     <!-- URL COPIED MESSAGE -->
     <div class="background">
@@ -122,9 +111,9 @@
     <!-- Main Content -->
     <header class="container-fluid fixed-top"></header>
 
-    {% block page_header %} {% endblock %} 
-    {% block content %} {% endblock %} 
-    {% block postloadjs %} {% endblock %} 
+    {% block page_header %}{% endblock %} 
+    {% block content %}{% endblock %} 
+    {% block postloadjs %}{% endblock %} 
 
 </body>
 </html>

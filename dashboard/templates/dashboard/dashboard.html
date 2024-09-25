@@ -1,25 +1,78 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <style>
-        .messages {
-            list-style: none;
-            padding: 0;
-        }
-        .messages li {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .messages .error {
-            color: red;
-            background-color: #fdd;
-        }
-        .messages .success {
-            color: green;
-            background-color: #dfd;
-        }
-    </style>
+<style>
+    .messages {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .messages li {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    
+    .messages .error {
+        color: red;
+        background-color: #fdd;
+    }
+    
+    .messages .success {
+        color: green;
+        background-color: #dfd;
+    }
+    
+    .email-section {
+        max-width: 800px; /* Set a maximum width for the email section */
+        margin: 0 auto; /* Center the email section */
+        background-color: #f9f9f9; /* Background color for the section */
+        padding: 20px; /* Add some padding */
+        border-radius: 8px; /* Optional: add rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add shadow for depth */
+    }
+    
+    .section-title {
+        text-align: center; /* Center the section title */
+        font-size: 1.5rem; /* Font size for the header */
+        color: #222; /* Darker color for better visibility */
+        margin: 20px 0; /* Add some margin for spacing */
+    }
+    
+    .unread-emails-section {
+        display: none; /* Hide the unread emails section */
+    }
+    
+    .email-item {
+        border: 1px solid #ddd; /* Light border */
+        border-radius: 5px; /* Rounded corners */
+        padding: 15px; /* Increased padding for better spacing */
+        margin-bottom: 10px; /* Space between email items */
+        background-color: #ffffff; /* White background for email items */
+        transition: background-color 0.3s; /* Smooth background transition on hover */
+    }
+    
+    .email-item:hover {
+        background-color: #f1f1f1; /* Light gray background on hover */
+    }
+    
+    .email-subject {
+        font-size: 1.2rem; /* Slightly larger font size */
+        color: #333; /* Dark text color for better contrast */
+        margin: 0; /* Remove default margin */
+    }
+    
+    .email-sender, .email-date, .email-snippet {
+        font-size: 1rem; /* Standard font size */
+        color: #555; /* Slightly lighter color for the sender and snippet */
+        margin: 5px 0; /* Margins for spacing */
+    }
+    
+    .no-emails {
+        color: #888; /* Gray color for no emails message */
+        padding: 10px; /* Padding for no emails message */
+    }
+</style>
 
 {% if messages %}
     <ul class="messages">
@@ -29,64 +82,45 @@
     </ul>
 {% endif %}
 
-  <h1>Dashboard</h1>
+<h1 class="text-center">Dashboard</h1> <!-- Center the Dashboard header -->
 
-<!-- Include Display Emails section -->
-<div class="display-emails">
-    <h2>Display Emails</h2>
+<!-- Include Display Emails Section -->
+<div class="display-emails email-section"> <!-- Added email-section class -->
+    <h2 class="section-title">Display Emails</h2>
     {% if unread_emails %}
-        {% for email in unread_emails %}
-            <div class="email-item">
-                <p>Subject: {{ email.subject }}</p>
-                <p>From: {{ email.sender }}</p>
-                <p>Snippet: {{ email.snippet }}</p>
-            </div>
-        {% endfor %}
+        <div class="email-list">
+            {% for email in unread_emails %}
+                <div class="email-item">
+                    <h3 class="email-subject">{{ email.subject }}</h3>
+                    <p class="email-sender">From: {{ email.sender }}</p>
+                    <p class="email-snippet">{{ email.snippet }}</p>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
-        <p>No unread emails</p>
+        <p class="no-emails">No unread emails</p>
     {% endif %}
 </div>
 
-  
-  <!-- Map Section -->
-  <div id="map" style="height: 500px; width: 100%; margin-bottom: 20px;"></div>
-  
-  <!-- Unread Emails Section -->
-  <section style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; margin-top: 20px;">
-    <h2 style="font-size: 1.5rem; color: #333;">Unread Emails ({{ unread_email_count }})</h2>
-    <ul style="list-style-type: none; padding: 0; margin: 0;">
-        {% for email in unread_emails %}
-            <li style="border-bottom: 1px solid #ddd; padding: 10px 0; 
-                        background-color: {% if 'unfortunately' in email.snippet|lower %} #ffdddd {% else %} #ffffff {% endif %};">
-                <p style="margin: 0; font-size: 1rem; color: #555;">{{ email.sender }}</p>
-                <p style="margin: 0; font-size: 0.9rem; color: #777;">{{ email.date }}</p>
-                <p style="margin: 0; font-size: 1rem; color: #555;">{{ email.snippet }}</p>
-            </li>
-        {% empty %}
-            <li style="padding: 10px; color: #888;">No unread emails found.</li>
-        {% endfor %}
-    </ul>
-  </section>
-
-  <script src="https://maps.googleapis.com/maps/api/js?key={{ key }}"></script>
-  <script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ key }}"></script>
+<script>
     function initMap() {
-      const locations = {{ locations|safe }};
-      const map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 10,
-        center: { lat: locations[0].lat, lng: locations[0].lng }
-      });
-
-      locations.forEach(location => {
-        new google.maps.Marker({
-          position: { lat: location.lat, lng: location.lng },
-          map: map,
-          title: location.name
+        const locations = {{ locations|safe }};
+        const map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 10,
+            center: { lat: locations[0].lat, lng: locations[0].lng }
         });
-      });
+
+        locations.forEach(location => {
+            new google.maps.Marker({
+                position: { lat: location.lat, lng: location.lng },
+                map: map,
+                title: location.name
+            });
+        });
     }
 
     window.onload = initMap;
-  </script>
+</script>
 {% endblock %}
 
