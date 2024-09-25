@@ -1,86 +1,49 @@
-import os
-import json
-import logging
+# ========================================
+#              dashboard/views.py
+# ========================================
+
+# ----------------------------------------
+# Standard Library Imports
+# ----------------------------------------
 from datetime import timedelta
 
-from django.conf import settings
-from django.contrib import messages
-from django.db.models import Count, Q
-from django.http import HttpResponseRedirect
+# ----------------------------------------
+# Django Core Imports
+# ----------------------------------------
 from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.utils import timezone
+from django.db.models import Count, Q
+from django.urls import reverse
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
+# ----------------------------------------
+# Third-Party Library Imports
+# ----------------------------------------
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
 
-from oauth.models import OAuthToken
-from tasks.forms import TaskForm
+# ----------------------------------------
+# Local Application Imports (Models)
+# ----------------------------------------
 from tasks.models import Task
 from jobs.models import Jobsearch
-from emails.views import get_unread_emails
+from oauth.models import OAuthToken
 
-# Setup logger
-logger = logging.getLogger(__name__)
+# ----------------------------------------
+# Local Application Imports (Forms and Utilities)
+# ----------------------------------------
+from tasks.forms import TaskForm
+from emails.utils import get_unread_emails
 
-def error_view(request):
-    """Render error page."""
-    return render(request, 'dashboard/error.html', status=500)
-
-
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-from django.utils import timezone
+# ----------------------------------------
+# Logging Setup
+# ----------------------------------------
 import logging
-
-# Assuming you have a logger configured
 logger = logging.getLogger(__name__)
 
 
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-from django.utils import timezone
-import logging
-
-# Assuming you have a logger configured
-logger = logging.getLogger(__name__)
-
-
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-from django.utils import timezone
-import logging
-
-# Logger configuration
-logger = logging.getLogger(__name__)
-
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-from django.utils import timezone
-import logging
-
-# Logger configuration
-logger = logging.getLogger(__name__)
-
-def get_utc_now():
-    """Return the current time as an aware datetime."""
-    return timezone.now()
-
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-from django.utils import timezone
-import logging
-
-# Logger configuration
-logger = logging.getLogger(__name__)
-
-def get_utc_now():
-    """Return the current time as an aware datetime."""
-    return timezone.now()
-
-from django.utils import timezone
-
+@login_required
 def dashboard(request):
     try:
         user = request.user
@@ -134,6 +97,11 @@ def dashboard(request):
     except Exception as e:
         logger.error(f"Unexpected error in dashboard view: {e}", exc_info=True)
         return redirect('dashboard:error_view')
+
+def error_view(request):
+    """Render error page."""
+    return render(request, 'dashboard/error.html', status=500)
+
 
 def dashboard_searched(request):
     """Render dashboard with searched jobs."""
