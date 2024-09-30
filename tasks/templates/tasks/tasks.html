@@ -1,0 +1,105 @@
+{% block content %}
+<div class="container mt-4">
+    <!-- Tasks Section -->
+    <div class="task-section email-section"> <!-- Added email-section class for consistent styling -->
+        <h2 class="section-title">Tasks</h2> <!-- Header for tasks -->
+        <ul class="list-group mb-3"> <!-- Added mb-3 for spacing below the tasks -->
+            {% if tasks %}
+                {% for task in tasks %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center" style="min-height: 60px;">
+                        <div class="d-flex align-items-center flex-grow-1">
+                            <input type="checkbox" id="taskComplete{{ task.id }}" {% if task.complete %}checked{% endif %} onchange="toggleComplete({{ task.id }})" class="me-2">
+                            <label for="taskComplete{{ task.id }}" class="mb-0" style="word-wrap: break-word;">{{ task.title }}</label>
+                        </div>
+                        <form method="post" action="{% url 'tasks:update_task' task.id %}" class="ms-2" style="display: inline;"> <!-- Set form to inline display -->
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link text-primary" title="Edit Task">
+                                <i class="bi bi-pencil"></i> <!-- Edit icon -->
+                            </button>
+                        </form>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <li class="list-group-item">No tasks available.</li>
+            {% endif %}
+        </ul>
+
+        <!-- Create Task Button -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTaskModal">
+            Create Task
+        </button>
+
+        <!-- Create Task Modal -->
+        <div class="modal fade" id="createTaskModal" tabindex="-1" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createTaskModalLabel">Create New Task</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="{% url 'tasks:create_task' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="taskTitle" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="taskTitle" name="title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="taskComplete" class="form-label">Completed</label>
+                                <select class="form-select" id="taskComplete" name="complete">
+                                    <option value="False">No</option>
+                                    <option value="True">Yes</option>
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Create Task</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.task-section {
+    padding: 15px; /* Add padding similar to the email section */
+    border: 1px solid #e0e0e0; /* Optional: Add a light border */
+    border-radius: 5px; /* Rounded corners for a modern look */
+    background-color: #f9f9f9; /* Light background color */
+}
+
+.list-group-item {
+    min-height: 60px; /* Set a minimum height for better spacing */
+    padding: 15px;    /* Add padding for a better look */
+    border: 1px solid #e0e0e0; /* Optional: Add a light border */
+    border-radius: 5px; /* Rounded corners for a modern look */
+    background-color: #f9f9f9; /* Light background color */
+    transition: background-color 0.3s; /* Smooth background transition */
+}
+
+.list-group-item:hover {
+    background-color: #f1f1f1; /* Change background on hover */
+}
+
+label {
+    word-wrap: break-word;  /* Ensure task title wraps if too long */
+    color: #333;            /* Darker text for better readability */
+}
+
+.btn-link {
+    text-decoration: none;   /* Remove underline */
+}
+
+.btn-link:hover {
+    text-decoration: underline; /* Underline on hover for clarity */
+}
+
+.section-title {
+    margin-bottom: 15px; /* Add margin below the section title */
+}
+</style>
+{% endblock %}
+

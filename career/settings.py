@@ -81,7 +81,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',  # Change to PostgreSQL
-            'NAME': config('POSTGRES_DB_NAME', default='career_db'),  # Update with your DB name
+            'NAME': config('POSTGRES_DB_NAME', default='postgres'),  # Update with your DB name
             'USER': config('POSTGRES_DB_USER', default='johnwalshe'),  # Update with your user
             'PASSWORD': config('POSTGRES_DB_PASSWORD', default='Sunshine7!'),  # Keep your password
             'HOST': config('POSTGRES_DB_HOST', default='localhost'),  # Keep as localhost

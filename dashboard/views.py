@@ -91,8 +91,14 @@ def dashboard(request):
             logger.error(f"Error fetching unread emails: {error}")
             return redirect('dashboard:error_view')
 
+
+        tasks = Task.objects.all()  # Fetch all tasks to display them on the dashboard
+        context = {'tasks': tasks,
+                'unread_emails': unread_emails,
+                }   # Create context to pass to the template
+        
         # Render the dashboard template with unread emails
-        return render(request, 'dashboard/dashboard.html', {'unread_emails': unread_emails})
+        return render(request, 'dashboard/dashboard.html', context)
 
     except Exception as e:
         logger.error(f"Unexpected error in dashboard view: {e}", exc_info=True)

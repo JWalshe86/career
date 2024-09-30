@@ -1,0 +1,17 @@
+<div class="display-emails email-section">
+    <h2 class="section-title">Display Emails</h2>
+    {% if unread_emails %}
+        <div class="email-list">
+            {% for email in unread_emails %}
+                <div class="email-item">
+                    <h3 class="email-subject">{{ email.subject }}</h3>
+                    <p class="email-sender">From: {{ email.sender }}</p>
+                    <p class="email-snippet">{{ email.snippet }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-emails">No unread emails</p>
+    {% endif %}
+</div>
+

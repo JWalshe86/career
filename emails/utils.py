@@ -10,6 +10,11 @@ from google.auth.exceptions import RefreshError
 from django.conf import settings
 from oauth.models import OAuthToken
 from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from google.auth.transport.requests import Request
+from django.utils import timezone
+
+from googleapiclient.errors import HttpError
 from django.contrib.auth.models import User
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -55,21 +60,16 @@ def load_credentials(user):
         logger.error(f"Error loading credentials from database: {e}")
         return None
 
-from googleapiclient.discovery import build
-from google.auth.transport.requests import Request
-from django.utils import timezone
 
 # Function to fetch unread emails
 def get_unread_emails(creds):
     try:
         logger.debug(f"Received creds of type: {type(creds)}")
-        
-        # Ensure creds is an instance of Credentials
+
         if not isinstance(creds, Credentials):
             logger.error(f"Invalid credentials object type: {type(creds)}")
             raise TypeError("Invalid credentials object type")
 
-        # Ensure the credentials are valid and not expired
         if not creds.valid:
             logger.warning("Credentials are invalid; attempting refresh.")
             if creds.expired and creds.refresh_token:
@@ -84,30 +84,46 @@ def get_unread_emails(creds):
         # Fetch unread emails excluding Promotions and Social categories
         results = service.users().messages().list(
             userId='me',
-            labelIds=['INBOX'],  # Only check the inbox
-            q='is:unread -category:promotions -category:social'  # Exclude promotions and social emails
+            labelIds=['INBOX'],
+            q='is:unread -category:promotions -category:social'
         ).execute()
 
         messages = results.get('messages', [])
+        logger.debug(f"Found {len(messages)} unread messages in the inbox.")
 
+        seen_emails = set()  # Store unique (subject, sender) pairs
         unread_emails = []
-        for message in messages:
-            msg = service.users().messages().get(userId='me', id=message['id']).execute()
-            email_data = msg['payload']['headers']
-            email_info = {
-                'subject': None,
-                'sender': None,
-                'snippet': msg.get('snippet', '')
-            }
-            for values in email_data:
-                if values['name'] == 'Subject':
-                    email_info['subject'] = values['value']
-                elif values['name'] == 'From':
-                    email_info['sender'] = values['value']
-            if email_info['subject'] and email_info['sender']:
-                unread_emails.append(email_info)
 
-        logger.debug(f"Retrieved {len(unread_emails)} unread emails.")
+        for message in messages:
+            try:
+                msg = service.users().messages().get(userId='me', id=message['id']).execute()
+                email_data = msg['payload']['headers']
+                email_info = {
+                    'id': message['id'],
+                    'subject': None,
+                    'sender': None,
+                    'snippet': msg.get('snippet', '')
+                }
+                for values in email_data:
+                    if values['name'] == 'Subject':
+                        email_info['subject'] = values['value']
+                    elif values['name'] == 'From':
+                        email_info['sender'] = values['value']
+
+                # Create a unique key based on subject and sender
+                unique_key = (email_info['subject'], email_info['sender'])
+
+                if unique_key not in seen_emails:
+                    seen_emails.add(unique_key)  # Add to seen emails
+                    unread_emails.append(email_info)  # Only add if unique
+
+                    # Log the unique email being added
+                    logger.debug(f"Adding unique email: ID={email_info['id']}, Subject={email_info['subject']}, Sender={email_info['sender']}")
+
+            except HttpError as error:
+                logger.error(f"An error occurred while fetching message {message['id']}: {error}")
+
+        logger.debug(f"Retrieved {len(unread_emails)} unique unread emails.")
         return unread_emails, None
 
     except Exception as e:

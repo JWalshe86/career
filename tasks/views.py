@@ -12,10 +12,10 @@ def task_list(request):
         form = TaskForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('tasks:list')
+            return redirect('dashboard:dashboard')  # Redirect to dashboard after creating a task
     
     context = {'tasks': tasks, 'form': form}
-    return render(request, 'tasks/list.html', context)
+    return render(request, 'tasks/tasks.html', context)
 
 def create_task(request):
     if request.method == 'POST':
@@ -23,16 +23,8 @@ def create_task(request):
         complete = request.POST.get('complete') == 'True'
         task = Task.objects.create(title=title, complete=complete)
         
-        response_data = {
-            'success': True,
-            'task': {
-                'id': task.id,
-                'title': task.title,
-                'complete': task.complete
-            }
-        }
-        print(f"Task ID: {task.id}")        
-        return JsonResponse(response_data)
+        # Redirect to the dashboard after creating a task
+        return redirect('dashboard:dashboard')  # Adjust this to your dashboard URL
     
     return JsonResponse({'success': False, 'errors': 'Invalid request'}, status=400)
 
@@ -42,7 +34,7 @@ def update_task(request, pk):
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            return redirect('tasks:list')
+            return redirect('dashboard:dashboard')  # Redirect to the dashboard after updating the task
     else:
         form = TaskForm(instance=task)
     

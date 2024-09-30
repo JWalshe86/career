@@ -219,6 +219,78 @@ img {
 }
 
 
+/* Styling for emails */
+.messages {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .messages li {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    
+    .messages .error {
+        color: red;
+        background-color: #fdd;
+    }
+    
+    .messages .success {
+        color: green;
+        background-color: #dfd;
+    }
+    
+    .email-section {
+        max-width: 800px; /* Set a maximum width for the email section */
+        margin: 0 auto; /* Center the email section */
+        background-color: #f9f9f9; /* Background color for the section */
+        padding: 20px; /* Add some padding */
+        border-radius: 8px; /* Optional: add rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add shadow for depth */
+    }
+    
+    .section-title {
+        text-align: center; /* Center the section title */
+        font-size: 1.5rem; /* Font size for the header */
+        color: #222; /* Darker color for better visibility */
+        margin: 20px 0; /* Add some margin for spacing */
+    }
+    
+    .unread-emails-section {
+        display: none; /* Hide the unread emails section */
+    }
+    
+    .email-item {
+        border: 1px solid #ddd; /* Light border */
+        border-radius: 5px; /* Rounded corners */
+        padding: 15px; /* Increased padding for better spacing */
+        margin-bottom: 10px; /* Space between email items */
+        background-color: #ffffff; /* White background for email items */
+        transition: background-color 0.3s; /* Smooth background transition on hover */
+    }
+    
+    .email-item:hover {
+        background-color: #f1f1f1; /* Light gray background on hover */
+    }
+    
+    .email-subject {
+        font-size: 1.2rem; /* Slightly larger font size */
+        color: #333; /* Dark text color for better contrast */
+        margin: 0; /* Remove default margin */
+    }
+    
+    .email-sender, .email-date, .email-snippet {
+        font-size: 1rem; /* Standard font size */
+        color: #555; /* Slightly lighter color for the sender and snippet */
+        margin: 5px 0; /* Margins for spacing */
+    }
+    
+    .no-emails {
+        color: #888; /* Gray color for no emails message */
+        padding: 10px; /* Padding for no emails message */
+    }
+
 
 
 
