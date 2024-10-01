@@ -68,11 +68,13 @@ ALLOWED_HOSTS = [
 ]
 
 
+# Load the database URL from the environment variable (or .env file)
+DATABASE_URL = config('DATABASE_URL', default=None)
 
-# Load the database URL from the environment variable
-DATABASE_URL = config('DATABASE_URL')
+# Determine if running on Heroku
+HEROKU = config('HEROKU', default=False, cast=bool)
 
-# Configuration for Django's database settings
+# Configure Django's database settings
 if HEROKU:  # Check if you are on Heroku
     DATABASES = {
         'default': dj_database_url.config(
@@ -82,15 +84,19 @@ if HEROKU:  # Check if you are on Heroku
     }
 else:  # Local development settings
     DATABASES = {
-        'default': {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600
+        ) if DATABASE_URL else {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DATABASE_NAME', default='postgres'),  # Use the local DB name if needed
+            'NAME': config('DATABASE_NAME', default='postgres'),  # Local DB name
             'USER': config('POSTGRES_DB_USER', default='your_local_username'),  # Define or load this variable
-            'PASSWORD': config('DATABASE_PASSWORD', default='your_local_password'),  # Define or load this variable
+            'PASSWORD': config('DATABASE_PASSWORD', default='your_local_password'),  # Local DB password
             'HOST': config('POSTGRES_DB_HOST', default='localhost'),  # Keep as localhost
             'PORT': config('POSTGRES_DB_PORT', default='5432'),  # Default port
         }
     }
+
 
 
 # Static files (CSS, JavaScript, images)
