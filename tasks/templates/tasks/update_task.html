@@ -1,19 +1,20 @@
-<form id="editTaskForm" method="post">
+<form method="post" action="{% url 'tasks:update_task' task.id %}" id="editTaskForm">
     {% csrf_token %}
+    <input type="hidden" name="task_id" value="{{ task.id }}">
     <div class="mb-3">
-        <label for="editTaskTitle" class="form-label">Title</label>
-        <input type="text" class="form-control" id="editTaskTitle" name="title" required>
+        <label for="taskTitle" class="form-label">Title</label>
+        <input type="text" class="form-control" id="taskTitle" name="title" value="{{ task.title }}" required>
     </div>
     <div class="mb-3">
-        <label for="editTaskComplete" class="form-label">Completed=test</label>
-        <select class="form-select" id="editTaskComplete" name="complete">
-            <option value="False">No</option>
-            <option value="True">Yes</option>
+        <label for="taskComplete" class="form-label">Completed</label>
+        <select class="form-select" id="taskComplete" name="complete">
+            <option value="False" {% if not task.complete %}selected{% endif %}>No</option>
+            <option value="True" {% if task.complete %}selected{% endif %}>Yes</option>
         </select>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary">Update Task</button>
+        <button type="submit" name="update_task" class="btn btn-primary">Update Task</button>
     </div>
 </form>
 
