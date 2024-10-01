@@ -67,27 +67,31 @@ ALLOWED_HOSTS = [
     # other domains
 ]
 
-DATABASE_URL = config('DATABASE_URL', default='')
 
-# Database configuration
-if HEROKU:
+
+# Load the database URL from the environment variable
+DATABASE_URL = config('DATABASE_URL')
+
+# Configuration for Django's database settings
+if HEROKU:  # Check if you are on Heroku
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
             conn_max_age=600
         )
     }
-else:
+else:  # Local development settings
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',  # Change to PostgreSQL
-            'NAME': config('POSTGRES_DB_NAME', default='postgres'),  # Update with your DB name
-            'USER': config('POSTGRES_DB_USER', default='johnwalshe'),  # Update with your user
-            'PASSWORD': config('POSTGRES_DB_PASSWORD', default='Sunshine7!'),  # Keep your password
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DATABASE_NAME', default='postgres'),  # Use the local DB name if needed
+            'USER': config('POSTGRES_DB_USER', default='your_local_username'),  # Define or load this variable
+            'PASSWORD': config('DATABASE_PASSWORD', default='your_local_password'),  # Define or load this variable
             'HOST': config('POSTGRES_DB_HOST', default='localhost'),  # Keep as localhost
-            'PORT': config('POSTGRES_DB_PORT', default='5432'),  # Default PostgreSQL port
+            'PORT': config('POSTGRES_DB_PORT', default='5432'),  # Default port
         }
     }
+
 
 # Static files (CSS, JavaScript, images)
 STATIC_URL = '/static/'
@@ -146,7 +150,6 @@ LOGGING = {
 # Middleware
 MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -176,7 +179,6 @@ INSTALLED_APPS = [
     'errors',
     'map',
     'users',
-	'debug_toolbar',
 ]
 
 # Templates
@@ -219,3 +221,4 @@ INTERNAL_IPS = [
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': lambda request: True,
 }
+

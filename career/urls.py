@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic.base import TemplateView
 from dashboard import views as error_views
-import debug_toolbar
 
 urlpatterns = [
     # Homepage URL
@@ -34,9 +33,6 @@ urlpatterns = [
 
     # Dashboard app
     path('dashboard/', include('dashboard.urls')),
-    
-    # Debug app
-    path('__debug__/', include(debug_toolbar.urls)),
     
     path('error/', error_views.error_view, name='error_view'),  # Add this line
     ]
